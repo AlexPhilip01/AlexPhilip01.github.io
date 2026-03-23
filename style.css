@@ -1,0 +1,21 @@
+body{
+font-family: Arial;
+background:#0f172a;
+color:white;
+text-align:center;
+}
+
+header{
+padding:40px;
+}
+
+section{
+margin:40px;
+}
+
+.project{
+background:#1e293b;
+padding:20px;
+margin:10px;
+border-radius:10px;
+}
