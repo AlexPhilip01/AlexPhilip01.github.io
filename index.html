@@ -104,6 +104,29 @@ border-top:1px solid #222;
 margin-top:40px;
 }
 
+/* PROFILE PHOTO STYLE */
+
+.about-section{
+display:flex;
+align-items:flex-start;
+gap:30px;
+}
+
+.profile-photo{
+width:160px;
+height:160px;
+object-fit:cover;
+border-radius:50%;
+border:3px solid #f97316;
+box-shadow:0 0 15px rgba(249,115,22,0.7);
+transition:0.3s;
+}
+
+.profile-photo:hover{
+transform:scale(1.05);
+box-shadow:0 0 25px rgba(249,115,22,1);
+}
+
 </style>
 
 </head>
@@ -148,6 +171,8 @@ margin-top:40px;
 <section id="about">
 
 <div class="card">
+
+<img src="photo.jpg" class="profile-photo">
 
 <h2>About Me</h2>
 
