@@ -162,6 +162,27 @@ text-align:center;
 
 }
 
+/* ABOUT SECTION LAYOUT */
+
+.about-layout{
+display:flex;
+align-items:flex-start;
+gap:30px;
+}
+
+.about-text{
+flex:1;
+}
+
+.about-photo{
+width:170px;
+height:170px;
+object-fit:cover;
+border-radius:10px;
+border:3px solid #f97316;
+box-shadow:0 0 15px rgba(249,115,22,0.7);
+}
+
 
 </style>
 
@@ -183,8 +204,6 @@ text-align:center;
 <!-- TABLE OF CONTENTS -->
 
 <nav id="toc">
-
-<img src="photo.jpg" class="toc-photo">
 
 <h3>Table of Contents</h3>
 
@@ -229,6 +248,8 @@ skills in digital forensics, security monitoring, and vulnerability analysis.
 I am passionate about continuously learning and contributing to building
 secure and resilient systems.
 </p>
+
+<img src="photo.jpg" class="about-photo">
 
 </div>
 
