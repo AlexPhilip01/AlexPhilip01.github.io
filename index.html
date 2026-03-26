@@ -162,6 +162,26 @@ text-align:center;
 
 }
 
+/* ANIMATED BAT (CodePen Style) */
+
+.bat {
+  width: 144px;
+  height: 66px;
+  position: fixed;
+  top: 80px;
+  right: 40px;
+  background: url("https://i.imgur.com/6X12G9P.png") no-repeat;
+  background-size: cover;
+  animation: fly 0.6s steps(4) infinite;
+  z-index: 999;
+}
+
+/* Wing animation */
+@keyframes fly {
+  from { background-position: 0 0; }
+  to { background-position: -576px 0; }
+}
+
 </style>
 
 </head>
@@ -178,6 +198,8 @@ text-align:center;
 </header>
 
 </header>
+
+<div class="bat"></div>
 
 <!-- TABLE OF CONTENTS -->
 
