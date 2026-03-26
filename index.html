@@ -162,81 +162,6 @@ text-align:center;
 
 }
 
-/* MULTIPLE FLYING WHITE BATS */
-
-.bats{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-pointer-events:none;
-z-index:1000;
-overflow:hidden;
-}
-
-.bat{
-position:absolute;
-width:40px;
-height:40px;
-animation: flyAcross linear infinite;
-opacity:0.9;
-}
-
-.bat svg{
-width:100%;
-height:100%;
-fill:#ffffff;
-}
-
-/* random flight paths */
-
-.bat:nth-child(1){
-top:20%;
-left:-60px;
-animation-duration:12s;
-animation-delay:0s;
-}
-
-.bat:nth-child(2){
-top:50%;
-left:-60px;
-animation-duration:16s;
-animation-delay:3s;
-}
-
-.bat:nth-child(3){
-top:70%;
-left:-60px;
-animation-duration:14s;
-animation-delay:6s;
-}
-
-.bat:nth-child(4){
-top:35%;
-left:-60px;
-animation-duration:18s;
-animation-delay:2s;
-}
-
-.bat:nth-child(5){
-top:10%;
-left:-60px;
-animation-duration:20s;
-animation-delay:5s;
-}
-
-@keyframes flyAcross{
-0%{
-transform:translateX(0) translateY(0) scale(1);
-}
-50%{
-transform:translateX(50vw) translateY(-40px) scale(1.2);
-}
-100%{
-transform:translateX(110vw) translateY(0) scale(1);
-}
-}
 
 </style>
 
@@ -254,41 +179,6 @@ transform:translateX(110vw) translateY(0) scale(1);
 </header>
 
 </header>
-
-<div class="bats">
-
-<div class="bat">
-<svg viewBox="0 0 64 32">
-<path d="M2 16 L10 8 L16 12 L24 6 L32 16 L40 6 L48 12 L56 8 L62 16 L56 18 L48 14 L40 20 L32 16 L24 20 L16 14 L10 18 Z"/>
-</svg>
-</div>
-
-<div class="bat">
-<svg viewBox="0 0 64 32">
-<path d="M2 16 L10 8 L16 12 L24 6 L32 16 L40 6 L48 12 L56 8 L62 16 L56 18 L48 14 L40 20 L32 16 L24 20 L16 14 L10 18 Z"/>
-</svg>
-</div>
-
-<div class="bat">
-<svg viewBox="0 0 64 32">
-<path d="M2 16 L10 8 L16 12 L24 6 L32 16 L40 6 L48 12 L56 8 L62 16 L56 18 L48 14 L40 20 L32 16 L24 20 L16 14 L10 18 Z"/>
-</svg>
-</div>
-
-<div class="bat">
-<svg viewBox="0 0 64 32">
-<path d="M2 16 L10 8 L16 12 L24 6 L32 16 L40 6 L48 12 L56 8 L62 16 L56 18 L48 14 L40 20 L32 16 L24 20 L16 14 L10 18 Z"/>
-</svg>
-</div>
-
-<div class="bat">
-<svg viewBox="0 0 64 32">
-<path d="M2 16 L10 8 L16 12 L24 6 L32 16 L40 6 L48 12 L56 8 L62 16 L56 18 L48 14 L40 20 L32 16 L24 20 L16 14 L10 18 Z"/>
-</svg>
-</div>
-
-</div>
-
 
 <!-- TABLE OF CONTENTS -->
 
