@@ -116,6 +116,43 @@ border:3px solid #f97316;
 box-shadow:0 0 15px rgba(249,115,22,0.7);
 }
 
+/* BAT ANIMATION */
+
+.bat{
+width:1px;
+height:1px;
+transform:scale(4);
+position:fixed;
+top:90px;
+right:150px;
+animation:bat 0.5s steps(1) infinite;
+}
+
+@keyframes bat{
+
+0%{ box-shadow:0 0 #fff; }
+
+50%{
+box-shadow:
+1px 0 #fff,
+2px 0 #fff,
+3px 1px #fff,
+4px 2px #fff,
+5px 3px #fff,
+4px 4px #fff,
+3px 5px #fff,
+2px 6px #fff,
+1px 5px #fff,
+0px 4px #fff,
+-1px 3px #fff,
+-2px 2px #fff,
+-1px 1px #fff;
+}
+
+100%{ box-shadow:0 0 #fff; }
+
+}
+
 /* MOBILE VERSION */
 
 @media (max-width: 768px){
@@ -176,6 +213,8 @@ text-align:center;
 <p>Cybersecurity | Application Security | Incident Response</p>
 
 </header>
+
+<div class="bat"></div>
 
 
 <!-- TABLE OF CONTENTS -->
