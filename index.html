@@ -116,42 +116,6 @@ border:3px solid #f97316;
 box-shadow:0 0 15px rgba(249,115,22,0.7);
 }
 
-/* BAT ANIMATION */
-
-.bat{
-width:1px;
-height:1px;
-transform:scale(4);
-position:fixed;
-top:90px;
-right:150px;
-animation:bat 0.5s steps(1) infinite;
-}
-
-@keyframes bat{
-
-0%{ box-shadow:0 0 #fff; }
-
-50%{
-box-shadow:
-1px 0 #fff,
-2px 0 #fff,
-3px 1px #fff,
-4px 2px #fff,
-5px 3px #fff,
-4px 4px #fff,
-3px 5px #fff,
-2px 6px #fff,
-1px 5px #fff,
-0px 4px #fff,
--1px 3px #fff,
--2px 2px #fff,
--1px 1px #fff;
-}
-
-100%{ box-shadow:0 0 #fff; }
-
-}
 
 /* MOBILE VERSION */
 
@@ -198,25 +162,6 @@ text-align:center;
 
 }
 
-.bat{
-position:fixed;
-top:80px;
-right:120px;
-width:80px;
-animation:fly 3s ease-in-out infinite;
-}
-
-.bat svg{
-width:100%;
-height:auto;
-}
-
-@keyframes fly{
-0%{transform:translateY(0);}
-50%{transform:translateY(-15px);}
-100%{transform:translateY(0);}
-}
-  
 </style>
 
 </head>
@@ -233,13 +178,6 @@ height:auto;
 </header>
 
 </header>
-
-<div class="bat">
-<svg viewBox="0 0 100 50" fill="white">
-  <path d="M10 25 Q20 5 30 25 Q40 5 50 25 Q60 5 70 25 Q80 5 90 25 
-           Q80 35 70 25 Q60 35 50 25 Q40 35 30 25 Q20 35 10 25 Z"/>
-</svg>
-</div>
 
 <!-- TABLE OF CONTENTS -->
 
