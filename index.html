@@ -173,13 +173,14 @@ align-items:center;
 margin-top:20px;
 }
 
-/* ABOUT SECTION */
+/* ABOUT SECTION - DESKTOP */
 
 .about-container{
 display:flex;
 align-items:flex-start;
 justify-content:space-between;
 gap:40px;
+flex-direction:row;
 }
 
 .about-text{
@@ -187,12 +188,13 @@ flex:1;
 }
 
 .about-photo{
-width:180px;
-height:240px;
+width:200px;
+height:260px;
 object-fit:cover;
 border-radius:10px;
 border:3px solid #f97316;
 box-shadow:0 0 15px rgba(249,115,22,0.7);
+flex-shrink:0;
 }
 
 </style>
