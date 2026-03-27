@@ -211,6 +211,41 @@ flex-shrink:0;
 }
 
 }
+
+/* BLOG DROPDOWN */
+
+.dropdown{
+display:inline-block;
+position:relative;
+}
+
+.dropdown-content{
+display:none;
+position:absolute;
+background:#111111;
+min-width:180px;
+border-radius:6px;
+border:1px solid #222;
+top:40px;
+left:0;
+z-index:10;
+}
+
+.dropdown-content a{
+display:block;
+padding:10px;
+color:white;
+text-decoration:none;
+}
+
+.dropdown-content a:hover{
+background:#334155;
+}
+
+.dropdown:hover .dropdown-content{
+display:block;
+}
+
 </style>
 
 </head>
@@ -296,7 +331,14 @@ secure and resilient systems.
 <a href="cv.html">My CV</a>
 <a href="coverletter.html">Cover Letter</a>
 <a href="#">Security Write-ups</a>
-<a href="malware-analysis.html">Malware Analysis Blog</a>
+<div class="dropdown">
+<a href="#">Blogs</a>
+
+<div class="dropdown-content">
+<a href="malware-analysis.html">Malware Analysis</a>
+</div>
+
+</div>
 
 </div>
 
