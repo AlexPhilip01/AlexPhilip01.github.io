@@ -418,6 +418,48 @@ left:0;
 z-index:-1;
 background:#000;
 }
+
+/* TOP NAVBAR */
+
+.navbar{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+background:#ffffff;
+padding:15px 40px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+z-index:1000;
+}
+
+.nav-logo{
+font-size:22px;
+font-weight:bold;
+color:#ef4444;
+}
+
+.nav-links{
+list-style:none;
+display:flex;
+gap:30px;
+margin:0;
+}
+
+.nav-links a{
+text-decoration:none;
+font-weight:500;
+color:#ef4444;
+}
+
+.nav-links a:hover{
+opacity:0.7;
+}
+
+body{
+padding-top:80px;
+}
   
 </style>
 
@@ -426,6 +468,8 @@ background:#000;
 
 <body>
 
+<div id="particles-js"></div>
+  
 <header>
 
 <h1>Welcome to My Digital Space !!</h1>
@@ -436,11 +480,13 @@ background:#000;
 
 <!-- TABLE OF CONTENTS -->
 
-<nav id="toc">
+<nav class="navbar">
 
-<h3>Table of Contents</h3>
+<div class="nav-logo">
+Portfolio
+</div>
 
-<ul>
+<ul class="nav-links">
 <li><a href="#about">About Me</a></li>
 <li><a href="#featured">Featured</a></li>
 <li><a href="#progress">Current Progress</a></li>
@@ -829,46 +875,6 @@ New content will be added regularly as I continue working on practical security 
 
 </footer>
 
-
-
-<script>
-
-const sections = document.querySelectorAll("section");
-const navLinks = document.querySelectorAll("#toc a");
-
-window.addEventListener("scroll", () => {
-
-let current = "";
-
-sections.forEach(section => {
-
-const sectionTop = section.offsetTop - 150;
-
-if (pageYOffset >= sectionTop) {
-current = section.getAttribute("id");
-}
-
-});
-
-navLinks.forEach(link => {
-
-link.classList.remove("active");
-
-if(link.getAttribute("href") === "#" + current){
-link.classList.add("active");
-}
-
-});
-
-});
-
-</script>
-
-
-</body>
-
-<div id="particles-js"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
 
@@ -928,5 +934,41 @@ particlesJS("particles-js", {
   "retina_detect": true
 });
 </script>
+
+<script>
+
+const sections = document.querySelectorAll("section");
+const navLinks = document.querySelectorAll("#toc a");
+
+window.addEventListener("scroll", () => {
+
+let current = "";
+
+sections.forEach(section => {
+
+const sectionTop = section.offsetTop - 150;
+
+if (pageYOffset >= sectionTop) {
+current = section.getAttribute("id");
+}
+
+});
+
+navLinks.forEach(link => {
+
+link.classList.remove("active");
+
+if(link.getAttribute("href") === "#" + current){
+link.classList.add("active");
+}
+
+});
+
+});
+
+</script>
+
+
+</body>
   
 </html>
