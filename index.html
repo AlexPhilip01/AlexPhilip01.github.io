@@ -319,6 +319,95 @@ background:white;
 .preview-container:hover .preview-box{
 display:block;
 }
+
+.profile-card{
+background:#1a1a1a;
+padding:15px;
+border-radius:8px;
+margin:10px 0;
+border:1px solid #333;
+}
+
+.profile-card h3{
+color:#f97316;
+margin-top:0;
+}
+
+.profile-card p{
+font-size:14px;
+color:#bbb;
+}
+
+.profile-card a{
+display:inline-block;
+margin-top:8px;
+background:#334155;
+padding:8px 12px;
+border-radius:6px;
+text-decoration:none;
+color:white;
+}
+
+.profile-card a:hover{
+background:#475569;
+}
+
+
+/* PROJECT CARDS */
+
+.projects-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(300px,1fr));
+gap:25px;
+margin-top:20px;
+}
+
+.project-card{
+background:#1a1a1a;
+border-radius:10px;
+border:1px solid #333;
+overflow:hidden;
+transition:0.3s;
+}
+
+.project-card:hover{
+transform:translateY(-5px);
+box-shadow:0 0 15px rgba(249,115,22,0.4);
+}
+
+.project-card img{
+width:100%;
+height:180px;
+object-fit:cover;
+}
+
+.project-content{
+padding:20px;
+}
+
+.project-content h3{
+color:#f97316;
+margin-top:0;
+}
+
+.project-content p{
+font-size:14px;
+color:#ccc;
+}
+
+.project-btn{
+display:inline-block;
+margin-top:10px;
+padding:8px 14px;
+background:#334155;
+border-radius:6px;
+text-decoration:none;
+color:white;
+}
+
+.project-btn:hover{
+background:#475569;
+}
   
 </style>
 
@@ -403,10 +492,31 @@ secure and resilient systems.
 
 <div class="links">
 
+<!-- CV PREVIEW -->
+<div class="preview-container">
 <a href="cv.html">My CV</a>
+
+<div class="preview-box">
+<img src="cv-preview.jpg">
+</div>
+</div>
+
+
+<!-- COVER LETTER PREVIEW -->
+<div class="preview-container">
 <a href="coverletter.html">Cover Letter</a>
+
+<div class="preview-box">
+<img src="coverletter-preview.jpg">
+</div>
+</div>
+
+
 <a href="#">Security Write-ups</a>
+
+
 <div class="dropdown links">
+
 <a href="#">Blogs</a>
 
 <div class="dropdown-content">
@@ -454,67 +564,111 @@ Through this ongoing work, I continue to build practical skills in threat analys
 
 <h2>Notable Projects</h2>
 
-<h3>Phishing Email Analyzer | Python</h3>
+<div class="projects-grid">
+
+<!-- PHISHING ANALYZER -->
+
+<div class="project-card">
+
+<div class="project-content">
+
+<h3>Phishing Email Analyzer</h3>
 
 <p>
-Developed a Python-based tool to analyze <b>.eml email headers</b> and detect phishing indicators. The program parses email metadata including sender details, subject lines, and <b>Received</b> headers to identify suspicious patterns commonly used in phishing campaigns. The tool extracts sender IP addresses and highlights suspicious keywords associated with malicious emails. Automated analysis output helps investigators quickly identify potentially malicious emails. This project demonstrates practical <b>email forensics</b> and phishing investigation techniques used in cybersecurity incident analysis.
+Python tool that analyzes .eml email headers to detect phishing indicators,
+extract sender IP addresses and highlight suspicious patterns used in
+phishing campaigns.
 </p>
 
-<p>
-<b>GitHub:</b>
-<a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank">
-Phishing Email Analyzer Repository
+<a class="project-btn" href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank">
+View on GitHub
 </a>
-</p>
+
+</div>
+
+</div>
 
 
-<h3>SOC Log Analyzer | Python</h3>
+<!-- SOC LOG ANALYZER -->
+
+<div class="project-card">
+
+<div class="project-content">
+
+<h3>SOC Log Analyzer</h3>
 
 <p>
-Developed a security log analysis tool designed to detect suspicious authentication activity from system logs. The tool automatically parses log files to identify repeated failed SSH login attempts and unusual authentication patterns. Detection logic was implemented to flag potential <b>brute-force attacks</b> based on repeated login failures from specific IP addresses. The tool generates SOC-style alerts highlighting suspicious activity and potentially malicious IP addresses. This project demonstrates practical skills in <b>log analysis, threat detection, and security monitoring</b> used in Security Operations Centers (SOC).
+Security log analysis tool that detects suspicious authentication activity
+and identifies potential brute-force attacks through automated log parsing.
 </p>
 
-<p>
-<b>GitHub:</b>
-<a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank">
-SOC Log Analyzer Repository
+<a class="project-btn" href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank">
+View on GitHub
 </a>
-</p>
+
+</div>
+
+</div>
 
 
-<h3>Threat Intelligence IP Reputation Checker | Python</h3>
+<!-- THREAT INTEL -->
+
+<div class="project-card">
+
+<div class="project-content">
+
+<h3>Threat Intelligence IP Checker</h3>
 
 <p>
-Developed a threat intelligence tool that extracts IP addresses from network logs and evaluates their reputation using external threat intelligence sources. The tool integrates the <b>AbuseIPDB API</b> to retrieve abuse confidence scores and historical reports associated with IP addresses. Automated risk classification helps identify potentially malicious IPs and prioritize investigation efforts. This project demonstrates a practical workflow combining <b>log analysis, IOC enrichment, and automated threat investigation</b> techniques commonly used in security operations and threat intelligence analysis.
+Threat intelligence tool that extracts IP addresses from logs and evaluates
+their reputation using AbuseIPDB to identify potentially malicious hosts.
 </p>
 
-<p>
-<b>GitHub:</b>
-<a href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank">
-Threat Intelligence IP Checker Repository
+<a class="project-btn" href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank">
+View on GitHub
 </a>
-</p>
 
+</div>
+
+</div>
+
+
+<!-- FRAUD DETECTION -->
+
+<div class="project-card">
+
+<div class="project-content">
 
 <h3>Financial Fraud Detection System</h3>
 
 <p>
-
-Developed a hybrid machine learning system designed to identify and prevent fraudulent financial transactions. The project combined multiple machine learning algorithms including Neural Networks, Random Forest, and XGBoost to improve detection accuracy and reduce false positives. A dataset containing transaction records was analyzed to identify suspicious behavioral patterns such as unusual transaction frequency, abnormal transaction amounts, and irregular geographic activity.
-
-The system involved data preprocessing, feature engineering, and model evaluation to optimize fraud detection performance. By leveraging ensemble learning techniques, the solution was able to capture complex patterns associated with fraudulent activity. This project strengthened my understanding of anomaly detection, data analysis, and the application of machine learning models in cybersecurity and financial security contexts.
-
+Hybrid machine learning system using Neural Networks, Random Forest and
+XGBoost to detect fraudulent financial transactions.
 </p>
+
+</div>
+
+</div>
+
+
+<!-- CYBER LAB -->
+
+<div class="project-card">
+
+<div class="project-content">
 
 <h3>Cybersecurity Monitoring Lab</h3>
 
 <p>
-
-Designed and implemented a cybersecurity monitoring lab to simulate real-world security operations and incident investigation scenarios. The lab environment was used to practice log analysis, system monitoring, and network security troubleshooting. Various system and authentication logs were examined to identify suspicious activity, unauthorized access attempts, and potential security incidents.
-
-Within this environment, I configured firewall rules, analyzed authentication failures, and investigated abnormal system behaviors to understand how attackers attempt to exploit vulnerabilities. The lab also helped develop practical skills in security monitoring, incident response procedures, and troubleshooting security configurations. This project enhanced my ability to interpret security logs, investigate alerts, and strengthen defensive security practices within network environments.
-
+Security lab environment used to investigate logs, configure firewall rules
+and practice real-world incident investigation techniques.
 </p>
+
+</div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -603,33 +757,25 @@ Within this environment, I configured firewall rules, analyzed authentication fa
 
 <div class="links">
 
-<!-- LINKEDIN -->
+<div class="profile-card">
+<h3>LinkedIn</h3>
+<p>Connect with me professionally and view my cybersecurity experience.</p>
 
-<div class="preview-container">
 <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank">
-LinkedIn
+Visit Profile
 </a>
-
-<div class="preview-box">
-<iframe src="https://www.linkedin.com/in/alexphilip170803/"></iframe>
-</div>
 </div>
 
 
-<!-- GITHUB -->
+<div class="profile-card">
+<h3>GitHub</h3>
+<p>Explore my cybersecurity projects, security tools and research work.</p>
 
-<div class="preview-container">
 <a href="https://github.com/AlexPhilip01" target="_blank">
-GitHub
+View GitHub
 </a>
-
-<div class="preview-box">
-<iframe src="https://github.com/AlexPhilip01"></iframe>
-</div>
 </div>
 
-
-<!-- EMAIL -->
 
 <a href="mailto:alex.philip99@hotmail.com">Email</a>
 
@@ -638,7 +784,6 @@ GitHub
 </div>
 
 </section>
-
 
 
 <!-- SITE UPDATE -->
