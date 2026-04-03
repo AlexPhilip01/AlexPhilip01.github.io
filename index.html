@@ -460,6 +460,10 @@ opacity:0.7;
 body{
 padding-top:80px;
 }
+
+html{
+scroll-behavior:smooth;
+}
   
 </style>
 
@@ -885,13 +889,13 @@ particlesJS("particles-js", {
       "value": 80
     },
     "color": {
-      "value": ""#ef4444""
+      "value": "#ef4444"
     },
     "shape": {
       "type": "circle"
     },
     "opacity": {
-      "value": 0.5
+      "value": 0.8
     },
     "size": {
       "value": 3
@@ -905,7 +909,7 @@ particlesJS("particles-js", {
     },
     "move": {
       "enable": true,
-      "speed": 2
+      "speed": 2.5
     }
   },
 
@@ -938,7 +942,7 @@ particlesJS("particles-js", {
 <script>
 
 const sections = document.querySelectorAll("section");
-const navLinks = document.querySelectorAll("#toc a");
+const navLinks = document.querySelectorAll(".nav-links a");
 
 window.addEventListener("scroll", () => {
 
