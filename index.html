@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
 
@@ -410,6 +411,33 @@ scroll-behavior:smooth;
 color:white;
 border-bottom:2px solid #ef4444;
 }
+
+/* SOCIAL FOOTER */
+
+.social-footer{
+text-align:center;
+padding:50px 0;
+background:#000;
+border-top:1px solid #222;
+margin-top:60px;
+}
+
+.social-icons{
+display:flex;
+justify-content:center;
+gap:45px;
+font-size:36px;
+}
+
+.social-icons a{
+color:white;
+transition:0.3s;
+}
+
+.social-icons a:hover{
+color:#ef4444;
+transform:scale(1.25);
+}
   
 </style>
 
@@ -752,46 +780,38 @@ and practice real-world incident investigation techniques.
 
 </section>
 
+<div class="social-footer">
 
-<!-- CONTACT -->
-
-<section id="contact">
-
-<div class="card">
-
-<h2>Connect with Me</h2>
-
-<div class="links">
-
-<div class="profile-card">
-<h3>LinkedIn</h3>
-<p>Connect with me professionally and view my cybersecurity experience.</p>
-
-<a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank">
-Visit Profile
-</a>
-</div>
-
-
-<div class="profile-card">
-<h3>GitHub</h3>
-<p>Explore my cybersecurity projects, security tools and research work.</p>
+<div class="social-icons">
 
 <a href="https://github.com/AlexPhilip01" target="_blank">
-View GitHub
+<i class="fab fa-github"></i>
 </a>
+
+<a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank">
+<i class="fab fa-linkedin"></i>
+</a>
+
+<a href="mailto:alex.philip99@hotmail.com">
+<i class="fas fa-envelope"></i>
+</a>
+
+<a href="https://tryhackme.com/p/Alex.philip99" target="_blank">
+<i class="fas fa-terminal"></i>
+</a>
+
+<a href="https://blueteamlabs.online/home/investigations?category=ALL" target="_blank">
+<i class="fas fa-shield-halved"></i>
+</a>
+
+<a href="https://www.instagram.com/mr.philip_01/" target="_blank">
+<i class="fab fa-instagram"></i>
+</a>
+
 </div>
 
-
-<a href="mailto:alex.philip99@hotmail.com">Email</a>
-
 </div>
-
-</div>
-
-</section>
-
-
+  
 <!-- SITE UPDATE -->
 
 <section id="update">
@@ -816,8 +836,6 @@ New content will be added regularly as I continue working on practical security 
 
 
 </div>
-
-
 
 <footer>
 
