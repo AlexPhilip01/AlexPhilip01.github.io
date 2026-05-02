@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Posts – Alex Philip</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07050a;
+    --surface: #140d1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(168,85,247,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.1);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: "DM Mono", monospace;
+    --serif: "DM Serif Display", Georgia, serif;
+    --sans: "Outfit", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 5rem;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
+
+  /* topbar */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,5,10,0.95); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.7rem 2rem;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text2); text-decoration: none;
+    letter-spacing: 0.04em; transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
+  .topbar-right {
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .li-follow-btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border2); border-radius: 4px;
+    color: var(--accent); background: transparent;
+    text-decoration: none; letter-spacing: 0.04em;
+    transition: background 0.2s, color 0.2s;
+  }
+  .li-follow-btn:hover { background: var(--accent); color: var(--bg); }
+
+  /* hero */
+  .hero {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem;
+    flex-wrap: wrap;
+  }
+  .hero-left {}
+  .hero-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.6rem;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 5vw, 3.4rem);
+    line-height: 1.1; color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-desc { font-size: 0.9rem; color: var(--text2); max-width: 480px; line-height: 1.75; }
+  .hero-meta {
+    display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1.2rem;
+  }
+  .meta-pill {
+    display: flex; align-items: center; gap: 0.45rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.35rem 0.85rem;
+    color: var(--text2); letter-spacing: 0.04em;
+  }
+  .meta-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* posts grid */
+  .posts-wrap {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 3rem 2rem;
+  }
+  .posts-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .posts-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+  .posts-grid {
+    display: flex; flex-direction: column; gap: 2rem;
+  }
+
+  /* individual post card */
+  .post-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .post-card:hover {
+    border-color: var(--border2);
+    box-shadow: 0 8px 32px rgba(168,85,247,0.08);
+  }
+  .post-card::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .post-card:hover::before { opacity: 1; }
+
+  /* post header */
+  .post-header {
+    padding: 1.2rem 1.5rem 0;
+    display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  }
+  .post-header-left { display: flex; align-items: center; gap: 0.75rem; }
+  .post-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--accent-dim); border: 1px solid var(--border2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 1rem; color: var(--accent);
+    flex-shrink: 0;
+  }
+  .post-author-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+  .post-author-role { font-size: 0.75rem; color: var(--text2); }
+  .post-date {
+    font-family: var(--mono); font-size: 0.65rem;
+    color: var(--text3); letter-spacing: 0.04em; flex-shrink: 0;
+  }
+
+  /* post embed area */
+  .post-embed {
+    padding: 1rem 1.5rem 0;
+  }
+  /* This is where the LinkedIn embed iframe goes */
+  .post-embed iframe {
+    width: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #fff;
+    min-height: 400px;
+  }
+
+  /* placeholder (shown before embed is added) */
+  .post-placeholder {
+    margin: 0 1.5rem;
+    border: 1px dashed var(--border2);
+    border-radius: 10px;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    background: rgba(168,85,247,0.03);
+  }
+  .placeholder-icon { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.5; }
+  .placeholder-title {
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--accent); letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  .placeholder-text { font-size: 0.8rem; color: var(--text3); line-height: 1.6; }
+  .placeholder-code {
+    margin-top: 1rem; padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.3); border-radius: 6px; border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.72rem; color: var(--accent2);
+    text-align: left; line-height: 1.6; word-break: break-all;
+  }
+
+  /* post topics */
+  .post-topics {
+    padding: 1rem 1.5rem;
+    display: flex; gap: 0.45rem; flex-wrap: wrap;
+  }
+  .post-topic {
+    font-family: var(--mono); font-size: 0.65rem;
+    padding: 0.2rem 0.6rem; border-radius: 4px;
+    background: var(--accent-dim); color: var(--accent2);
+    letter-spacing: 0.04em;
+  }
+
+  /* post footer */
+  .post-footer {
+    padding: 0.9rem 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 0.75rem;
+  }
+  .post-footer-desc {
+    font-size: 0.8rem; color: var(--text2); line-height: 1.6; flex: 1;
+  }
+  .post-li-link {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    color: var(--accent); text-decoration: none;
+    padding: 0.35rem 0.85rem; border: 1px solid var(--border2);
+    border-radius: 4px; white-space: nowrap;
+    transition: background 0.2s, color 0.2s;
+  }
+  .post-li-link:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  /* how-to guide */
+  .howto-wrap {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 0 2rem 3rem;
+  }
+  .howto-card {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 14px; padding: 2rem;
+    border-left: 3px solid var(--accent);
+  }
+  .howto-title {
+    font-family: var(--serif); font-size: 1.3rem; color: var(--text);
+    margin-bottom: 1.2rem;
+  }
+  .howto-step {
+    display: flex; gap: 1rem; align-items: flex-start;
+    margin-bottom: 1.2rem;
+  }
+  .howto-step:last-child { margin-bottom: 0; }
+  .step-num {
+    font-family: var(--mono); font-size: 0.68rem;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 0.2rem 0.55rem; border-radius: 4px;
+    flex-shrink: 0; margin-top: 2px; letter-spacing: 0.04em;
+  }
+  .step-title { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
+  .step-desc { font-size: 0.83rem; color: var(--text2); line-height: 1.7; }
+  .step-code {
+    margin-top: 0.6rem; padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.4); border-radius: 6px;
+    border: 1px solid var(--border);
+    font-family: var(--mono); font-size: 0.72rem; color: var(--accent2);
+    line-height: 1.6; word-break: break-all;
+    overflow-x: auto;
+  }
+
+  @media (max-width: 640px) {
+    .topbar { padding: 0.7rem 1rem; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .posts-wrap, .howto-wrap { padding-left: 1rem; padding-right: 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <div class="topbar-right">
+    <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="li-follow-btn">
+      <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+      Follow on LinkedIn
+    </a>
+  </div>
+</div>
+
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-label">// social &amp; insights</div>
+    <h1 class="hero-title">LinkedIn<br><em>Posts</em></h1>
+    <p class="hero-desc">Cybersecurity insights, career updates, threat analysis, and professional thoughts shared on LinkedIn.</p>
+    <div class="hero-meta">
+      <div class="meta-pill"><div class="meta-dot"></div>Cybersecurity</div>
+      <div class="meta-pill"><div class="meta-dot"></div>SOC Operations</div>
+      <div class="meta-pill"><div class="meta-dot"></div>Career Journey</div>
+      <div class="meta-pill"><div class="meta-dot"></div>Threat Analysis</div>
+    </div>
+  </div>
+</div>
+
+<div class="posts-wrap">
+  <div class="posts-label">Recent Posts</div>
+  <div class="posts-grid">
+
+    <!-- ═══ POST 1 — Replace placeholder with your embed ═══ -->
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-header-left">
+          <div class="post-avatar">A</div>
+          <div>
+            <div class="post-author-name">Alex Amitraj Philip</div>
+            <div class="post-author-role">Cybersecurity Professional · MSc Information Security</div>
+          </div>
+        </div>
+        <div class="post-date">Add date</div>
+      </div>
+      <!-- PASTE YOUR LINKEDIN EMBED HERE — replace the div below -->
+      <div class="post-embed">
+        <div class="post-placeholder">
+          <div class="placeholder-icon">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="color:#a855f7"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          </div>
+          <div class="placeholder-title">Post 1 — Paste embed code here</div>
+          <div class="placeholder-text">Copy the LinkedIn embed code for this post and replace this entire &lt;div class="post-placeholder"&gt; block with the &lt;iframe&gt; tag.</div>
+          <div class="placeholder-code">&lt;iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXX" height="570" width="100%" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+        </div>
+      </div>
+      <div class="post-topics">
+        <span class="post-topic">Cybersecurity</span>
+        <span class="post-topic">Add topic</span>
+      </div>
+      <div class="post-footer">
+        <div class="post-footer-desc">Add a brief description of this post here — what it covers and why you shared it.</div>
+        <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="post-li-link">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          View on LinkedIn ↗
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ POST 2 ═══ -->
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-header-left">
+          <div class="post-avatar">A</div>
+          <div>
+            <div class="post-author-name">Alex Amitraj Philip</div>
+            <div class="post-author-role">Cybersecurity Professional · MSc Information Security</div>
+          </div>
+        </div>
+        <div class="post-date">Add date</div>
+      </div>
+      <div class="post-embed">
+        <div class="post-placeholder">
+          <div class="placeholder-icon">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="color:#a855f7"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          </div>
+          <div class="placeholder-title">Post 2 — Paste embed code here</div>
+          <div class="placeholder-text">Copy the LinkedIn embed code for this post and replace this entire &lt;div class="post-placeholder"&gt; block.</div>
+          <div class="placeholder-code">&lt;iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXX" height="570" width="100%" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+        </div>
+      </div>
+      <div class="post-topics">
+        <span class="post-topic">Cybersecurity</span>
+        <span class="post-topic">Add topic</span>
+      </div>
+      <div class="post-footer">
+        <div class="post-footer-desc">Add a brief description of this post here.</div>
+        <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="post-li-link">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          View on LinkedIn ↗
+        </a>
+      </div>
+    </div>
+
+    <!-- ═══ POST 3 ═══ -->
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-header-left">
+          <div class="post-avatar">A</div>
+          <div>
+            <div class="post-author-name">Alex Amitraj Philip</div>
+            <div class="post-author-role">Cybersecurity Professional · MSc Information Security</div>
+          </div>
+        </div>
+        <div class="post-date">Add date</div>
+      </div>
+      <div class="post-embed">
+        <div class="post-placeholder">
+          <div class="placeholder-icon">
+            <svg width="32" height="32" fill="currentColor" viewBox="0 0 24 24" style="color:#a855f7"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          </div>
+          <div class="placeholder-title">Post 3 — Paste embed code here</div>
+          <div class="placeholder-text">Copy the LinkedIn embed code for this post and replace this entire &lt;div class="post-placeholder"&gt; block.</div>
+          <div class="placeholder-code">&lt;iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXX" height="570" width="100%" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+        </div>
+      </div>
+      <div class="post-topics">
+        <span class="post-topic">Cybersecurity</span>
+        <span class="post-topic">Add topic</span>
+      </div>
+      <div class="post-footer">
+        <div class="post-footer-desc">Add a brief description of this post here.</div>
+        <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="post-li-link">
+          <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+          View on LinkedIn ↗
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- HOW TO EMBED GUIDE -->
+<div class="howto-wrap">
+  <div class="howto-card">
+    <div class="howto-title">How to embed your LinkedIn posts</div>
+
+    <div class="howto-step">
+      <span class="step-num">01</span>
+      <div>
+        <div class="step-title">Go to your LinkedIn post</div>
+        <div class="step-desc">Open the post you want to embed on LinkedIn. Click the <strong style="color:var(--text)">three dots (···)</strong> in the top-right corner of the post.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <span class="step-num">02</span>
+      <div>
+        <div class="step-title">Click "Embed this post"</div>
+        <div class="step-desc">From the dropdown menu, select <strong style="color:var(--text)">"Embed this post"</strong>. LinkedIn will generate an iframe embed code for that specific post.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <span class="step-num">03</span>
+      <div>
+        <div class="step-title">Copy the iframe code</div>
+        <div class="step-desc">Copy the entire code. It will look like this:</div>
+        <div class="step-code">&lt;iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXX" height="570" width="504" frameborder="0" allowfullscreen="" title="Embedded post"&gt;&lt;/iframe&gt;</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <span class="step-num">04</span>
+      <div>
+        <div class="step-title">Open linkedin-posts.html and find the post slot</div>
+        <div class="step-desc">In this file, find the post card you want to update. Inside <code style="color:var(--accent2);font-family:var(--mono)">&lt;div class="post-embed"&gt;</code>, you will see a <code style="color:var(--accent2);font-family:var(--mono)">&lt;div class="post-placeholder"&gt;</code> block.</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <span class="step-num">05</span>
+      <div>
+        <div class="step-title">Replace the placeholder with the iframe</div>
+        <div class="step-desc">Delete the entire <code style="color:var(--accent2);font-family:var(--mono)">&lt;div class="post-placeholder"&gt;...&lt;/div&gt;</code> block and paste your copied iframe code in its place. Change <code style="color:var(--accent2);font-family:var(--mono)">width="504"</code> to <code style="color:var(--accent2);font-family:var(--mono)">width="100%"</code> so it fills the card.</div>
+        <div class="step-code">&lt;!-- BEFORE --&gt;
+&lt;div class="post-placeholder"&gt; ... &lt;/div&gt;
+
+&lt;!-- AFTER --&gt;
+&lt;iframe src="https://www.linkedin.com/embed/feed/update/urn:li:share:XXXXXXXXXX"
+  height="570" width="100%" frameborder="0" allowfullscreen&gt;&lt;/iframe&gt;</div>
+      </div>
+    </div>
+
+    <div class="howto-step">
+      <span class="step-num">06</span>
+      <div>
+        <div class="step-title">Update the post metadata</div>
+        <div class="step-desc">Also update the <strong style="color:var(--text)">date</strong>, <strong style="color:var(--text)">topics</strong>, <strong style="color:var(--text)">description</strong>, and <strong style="color:var(--text)">"View on LinkedIn"</strong> link URL in the same post card to match your actual post. Then save and upload the file.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
