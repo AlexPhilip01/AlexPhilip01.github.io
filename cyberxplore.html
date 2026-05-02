@@ -1,255 +1,641 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>Cyber Xplore Workshop Report</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cyberxplore Workshop – Alex Philip</title>
 <link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07050a;
+    --surface: #140d1a;
+    --surface2: #1a1025;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(168,85,247,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.1);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: "DM Mono", monospace;
+    --serif: "DM Serif Display", Georgia, serif;
+    --sans: "Outfit", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
 
-body{
-background:black;
-color:white;
-font-family:Arial;
-margin:0;
-padding:40px;
-line-height:1.7;
-}
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,5,10,0.95); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.7rem 2rem;
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text2); text-decoration: none;
+    letter-spacing: 0.04em; transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
+  .topbar-tag {
+    font-family: var(--mono); font-size: 0.68rem;
+    color: var(--accent); background: var(--accent-dim);
+    border: 1px solid rgba(168,85,247,0.2);
+    padding: 0.25rem 0.75rem; border-radius: 100px;
+    letter-spacing: 0.06em;
+  }
 
-.container{
-max-width:1000px;
-margin:auto;
-}
+  /* ── HERO ── */
+  .hero {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 4rem 2rem 3rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.7rem;
+  }
+  .hero-title {
+    font-family: var(--serif);
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.1; color: var(--text);
+    margin-bottom: 0.8rem;
+  }
+  .hero-title em { font-style: italic; color: var(--accent); }
+  .hero-subtitle {
+    font-size: 0.95rem; color: var(--text2);
+    margin-bottom: 1.8rem; max-width: 560px;
+  }
+  .hero-meta {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+  }
+  .meta-pill {
+    display: flex; align-items: center; gap: 0.45rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.35rem 0.85rem;
+    color: var(--text2); letter-spacing: 0.04em;
+  }
+  .meta-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-h1{
-color:#f97316;
-text-align:center;
-}
+  /* ── LAYOUT ── */
+  .content-wrap {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 3rem 2rem 6rem;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+    gap: 0 3.5rem;
+    align-items: start;
+  }
 
-h2{
-color:#f97316;
-margin-top:40px;
-}
+  /* ── TOC ── */
+  .toc { position: sticky; top: 70px; grid-column: 1; }
+  .toc-label {
+    font-family: var(--mono); font-size: 0.62rem;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--text3); margin-bottom: 0.75rem;
+  }
+  .toc-list { list-style: none; display: flex; flex-direction: column; }
+  .toc-list li a {
+    display: block; font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text3); text-decoration: none;
+    padding: 0.4rem 0.65rem; border-left: 2px solid var(--border);
+    letter-spacing: 0.03em; line-height: 1.4;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .toc-list li a:hover,
+  .toc-list li a.active { color: var(--accent); border-left-color: var(--accent); }
 
-h3{
-color:#f97316;
-margin-top:25px;
-}
+  /* ── ARTICLE ── */
+  .article { grid-column: 2; }
+  .section-block { margin-bottom: 3.5rem; }
 
-p{
-text-align:justify;
-}
+  .section-heading {
+    font-family: var(--serif);
+    font-size: 1.65rem; color: var(--text);
+    line-height: 1.2; margin-bottom: 1.2rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .h-num {
+    font-family: var(--mono); font-size: 0.7rem;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 0.2rem 0.55rem; border-radius: 3px;
+    letter-spacing: 0.06em; flex-shrink: 0;
+  }
 
-ul{
-margin-left:20px;
-}
+  .article p {
+    font-size: 0.94rem; color: var(--text2);
+    line-height: 1.85; margin-bottom: 1rem;
+  }
+  .article p strong { color: var(--text); font-weight: 600; }
 
-a{
-color:#f97316;
-text-decoration:none;
-}
+  /* ── EVENT DETAILS CARD ── */
+  .event-details {
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 12px; padding: 1.5rem;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 1rem; margin-bottom: 1.5rem;
+  }
+  .event-detail-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+  .event-detail-icon {
+    width: 34px; height: 34px; border-radius: 8px;
+    background: var(--accent-dim); display: flex;
+    align-items: center; justify-content: center;
+    font-size: 0.95rem; flex-shrink: 0;
+  }
+  .event-detail-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); letter-spacing: 0.07em; text-transform: uppercase; margin-bottom: 0.2rem; }
+  .event-detail-value { font-size: 0.88rem; font-weight: 500; color: var(--text); }
 
-.back{
-display:inline-block;
-margin-bottom:20px;
-}
+  /* ── STAT BANNER ── */
+  .stat-banner {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem; margin-bottom: 1.5rem;
+  }
+  .stat-item {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem;
+    text-align: center; transition: border-color 0.2s;
+  }
+  .stat-item:hover { border-color: var(--border2); }
+  .stat-number {
+    font-family: var(--serif); font-size: 2rem;
+    color: var(--accent); line-height: 1; margin-bottom: 0.3rem;
+  }
+  .stat-label { font-family: var(--mono); font-size: 0.68rem; color: var(--text3); letter-spacing: 0.06em; }
 
+  /* ── AGENDA TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+  .timeline-item {
+    display: grid; grid-template-columns: 28px 1fr;
+    gap: 0 1rem; position: relative;
+    padding-bottom: 1.5rem;
+  }
+  .timeline-item:last-child { padding-bottom: 0; }
+  .timeline-dot-col { display: flex; flex-direction: column; align-items: center; }
+  .timeline-dot {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--accent); flex-shrink: 0; margin-top: 4px;
+    box-shadow: 0 0 0 3px var(--accent-dim);
+  }
+  .timeline-line {
+    flex: 1; width: 1px;
+    background: linear-gradient(180deg, var(--border2), var(--border));
+    margin-top: 6px;
+  }
+  .timeline-item:last-child .timeline-line { display: none; }
+  .timeline-title { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.35rem; }
+  .timeline-body { font-size: 0.85rem; color: var(--text2); line-height: 1.75; }
+
+  /* ── TOPIC CARDS ── */
+  .topics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .topic-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .topic-card:hover { border-color: var(--border2); }
+  .topic-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .topic-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.25rem; }
+  .topic-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.6; }
+
+  /* ── DEMO CARDS ── */
+  .demo-cards { display: flex; flex-direction: column; gap: 0.85rem; }
+  .demo-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .demo-card:hover { border-color: var(--border2); }
+  .demo-card-header {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .demo-icon {
+    width: 32px; height: 32px; border-radius: 7px;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.9rem; flex-shrink: 0;
+  }
+  .demo-name { font-size: 0.9rem; font-weight: 600; color: var(--text); }
+  .demo-type { font-family: var(--mono); font-size: 0.65rem; color: var(--accent2); }
+  .demo-card-body { padding: 1rem 1.2rem; }
+  .demo-card-body p { font-size: 0.86rem; color: var(--text2); line-height: 1.75; margin-bottom: 0.75rem; }
+  .demo-card-body p:last-child { margin-bottom: 0; }
+  .demo-bullets { list-style: none; display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem; }
+  .demo-bullets li {
+    font-size: 0.83rem; color: var(--text2);
+    padding-left: 1.1rem; position: relative; line-height: 1.65;
+  }
+  .demo-bullets li::before { content: "›"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
+
+  /* ── CALLOUT ── */
+  .callout {
+    background: var(--accent-dim); border: 1px solid rgba(168,85,247,0.25);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0; padding: 1rem 1.2rem;
+    margin: 1.2rem 0; font-size: 0.88rem; color: var(--text2); line-height: 1.8;
+  }
+  .callout strong { color: var(--accent); }
+
+  /* ── OUTCOMES ── */
+  .outcomes-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.75rem; }
+  .outcome-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1.1rem;
+    text-align: center; transition: border-color 0.2s;
+  }
+  .outcome-card:hover { border-color: var(--border2); }
+  .outcome-icon { font-size: 1.4rem; margin-bottom: 0.5rem; }
+  .outcome-text { font-size: 0.8rem; color: var(--text2); line-height: 1.6; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 720px) {
+    .content-wrap { grid-template-columns: 1fr; padding: 2rem 1rem 4rem; }
+    .toc { display: none; }
+    .article { grid-column: 1; }
+    .event-details, .topics-grid, .outcomes-grid { grid-template-columns: 1fr; }
+    .stat-banner { grid-template-columns: 1fr; }
+    .hero { padding: 3rem 1rem 2rem; }
+    .topbar { padding: 0.7rem 1rem; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<div class="container">
-
-<a href="index.html" class="back">← Back to Portfolio</a>
-
-<h1>Cyber Xplore Workshop Report</h1>
-
-<h2>Event Details</h2>
-
-<p><b>Date:</b> 9 January 2025</p>
-<p><b>Venue:</b> Sri Manakula Vinayagar Engineering College</p>
-<p><b>Organized by:</b> Starfort</p>
-<p><b>Participants:</b> 650 Engineering Students</p>
-
-
-<h2>Objective of the Workshop</h2>
-
-<p>
-The Cyber Xplore workshop aimed to raise awareness of critical cybersecurity issues and equip students with practical knowledge to safeguard themselves against cyber threats.
-</p>
-
-<p>
-In today’s digital age, the increasing number of cybercrimes and data breaches makes it crucial for future professionals, especially engineering students, to be well-versed in cybersecurity fundamentals. The workshop’s objective was to bridge the gap between academic knowledge and real-world cybersecurity challenges, providing students with both theoretical background and practical tools to tackle risks in the digital world.
-</p>
-
-
-<h2>Participants</h2>
-
-<p>
-The workshop was attended by a total of 500 engineering students from various departments and academic years at Sri Manakula Vinayagar Engineering College. The diverse group of participants reflected the growing importance of cybersecurity knowledge across all engineering fields.
-</p>
-
-<p>
-Students actively engaged throughout the workshop, contributing to its success through participation and interaction.
-</p>
-
-
-<h2>Workshop Agenda and Key Topics Covered</h2>
-
-<h3>Introduction and Ice-Breaking Session</h3>
-
-<p>
-The workshop began with an interactive ice-breaking activity designed to set a positive tone for the session. Students participated in polls, quizzes, and short challenges using their mobile phones to assess their understanding of cybersecurity.
-</p>
-
-<p>
-This activity helped the presenters gauge the participants’ existing knowledge while encouraging active engagement from the beginning of the workshop.
-</p>
-
-
-<h2>Biometrics, VPN, Cookies, Social Media Privacy and AI-Driven Data</h2>
-
-<p>
-The workshop then transitioned into discussions on common technologies and digital privacy practices including their advantages and potential risks.
-</p>
-
-<ul>
-
-<li><b>Biometric Authentication:</b> Discussion on biometric security systems such as fingerprint recognition, facial recognition and retina scans including their strengths and limitations.</li>
-
-<li><b>Virtual Private Networks (VPNs):</b> Explanation of how VPNs protect user privacy and secure internet communication along with risks associated with unreliable or free VPN services.</li>
-
-<li><b>Cookies and Online Tracking:</b> Understanding how cookies function in online browsing and how they may be used for tracking user activity.</li>
-
-<li><b>Social Media Privacy:</b> The importance of protecting personal information on social media platforms and the risks of oversharing sensitive details.</li>
-
-<li><b>AI-Driven Data Collection:</b> Discussion on how artificial intelligence is used for data analysis and cybersecurity along with privacy concerns.</li>
-
-</ul>
-
-
-<h2>Advanced Cybersecurity Topics</h2>
-
-<p>
-After introducing foundational cybersecurity concepts, the workshop progressed to more advanced topics.
-</p>
-
-<ul>
-
-<li><b>Social Engineering:</b> Techniques used by cybercriminals to manipulate individuals into revealing confidential information.</li>
-
-<li><b>Phishing Attacks:</b> Demonstration of phishing emails, spoofed links and credential theft techniques.</li>
-
-<li><b>Malware:</b> Explanation of malware types including viruses, trojans, ransomware and spyware.</li>
-
-</ul>
-
-
-<h2>Real-World Cybersecurity Case Studies</h2>
-
-<p>
-The workshop analyzed real cybersecurity incidents to help students understand the impact of cyberattacks on organizations and individuals.
-</p>
-
-<ul>
-
-<li><b>Rockstar Data Breach</b></li>
-<li><b>SBI Data Breach</b></li>
-
-</ul>
-
-
-<h2>Practical Demonstration Session</h2>
-
-<p>
-The workshop included live demonstrations of real-world cyberattack scenarios to help participants understand how attackers exploit both human and technical vulnerabilities.
-</p>
-
-
-<h2>Social Engineering Demonstration</h2>
-
-<p>
-A participant from the audience was selected and a conversation-based demonstration showed how attackers extract personal information through psychological manipulation and trust-building techniques.
-</p>
-
-<ul>
-
-<li>Avoid sharing personal information without verification</li>
-<li>Be cautious when interacting with unknown individuals</li>
-<li>Verify authenticity before providing sensitive data</li>
-
-</ul>
-
-
-<h2>Phishing Demonstration</h2>
-
-<p>
-Participants were shown how attackers design phishing emails and fake login pages to steal user credentials.
-</p>
-
-<ul>
-
-<li>Email spoofing techniques</li>
-<li>Link masking to disguise malicious URLs</li>
-<li>Location tracking using malicious links</li>
-
-</ul>
-
-
-<h2>Malware Demonstration</h2>
-
-<p>
-A simulated malware attack demonstrated how attackers gain unauthorized access to systems using tools such as Metasploit and Hoxshell.
-</p>
-
-<ul>
-
-<li>Unauthorized system access</li>
-<li>Monitoring user activity</li>
-<li>Accessing sensitive files</li>
-<li>Remote control of system resources</li>
-
-</ul>
-
-
-<h2>Key Outcomes and Learnings</h2>
-
-<ul>
-
-<li>Improved awareness of modern cybersecurity threats</li>
-<li>Understanding how human behaviour can be exploited</li>
-<li>Learning practical defensive cybersecurity practices</li>
-
-</ul>
-
-
-<h2>Student Engagement and Feedback</h2>
-
-<p>
-Students actively participated in discussions and Q&A sessions. Many participants expressed strong interest in learning more about cybersecurity and exploring career opportunities in the field.
-</p>
-
-
-<h2>Impact of the Workshop</h2>
-
-<p>
-The Cyber Xplore workshop significantly improved cybersecurity awareness among engineering students and helped them understand how cyberattacks occur and how they can protect themselves in the digital world.
-</p>
-
-
-<h2>Conclusion</h2>
-
-<p>
-The Cyber Xplore workshop organized by Starfort successfully delivered valuable cybersecurity knowledge to more than 500 engineering students through interactive discussions, real-world case studies and practical demonstrations.
-</p>
-
+<!-- TOPBAR -->
+<div class="topbar">
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <span class="topbar-tag">Volunteer &amp; Outreach</span>
 </div>
 
-</body>
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-label">// workshops &amp; outreach</div>
+  <h1 class="hero-title">Cyberxplore<br><em>Workshop Report</em></h1>
+  <p class="hero-subtitle">A cybersecurity awareness workshop delivered to 650 engineering students, covering modern threats, practical demonstrations, and defensive security techniques.</p>
+  <div class="hero-meta">
+    <div class="meta-pill"><div class="meta-pill-dot"></div>9 Jan 2025</div>
+    <div class="meta-pill"><div class="meta-pill-dot"></div>650 Participants</div>
+    <div class="meta-pill"><div class="meta-pill-dot"></div>Starfort</div>
+    <div class="meta-pill"><div class="meta-pill-dot"></div>Pondicherry</div>
+  </div>
+</div>
 
+<!-- CONTENT -->
+<div class="content-wrap">
+
+  <!-- TOC -->
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#details">Event Details</a></li>
+      <li><a href="#objective">Objective</a></li>
+      <li><a href="#agenda">Agenda</a></li>
+      <li><a href="#topics">Topics Covered</a></li>
+      <li><a href="#demos">Demonstrations</a></li>
+      <li><a href="#outcomes">Outcomes</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+    </ul>
+  </nav>
+
+  <!-- ARTICLE -->
+  <article class="article">
+
+    <!-- EVENT DETAILS -->
+    <div class="section-block" id="details">
+      <h2 class="section-heading"><span class="h-num">01</span> Event Details</h2>
+
+      <div class="event-details">
+        <div class="event-detail-item">
+          <div class="event-detail-icon">📅</div>
+          <div>
+            <div class="event-detail-label">Date</div>
+            <div class="event-detail-value">9 January 2025</div>
+          </div>
+        </div>
+        <div class="event-detail-item">
+          <div class="event-detail-icon">📍</div>
+          <div>
+            <div class="event-detail-label">Venue</div>
+            <div class="event-detail-value">Sri Manakula Vinayagar Engineering College</div>
+          </div>
+        </div>
+        <div class="event-detail-item">
+          <div class="event-detail-icon">🏢</div>
+          <div>
+            <div class="event-detail-label">Organised By</div>
+            <div class="event-detail-value">Starfort</div>
+          </div>
+        </div>
+        <div class="event-detail-item">
+          <div class="event-detail-icon">🎓</div>
+          <div>
+            <div class="event-detail-label">Audience</div>
+            <div class="event-detail-value">Engineering Students — Multiple Departments</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-banner">
+        <div class="stat-item">
+          <div class="stat-number">650</div>
+          <div class="stat-label">Participants</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">3</div>
+          <div class="stat-label">Live Demonstrations</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-number">8+</div>
+          <div class="stat-label">Topics Covered</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OBJECTIVE -->
+    <div class="section-block" id="objective">
+      <h2 class="section-heading"><span class="h-num">02</span> Objective</h2>
+      <p>The Cyberxplore workshop aimed to raise awareness of critical cybersecurity issues and equip engineering students with practical knowledge to safeguard themselves against cyber threats in the digital age.</p>
+      <p>With the increasing frequency of cybercrimes and data breaches, it is essential for future professionals across all engineering disciplines to develop a solid understanding of cybersecurity fundamentals. The workshop was designed to <strong>bridge the gap between academic knowledge and real-world security challenges</strong> — providing students with both theoretical grounding and practical tools to navigate risks in modern digital environments.</p>
+    </div>
+
+    <!-- AGENDA -->
+    <div class="section-block" id="agenda">
+      <h2 class="section-heading"><span class="h-num">03</span> Workshop Agenda</h2>
+
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Introduction &amp; Ice-Breaking Session</div>
+            <div class="timeline-body">The workshop opened with an interactive ice-breaking activity using mobile-based polls, quizzes, and short challenges to assess participants' existing cybersecurity knowledge while setting a positive, engaging tone.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Digital Privacy &amp; Modern Technologies</div>
+            <div class="timeline-body">Discussion of common technologies and their privacy implications — biometrics, VPNs, cookies, social media, and AI-driven data collection — covering both advantages and potential risks.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Advanced Cybersecurity Concepts</div>
+            <div class="timeline-body">Progression to advanced topics including social engineering, phishing attacks, and malware categories — equipping students to recognise and respond to real-world attack techniques.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Real-World Case Studies</div>
+            <div class="timeline-body">Analysis of high-profile incidents including the Rockstar Data Breach and SBI Data Breach — demonstrating the real-world impact of cyberattacks on organisations and individuals.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Live Demonstration Session</div>
+            <div class="timeline-body">Hands-on demonstrations of social engineering, phishing, and malware attack scenarios to show how attackers exploit both human and technical vulnerabilities in practice.</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot-col">
+            <div class="timeline-dot"></div>
+            <div class="timeline-line"></div>
+          </div>
+          <div>
+            <div class="timeline-title">Q&amp;A &amp; Discussion</div>
+            <div class="timeline-body">Open Q&amp;A session with active student participation, discussions on cybersecurity career paths, and guidance on further learning resources.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOPICS -->
+    <div class="section-block" id="topics">
+      <h2 class="section-heading"><span class="h-num">04</span> Topics Covered</h2>
+      <div class="topics-grid">
+        <div class="topic-card">
+          <div class="topic-icon">🔐</div>
+          <div>
+            <div class="topic-title">Biometric Authentication</div>
+            <div class="topic-desc">Security systems including fingerprint, facial recognition, and retina scans — strengths, limitations, and real-world risks.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🌐</div>
+          <div>
+            <div class="topic-title">VPNs &amp; Online Privacy</div>
+            <div class="topic-desc">How VPNs protect user privacy and secure internet communication, plus risks of unreliable or free VPN services.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🍪</div>
+          <div>
+            <div class="topic-title">Cookies &amp; Tracking</div>
+            <div class="topic-desc">How cookies function in online browsing and how they are used for tracking user activity across websites.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">📱</div>
+          <div>
+            <div class="topic-title">Social Media Privacy</div>
+            <div class="topic-desc">Protecting personal information on social platforms and understanding the risks of oversharing sensitive details.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🤖</div>
+          <div>
+            <div class="topic-title">AI &amp; Data Collection</div>
+            <div class="topic-desc">How artificial intelligence is used for data analysis and cybersecurity, along with associated privacy concerns.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🎭</div>
+          <div>
+            <div class="topic-title">Social Engineering</div>
+            <div class="topic-desc">Psychological manipulation techniques used by attackers to extract confidential information from unsuspecting individuals.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🎣</div>
+          <div>
+            <div class="topic-title">Phishing Attacks</div>
+            <div class="topic-desc">Phishing email design, spoofed links, credential theft techniques, and how to identify and avoid them.</div>
+          </div>
+        </div>
+        <div class="topic-card">
+          <div class="topic-icon">🦠</div>
+          <div>
+            <div class="topic-title">Malware Types</div>
+            <div class="topic-desc">Viruses, trojans, ransomware, and spyware — how each operates, spreads, and what defences apply.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DEMONSTRATIONS -->
+    <div class="section-block" id="demos">
+      <h2 class="section-heading"><span class="h-num">05</span> Live Demonstrations</h2>
+      <p>The workshop included practical, live demonstrations of real-world attack scenarios — one of the most impactful components of the session, helping participants connect theory to attacker behaviour.</p>
+
+      <div class="demo-cards">
+
+        <div class="demo-card">
+          <div class="demo-card-header">
+            <div class="demo-icon">🎭</div>
+            <div>
+              <div class="demo-name">Social Engineering Demo</div>
+              <div class="demo-type">Human Manipulation · Psychological Attack</div>
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <p>A live volunteer from the audience participated in a conversation-based demonstration showing how attackers build trust and extract personal information through psychological manipulation — without any technical tools.</p>
+            <ul class="demo-bullets">
+              <li>Demonstrated how attackers establish rapport to lower defences</li>
+              <li>Showed how sensitive details are extracted conversationally</li>
+              <li>Key lesson: never share personal information without verification</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-card-header">
+            <div class="demo-icon">🎣</div>
+            <div>
+              <div class="demo-name">Phishing Demo</div>
+              <div class="demo-type">Email Spoofing · Credential Theft · Link Masking</div>
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <p>Participants were shown how attackers craft convincing phishing emails and fake login pages to steal user credentials — including techniques to disguise malicious intent.</p>
+            <ul class="demo-bullets">
+              <li>Email spoofing to impersonate trusted senders</li>
+              <li>Link masking to disguise malicious URLs behind legitimate-looking text</li>
+              <li>Location tracking using embedded malicious links</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="demo-card">
+          <div class="demo-card-header">
+            <div class="demo-icon">🦠</div>
+            <div>
+              <div class="demo-name">Malware Demo</div>
+              <div class="demo-type">Metasploit · Hoxshell · Remote Access</div>
+            </div>
+          </div>
+          <div class="demo-card-body">
+            <p>A simulated malware attack demonstrated how attackers gain unauthorized remote access to systems using tools such as Metasploit and Hoxshell — illustrating the capabilities available to modern threat actors.</p>
+            <ul class="demo-bullets">
+              <li>Unauthorized system access via exploit frameworks</li>
+              <li>Monitoring user activity without detection</li>
+              <li>Accessing sensitive files and documents remotely</li>
+              <li>Full remote control of system resources</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- OUTCOMES -->
+    <div class="section-block" id="outcomes">
+      <h2 class="section-heading"><span class="h-num">06</span> Key Outcomes</h2>
+      <p>The workshop achieved measurable improvements in participant awareness and generated strong interest in cybersecurity as a career path across all participating departments.</p>
+
+      <div class="outcomes-grid">
+        <div class="outcome-card">
+          <div class="outcome-icon">🧠</div>
+          <div class="outcome-text">Improved awareness of modern cybersecurity threats among 650+ engineering students</div>
+        </div>
+        <div class="outcome-card">
+          <div class="outcome-icon">🔍</div>
+          <div class="outcome-text">Practical understanding of how human behaviour can be exploited by attackers</div>
+        </div>
+        <div class="outcome-card">
+          <div class="outcome-icon">🛡️</div>
+          <div class="outcome-text">Knowledge of defensive security practices to protect personal and professional digital assets</div>
+        </div>
+      </div>
+
+      <div class="callout" style="margin-top:1.2rem"><strong>Student Engagement:</strong> Participants actively engaged in discussions and Q&amp;A sessions throughout the workshop. Many expressed strong interest in pursuing cybersecurity further — both as a skill set and as a career.</div>
+    </div>
+
+    <!-- CONCLUSION -->
+    <div class="section-block" id="conclusion">
+      <h2 class="section-heading"><span class="h-num">07</span> Conclusion</h2>
+      <p>The Cyberxplore workshop organised by Starfort successfully delivered practical cybersecurity knowledge to <strong>650 engineering students</strong> at Sri Manakula Vinayagar Engineering College through interactive discussions, real-world case studies, and live attack demonstrations.</p>
+      <p>The session demonstrated that cybersecurity awareness is not limited to specialised disciplines — it is a critical skill for all engineers operating in today's interconnected digital landscape. By combining foundational concepts with hands-on demonstrations, the workshop made cybersecurity tangible, relevant, and actionable for every participant.</p>
+      <div class="callout"><strong>Impact:</strong> The workshop significantly improved cybersecurity awareness among participants and equipped students with the knowledge needed to protect themselves and their future organisations from evolving cyber threats.</div>
+    </div>
+
+  </article>
+</div>
+
+<script>
+// TOC scroll spy
+const sections = document.querySelectorAll(".section-block[id]");
+const tocLinks = document.querySelectorAll(".toc-list a");
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      tocLinks.forEach(a => {
+        a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id);
+      });
+    }
+  });
+}, { rootMargin: "-20% 0px -70% 0px" });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
 </html>
