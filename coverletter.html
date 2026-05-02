@@ -1,88 +1,275 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>Cover Letter</title>
-
-<link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cover Letter – Alex Amitraj Philip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07050a;
+    --surface: #140d1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(160,80,255,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.12);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Outfit', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem;
+  }
 
-body{
-background:black;
-color:white;
-font-family:Arial;
-line-height:1.7;
-}
+  /* grid bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-.container{
-max-width:900px;
-margin:60px auto;
-padding:30px;
-background:#111111;
-border-radius:10px;
-border:2px solid #f97316;
-}
+  .back-link {
+    position: relative;
+    z-index: 1;
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--text2);
+    text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.2s;
+    letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--accent); }
 
-h1{
-color:#f97316;
-text-align:center;
-}
+  .letter-wrap {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 720px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
 
-p{
-margin-bottom:18px;
-text-align:left;
-}
+  /* red top bar */
+  .letter-header {
+    background: var(--accent);
+    padding: 1.8rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .letter-header-name {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    color: #fff;
+    letter-spacing: -0.01em;
+  }
+  .letter-header-meta {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.75);
+    text-align: right;
+    line-height: 1.8;
+    letter-spacing: 0.04em;
+  }
 
-.signature{
-margin-top:40px;
-}
+  .letter-body {
+    padding: 2.5rem;
+  }
 
-a{
-color:#f97316;
-text-decoration:none;
-display:block;
-text-align:center;
-margin-bottom:30px;
-}
+  .letter-salutation {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    color: var(--text);
+    margin-bottom: 1.5rem;
+  }
 
+  .letter-paragraph {
+    font-size: 0.95rem;
+    color: var(--text2);
+    line-height: 1.85;
+    margin-bottom: 1.3rem;
+  }
+  .letter-paragraph:last-of-type { margin-bottom: 0; }
+
+  .letter-paragraph strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .letter-paragraph .highlight {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .letter-closing {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+  .letter-closing-text {
+    font-size: 0.9rem;
+    color: var(--text2);
+    margin-bottom: 1rem;
+    line-height: 1.6;
+  }
+  .letter-sig-name {
+    font-family: var(--serif);
+    font-size: 1.3rem;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+  .letter-sig-role {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  .letter-footer {
+    background: rgba(0,0,0,0.25);
+    border-top: 1px solid var(--border);
+    padding: 1rem 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  .letter-footer-link {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .letter-footer-link:hover { color: var(--accent); }
+
+  .print-btn {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    padding: 0.4rem 1rem;
+    border: 1px solid var(--border2);
+    border-radius: 4px;
+    color: var(--text2);
+    background: transparent;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none;
+  }
+  .print-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  @media print {
+    body { background: #fff; padding: 0; }
+    body::before { display: none; }
+    .back-link, .print-btn { display: none; }
+    .letter-wrap { border: none; border-radius: 0; box-shadow: none; }
+    .letter-body { padding: 2rem 2.5rem; }
+    .letter-paragraph { color: #333; }
+    .letter-header-name, .letter-sig-name { color: #fff; }
+  }
+
+  @media (max-width: 600px) {
+    .letter-header { flex-direction: column; align-items: flex-start; }
+    .letter-header-meta { text-align: left; }
+    .letter-body { padding: 1.5rem; }
+    .letter-footer { padding: 1rem 1.5rem; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<a href="index.html">← Back to Portfolio</a>
+<a href="index.html" class="back-link">
+  <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  ← Back to Portfolio
+</a>
 
-<div class="container">
+<div class="letter-wrap">
 
-<h1>Cover Letter</h1>
+  <!-- Header -->
+  <div class="letter-header">
+    <div class="letter-header-name">Alex Amitraj Philip</div>
+    <div class="letter-header-meta">
+      MSc Information Security<br>
+      Royal Holloway, University of London<br>
+      linkedin.com/in/alexphilip170803
+    </div>
+  </div>
 
-<p><strong>Dear Recruiter,</strong></p>
+  <!-- Body -->
+  <div class="letter-body">
 
-<p>
-I am a cybersecurity professional with a Master’s degree in Information Security from Royal Holloway University of London and hands-on experience in cybercrime investigation, security monitoring, and incident response. I am currently seeking opportunities where I can apply my technical knowledge and analytical skills to help organizations strengthen their security posture and respond effectively to evolving cyber threats.
-During my internship with the Department of Cybercrime, Government of India, I worked on investigations involving phishing, fraud, and identity theft. I utilized digital forensics tools such as Autopsy and FTK to support cybercrime investigations and collaborated with law enforcement teams on incident response and threat mitigation activities. I also contributed to cybersecurity awareness initiatives and training programs for officers, helping strengthen operational security practices.
-In addition to my formal experience, I have completed multiple hands-on investigations through the Blue Team Labs Online (BTLO) platform, where I analyzed real-world security scenarios involving log analysis, threat detection, and incident investigation. I have also been actively using the TryHackMe platform to strengthen my practical cybersecurity knowledge through labs focused on network security, penetration testing fundamentals, and defensive security techniques.
-My academic and practical experience has provided me with a solid foundation in network security, cryptography, threat analysis, and secure system monitoring. I am also certified in CompTIA Security+ and CompTIA CySA+, which reinforce my knowledge of security operations, risk management, and threat detection. In addition, I have experience working with scripting languages such as Python and Bash to automate troubleshooting tasks and improve efficiency.
-Beyond technical expertise, I value structured problem-solving, clear communication, and continuous learning. I am particularly interested in roles that involve security monitoring, incident response, threat detection, and security engineering within dynamic and collaborative environments.
-I would welcome the opportunity to contribute my skills and enthusiasm to organizations committed to building resilient and secure systems.
-</p>
+    <div class="letter-salutation">Dear Recruiter,</div>
 
-<div class="signature">
+    <p class="letter-paragraph">
+      I am a cybersecurity professional with a <strong>Master's degree in Information Security</strong> from Royal Holloway University of London and hands-on experience in cybercrime investigation, security monitoring, and incident response. I am currently seeking opportunities where I can apply my technical knowledge and analytical skills to help organizations strengthen their security posture and respond effectively to evolving cyber threats.
+    </p>
 
-<p>Thank you for your time and consideration.</p>
+    <p class="letter-paragraph">
+      During my internship with the <strong>Department of Cybercrime, Government of India</strong>, I worked on investigations involving phishing, fraud, and identity theft. I utilized digital forensics tools such as <span class="highlight">Autopsy</span> and <span class="highlight">FTK</span> to support cybercrime investigations and collaborated with law enforcement teams on incident response and threat mitigation activities. I also contributed to cybersecurity awareness initiatives and training programs for officers, helping strengthen operational security practices.
+    </p>
 
-<p><strong>Kind regards,</strong></p>
+    <p class="letter-paragraph">
+      In addition to my formal experience, I have completed multiple hands-on investigations through the <span class="highlight">Blue Team Labs Online (BTLO)</span> platform, where I analyzed real-world security scenarios involving log analysis, threat detection, and incident investigation. I have also been actively using the <span class="highlight">TryHackMe</span> platform to strengthen my practical cybersecurity knowledge through labs focused on network security, penetration testing fundamentals, and defensive security techniques.
+    </p>
 
-<p><strong>Alex Amitraj Philip</strong></p>
+    <p class="letter-paragraph">
+      My academic and practical experience has provided me with a solid foundation in <strong>network security, cryptography, threat analysis, and secure system monitoring</strong>. I am also certified in <span class="highlight">CompTIA Security+</span> and <span class="highlight">CompTIA CySA+</span>, which reinforce my knowledge of security operations, risk management, and threat detection. In addition, I have experience working with scripting languages such as <span class="highlight">Python</span> and <span class="highlight">Bash</span> to automate troubleshooting tasks and improve efficiency.
+    </p>
 
-</div>
+    <p class="letter-paragraph">
+      Beyond technical expertise, I value structured problem-solving, clear communication, and continuous learning. I am particularly interested in roles that involve <strong>security monitoring, incident response, threat detection, and security engineering</strong> within dynamic and collaborative environments. I would welcome the opportunity to contribute my skills and enthusiasm to organizations committed to building resilient and secure systems.
+    </p>
+
+    <p class="letter-paragraph">Thank you for your time and consideration.</p>
+
+    <div class="letter-closing">
+      <p class="letter-closing-text">Kind regards,</p>
+      <div class="letter-sig-name">Alex Amitraj Philip</div>
+      <div class="letter-sig-role">Cybersecurity Professional · MSc Information Security</div>
+    </div>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="letter-footer">
+    <div style="display:flex;gap:1.5rem;flex-wrap:wrap;">
+      <a href="https://alexphilip01.github.io" class="letter-footer-link">alexphilip01.github.io</a>
+      <a href="https://linkedin.com/in/alexphilip170803" target="_blank" class="letter-footer-link">linkedin.com/in/alexphilip170803</a>
+    </div>
+    <a class="print-btn" onclick="window.print()">Print / Save PDF</a>
+  </div>
 
 </div>
 
 </body>
-
 </html>
