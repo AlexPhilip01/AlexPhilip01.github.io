@@ -96,51 +96,114 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* ── LETTER STACK ── */
+  /* ── LETTER CARDS ── */
   .letters-stack {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.2rem;
     margin-bottom: 2rem;
   }
-  .gallery-item {
-    position: relative;
+  .letter-card {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    cursor: pointer;
+    display: grid;
+    grid-template-columns: 200px 1fr;
     transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+    position: relative;
   }
-  .gallery-item:hover {
+  .letter-card:hover {
     border-color: var(--border2);
     transform: translateY(-2px);
     box-shadow: 0 8px 32px rgba(168,85,247,0.1);
   }
-  .gallery-item img {
-    width: 100%; display: block;
-    transition: transform 0.35s;
+  .letter-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.3s;
   }
-  .gallery-item:hover img { transform: scale(1.01); }
-  .gallery-overlay {
+  .letter-card:hover::before { opacity: 1; }
+
+  /* image side */
+  .letter-img-wrap {
+    position: relative;
+    overflow: hidden;
+    cursor: zoom-in;
+    background: #0d0a14;
+    border-right: 1px solid var(--border);
+  }
+  .letter-img-wrap img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+    display: block;
+    transition: transform 0.4s;
+  }
+  .letter-card:hover .letter-img-wrap img { transform: scale(1.04); }
+  .letter-img-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(8,6,8,0.8) 0%, transparent 40%);
+    background: rgba(7,5,10,0.5);
     opacity: 0; transition: opacity 0.25s;
-    display: flex; align-items: flex-end;
-    padding: 1.4rem;
+    display: flex; align-items: center; justify-content: center;
   }
-  .gallery-item:hover .gallery-overlay { opacity: 1; }
-  .gallery-overlay-text {
-    font-family: var(--mono); font-size: 0.72rem;
-    color: rgba(255,255,255,0.75); letter-spacing: 0.06em;
-    display: flex; align-items: center; gap: 0.5rem;
+  .letter-card:hover .letter-img-overlay { opacity: 1; }
+  .letter-img-overlay svg { color: #fff; }
+  .letter-num-badge {
+    position: absolute; top: 0.6rem; left: 0.6rem;
+    font-family: var(--mono); font-size: 0.62rem;
+    background: rgba(7,5,10,0.85); color: var(--accent);
+    padding: 0.2rem 0.5rem; border-radius: 4px;
+    letter-spacing: 0.06em; backdrop-filter: blur(4px);
   }
-  .gallery-num {
-    position: absolute; top: 1rem; right: 1rem;
-    font-family: var(--mono); font-size: 0.7rem;
-    background: rgba(8,6,8,0.8); color: var(--accent);
-    padding: 0.25rem 0.65rem; border-radius: 4px;
-    letter-spacing: 0.06em;
+
+  /* content side */
+  .letter-content {
+    padding: 1.4rem 1.6rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+  .letter-content-top {}
+  .letter-index {
+    font-family: var(--mono); font-size: 0.65rem;
+    color: var(--accent); letter-spacing: 0.1em;
+    text-transform: uppercase; margin-bottom: 0.4rem;
+  }
+  .letter-title {
+    font-family: var(--serif);
+    font-size: 1.1rem; color: var(--text);
+    line-height: 1.2; margin-bottom: 0.5rem;
+  }
+  .letter-desc {
+    font-size: 0.83rem; color: var(--text2);
+    line-height: 1.75;
+  }
+  .letter-meta {
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+    margin-top: 0.75rem;
+  }
+  .letter-tag {
+    font-family: var(--mono); font-size: 0.65rem;
+    padding: 0.2rem 0.6rem; border-radius: 4px;
+    background: var(--accent-dim); color: var(--accent2);
+    letter-spacing: 0.04em;
+  }
+  .letter-view-btn {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-family: var(--mono); font-size: 0.68rem;
+    color: var(--text3); letter-spacing: 0.05em;
+    transition: color 0.2s; margin-top: 0.2rem;
+  }
+  .letter-card:hover .letter-view-btn { color: var(--accent); }
+
+  @media (max-width: 640px) {
+    .letter-card { grid-template-columns: 1fr; }
+    .letter-img-wrap { height: 200px; border-right: none; border-bottom: 1px solid var(--border); }
   }
 
   /* ── LIGHTBOX ── */
@@ -239,43 +302,109 @@
     <div class="stat-pill"><div class="stat-pill-dot"></div>200+ Officers Trained</div>
   </div>
 
-  <!-- Letters stacked vertically -->
+  <!-- Letter Cards -->
   <div class="letters-stack">
 
-    <div class="gallery-item" onclick="openLightbox(0)">
-      <div class="gallery-num">01 / 06</div>
-      <img src="letter1.jpg" alt="Appreciation Letter 1" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(0)">
+        <div class="letter-num-badge">01 / 06</div>
+        <img src="letter1.jpg" alt="Appreciation Letter 01" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 01</div>
+          <div class="letter-title">Cybercrime Awareness Session</div>
+          <div class="letter-desc">Appreciation letter received for delivering a cybercrime awareness session covering phishing, online fraud, and digital safety practices for law enforcement personnel.</div>
+          <div class="letter-meta"><span class="letter-tag">Phishing Awareness</span><span class="letter-tag">Digital Safety</span><span class="letter-tag">Law Enforcement</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
-    <div class="gallery-item" onclick="openLightbox(1)">
-      <div class="gallery-num">02 / 06</div>
-      <img src="letter2.jpg" alt="Appreciation Letter 2" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(1)">
+        <div class="letter-num-badge">02 / 06</div>
+        <img src="letter2.jpg" alt="Appreciation Letter 02" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 02</div>
+          <div class="letter-title">Cyber Safety Workshop</div>
+          <div class="letter-desc">Recognition for conducting an interactive cyber safety workshop focused on social engineering attacks, password security, and safe internet practices for institutional staff.</div>
+          <div class="letter-meta"><span class="letter-tag">Social Engineering</span><span class="letter-tag">Password Security</span><span class="letter-tag">Staff Training</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
-    <div class="gallery-item" onclick="openLightbox(2)">
-      <div class="gallery-num">03 / 06</div>
-      <img src="letter3.jpg" alt="Appreciation Letter 3" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(2)">
+        <div class="letter-num-badge">03 / 06</div>
+        <img src="letter3.jpg" alt="Appreciation Letter 03" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 03</div>
+          <div class="letter-title">Cybersecurity Awareness Program</div>
+          <div class="letter-desc">Appreciation for organising a cybersecurity awareness program addressing current cyber threats, data protection strategies, and incident reporting procedures.</div>
+          <div class="letter-meta"><span class="letter-tag">Data Protection</span><span class="letter-tag">Threat Awareness</span><span class="letter-tag">Incident Reporting</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
-    <div class="gallery-item" onclick="openLightbox(3)">
-      <div class="gallery-num">04 / 06</div>
-      <img src="letter4.jpg" alt="Appreciation Letter 4" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(3)">
+        <div class="letter-num-badge">04 / 06</div>
+        <img src="letter4.jpg" alt="Appreciation Letter 04" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 04</div>
+          <div class="letter-title">Digital Literacy Initiative</div>
+          <div class="letter-desc">Letter of appreciation for contributing to a digital literacy initiative that educated participants on online privacy, secure communications, and responsible digital behaviour.</div>
+          <div class="letter-meta"><span class="letter-tag">Digital Literacy</span><span class="letter-tag">Online Privacy</span><span class="letter-tag">Secure Communications</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
-    <div class="gallery-item" onclick="openLightbox(4)">
-      <div class="gallery-num">05 / 06</div>
-      <img src="letter5.jpg" alt="Appreciation Letter 5" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(4)">
+        <div class="letter-num-badge">05 / 06</div>
+        <img src="letter5.jpg" alt="Appreciation Letter 05" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 05</div>
+          <div class="letter-title">Information Security Seminar</div>
+          <div class="letter-desc">Recognition for presenting an information security seminar covering network security fundamentals, malware threats, and defensive best practices for technical and non-technical audiences.</div>
+          <div class="letter-meta"><span class="letter-tag">Network Security</span><span class="letter-tag">Malware Threats</span><span class="letter-tag">Best Practices</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
-    <div class="gallery-item" onclick="openLightbox(5)">
-      <div class="gallery-num">06 / 06</div>
-      <img src="letter6.jpeg" alt="Appreciation Letter 6" loading="lazy">
-      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    <div class="letter-card">
+      <div class="letter-img-wrap" onclick="openLightbox(5)">
+        <div class="letter-num-badge">06 / 06</div>
+        <img src="letter6.jpeg" alt="Appreciation Letter 06" loading="lazy">
+        <div class="letter-img-overlay"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></div>
+      </div>
+      <div class="letter-content">
+        <div class="letter-content-top">
+          <div class="letter-index">// Appreciation Letter 06</div>
+          <div class="letter-title">Cyber Hygiene Outreach Program</div>
+          <div class="letter-desc">Appreciation for leading a cyber hygiene outreach program that trained participants in identifying suspicious activity, securing personal devices, and following secure coding practices.</div>
+          <div class="letter-meta"><span class="letter-tag">Cyber Hygiene</span><span class="letter-tag">Device Security</span><span class="letter-tag">Outreach</span></div>
+        </div>
+        <div class="letter-view-btn"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg> Click image to enlarge</div>
+      </div>
     </div>
 
   </div>
