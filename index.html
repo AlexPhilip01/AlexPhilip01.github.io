@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alex Philip | Cybersecurity Professional</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #07050a;
+    --bg2: #0b080f;
+    --bg3: #120f12;
+    --surface: #140d1a;
+    --surface2: #1a1020;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(160,80,255,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.12);
+    --accent-dim2: rgba(192,132,252,0.10);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --danger: #ff4d6d;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Outfit', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+  #node-canvas { touch-action: none; }
+
+  /* ── NOISE TEXTURE ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* ── NODE CANVAS ── */
+  #node-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── PAGE WRAP ── */
+  #page-wrap {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 2.5rem;
+    height: 54px;
+    background: rgba(8,6,8,0.96);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: var(--sans);
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.01em;
+    text-decoration: none;
+    flex-shrink: 0;
+  }
+  .nav-links { display: flex; gap: 0; list-style: none; align-items: center; }
+  .nav-links a {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 0.35rem 0.65rem;
+    border-radius: 4px;
+    transition: background 0.18s, color 0.18s;
+    white-space: nowrap;
+    display: block;
+    position: relative;
+  }
+  .nav-links a:hover { color: var(--accent); background: var(--accent-dim); }
+  .nav-links a.active { color: var(--accent); background: var(--accent-dim); }
+  .nav-links a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 2px;
+    background: var(--accent);
+    border-radius: 2px;
+  }
+  .nav-hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 6px 4px;
+    background: none;
+    border: none;
+    z-index: 210;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 22px; height: 2px;
+    background: var(--text2);
+    border-radius: 2px;
+    transition: transform 0.25s, opacity 0.2s, background 0.2s;
+  }
+  .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--accent); }
+  .nav-hamburger.open span:nth-child(2) { opacity: 0; }
+  .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--accent); }
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    top: 54px; left: 0; right: 0;
+    background: rgba(8,6,8,0.98);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border2);
+    z-index: 199;
+    padding: 0.5rem 0 1.2rem;
+    flex-direction: column;
+  }
+  .nav-drawer.open { display: flex; }
+  .nav-drawer a {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    padding: 0.7rem 2rem;
+    border-left: 2px solid transparent;
+    transition: color 0.18s, background 0.18s, border-color 0.18s;
+  }
+  .nav-drawer a:hover,
+  .nav-drawer a.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
+
+  /* ── HERO BAT ── */
+  #bat-canvas { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); }
+  @media (max-width: 900px) { #bat-canvas { display: none; } }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 8rem 2.5rem 4rem;
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .hero-inner { max-width: 760px; }
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid rgba(168,85,247,0.3);
+    padding: 0.3rem 0.8rem;
+    border-radius: 100px;
+    margin-bottom: 1.8rem;
+    letter-spacing: 0.06em;
+  }
+  .hero-tag::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .hero-name {
+    font-family: var(--serif);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+  }
+  .hero-name em {
+    font-style: italic;
+    color: var(--accent);
+  }
+  .hero-role {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    color: var(--text2);
+    margin-bottom: 1.8rem;
+    letter-spacing: 0.05em;
+  }
+  .hero-role span { color: var(--accent2); }
+  .hero-desc {
+    font-size: 1.05rem;
+    color: var(--text2);
+    line-height: 1.75;
+    max-width: 580px;
+    margin-bottom: 2.5rem;
+  }
+  .hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .btn-primary {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.75rem 1.6rem;
+    background: var(--accent);
+    color: #07050a;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    transition: opacity 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-ghost {
+    font-family: var(--sans);
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.75rem 1.6rem;
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    text-decoration: none;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .btn-ghost:hover { border-color: var(--accent); background: var(--accent-dim); }
+
+  .hero-glow {
+    position: absolute;
+    top: 10%; right: -10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(168,85,247,0.09) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ── SECTIONS ── */
+  section {
+    position: relative;
+    z-index: 1;
+    padding: 5rem 2.5rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.6rem;
+  }
+  .section-title {
+    font-family: var(--serif);
+    font-size: clamp(1.8rem, 3.5vw, 2.6rem);
+    color: var(--text);
+    line-height: 1.2;
+    margin-bottom: 3rem;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+    max-width: 1100px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── ABOUT ── */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+  .about-text p {
+    color: var(--text2);
+    line-height: 1.85;
+    margin-bottom: 1.2rem;
+    font-size: 0.97rem;
+  }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--border2); }
+  .stat-icon {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .stat-label { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.15rem; font-family: var(--mono); }
+  .stat-value { font-size: 0.95rem; font-weight: 500; color: var(--text); }
+
+  /* ── EDUCATION ── */
+  .edu-timeline { display: flex; flex-direction: column; gap: 1px; }
+  .edu-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 0;
+    position: relative;
+  }
+  .edu-row::before {
+    content: '';
+    position: absolute;
+    left: 179px;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: var(--border2);
+  }
+  .edu-year {
+    padding: 1.6rem 1.5rem 1.6rem 0;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-align: right;
+    padding-right: 2rem;
+    line-height: 1.4;
+  }
+  .edu-body {
+    padding: 1.6rem 0 1.6rem 2rem;
+    position: relative;
+  }
+  .edu-body::before {
+    content: '';
+    position: absolute;
+    left: -5px;
+    top: 2rem;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 1px var(--accent);
+  }
+  .edu-degree {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+  .edu-school {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+  }
+  .edu-badge {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    padding: 0.2rem 0.55rem;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.6rem;
+  }
+  .edu-modules {
+    font-size: 0.8rem;
+    color: var(--text3);
+    line-height: 1.6;
+  }
+
+  /* ── SKILLS ── */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+  .skill-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text2);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .skill-chip:hover { border-color: var(--accent); color: var(--text); }
+  .skill-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+  .skill-dot.blue { background: var(--accent2); }
+  .skill-dot.dim { background: var(--text3); }
+
+  /* ── PROJECTS ── */
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.2rem;
+  }
+  .project-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .project-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .project-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .project-card:hover::before { opacity: 1; }
+  .project-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .project-icon {
+    width: 40px; height: 40px;
+    border-radius: 8px;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+  }
+  .project-icon.blue { background: var(--accent-dim2); }
+  .project-arrow {
+    color: var(--text3);
+    font-size: 1.1rem;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .project-card:hover .project-arrow { color: var(--accent); transform: translate(2px, -2px); }
+  .project-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.2rem;
+  }
+  .project-desc { font-size: 0.85rem; color: var(--text2); line-height: 1.65; }
+  .project-tags { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.4rem; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    padding: 0.22rem 0.6rem;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.05);
+    color: var(--text3);
+    letter-spacing: 0.03em;
+  }
+  .tag.green { background: var(--accent-dim); color: var(--accent); }
+  .tag.blue { background: var(--accent-dim2); color: var(--accent2); }
+
+  /* ── CERTS ── */
+  .certs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1rem;
+  }
+  .cert-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 0.2s, transform 0.2s;
+    position: relative;
+  }
+  .cert-card:hover { border-color: var(--border2); transform: translateY(-1px); }
+  .cert-badge {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    background: var(--accent-dim);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .cert-badge img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+  .cert-badge.blue { background: var(--accent-dim2); }
+  .cert-badge.amber { background: rgba(255,170,0,0.12); }
+  .cert-name { font-size: 0.9rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+  .cert-issuer { font-size: 0.75rem; color: var(--text3); font-family: var(--mono); }
+  .cert-date { font-size: 0.7rem; color: var(--accent); font-family: var(--mono); margin-top: 0.2rem; }
+
+  /* badge hover preview */
+  .cert-preview {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.92);
+    width: 180px;
+    background: var(--bg2);
+    border: 1px solid var(--border2);
+    border-radius: 12px;
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 50;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+  .cert-preview::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border2);
+  }
+  .cert-preview img {
+    width: 120px;
+    height: 120px;
+    object-fit: contain;
+    border-radius: 8px;
+  }
+  .cert-preview-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--text3);
+    text-align: center;
+    letter-spacing: 0.04em;
+  }
+  .cert-card:hover .cert-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+    pointer-events: none;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+  .progress-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+  }
+  .progress-card-title { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.4rem; }
+  .progress-card-desc { font-size: 0.82rem; color: var(--text2); line-height: 1.6; margin-bottom: 1rem; }
+  .progress-bar-track {
+    height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.07);
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%; border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 1s ease;
+  }
+  .progress-pct {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    color: var(--text3);
+    margin-top: 0.4rem;
+    text-align: right;
+  }
+
+  /* ── CONNECT ── */
+  .connect-inner {
+    text-align: center;
+    padding: 2rem 0 1rem;
+    position: relative;
+  }
+  .connect-title {
+    font-family: var(--serif);
+    font-size: 2.4rem;
+    color: var(--text);
+    margin-bottom: 0.6rem;
+  }
+  .connect-icons {
+    display: flex;
+    gap: 2.5rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .connect-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text);
+    text-decoration: none;
+    transition: color 0.2s, transform 0.2s;
+  }
+  .connect-icon-link:hover { color: var(--accent); transform: translateY(-3px); }
+  .connect-icon-link svg { width: 36px; height: 36px; }
+  .connect-icon-link i { font-size: 36px; }
+
+  /* ── FOOTER ── */
+  footer {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text3);
+    font-size: 0.75rem;
+    font-family: var(--mono);
+  }
+  footer span { color: var(--accent); }
+
+  /* ── FEATURED LINKS ── */
+  .featured-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .featured-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: var(--text2);
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .featured-item:hover { border-color: var(--accent); color: var(--text); }
+  .featured-item svg { flex-shrink: 0; }
+
+  /* featured hover preview */
+  .featured-item { position: relative; overflow: visible; }
+  .featured-preview {
+    position: absolute;
+    bottom: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%) scale(0.94);
+    width: 260px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 10px;
+    padding: 1rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+    z-index: 50;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7);
+  }
+  .featured-preview::after {
+    content: '';
+    position: absolute;
+    top: 100%; left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--border2);
+  }
+  .featured-preview-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 0.6rem;
+  }
+  .featured-preview-text {
+    font-size: 0.75rem;
+    color: var(--text2);
+    line-height: 1.65;
+  }
+  .featured-preview-text strong { color: var(--text); font-weight: 600; }
+  .featured-preview-text .hl { color: var(--accent); }
+  .featured-item:hover .featured-preview {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+
+  /* blog dropdown sub-menu */
+  .featured-blogs { cursor: default; }
+  .featured-blog-menu { width: 200px; padding: 0.6rem 0; pointer-events: auto !important; }
+  .blog-sub-link {
+    display: flex; align-items: center; gap: 0.55rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem; font-weight: 500;
+    color: var(--text2);
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background 0.15s, color 0.15s;
+    margin: 0 0.4rem;
+  }
+  .blog-sub-link:hover { background: var(--accent-dim); color: var(--accent); }
+  .blog-sub-link svg { flex-shrink: 0; color: var(--accent); }
+  .blog-sub-soon {
+    display: flex; align-items: center; gap: 0.55rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text3);
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+    margin: 0 0.4rem;
+  }
+  .blog-sub-soon svg { flex-shrink: 0; }
+
+  /* ── RESPONSIVE ── */
+  /* ── TABLET (≤900px) ── */
+  @media (max-width: 900px) {
+    nav { padding: 0 1.5rem; }
+    .nav-links { display: none; }
+    .nav-hamburger { display: flex; }
+    section { padding: 3.5rem 1.5rem; }
+    #hero { padding: 7rem 1.5rem 3rem; min-height: auto; }
+    .about-grid { grid-template-columns: 1fr; gap: 2rem; }
+    .connect-inner { padding: 2rem 1.5rem; }
+    .projects-grid { grid-template-columns: 1fr 1fr; }
+    .certs-grid { grid-template-columns: 1fr 1fr; }
+    .progress-cards { grid-template-columns: 1fr 1fr; }
+    .featured-preview { display: none !important; }
+    .cert-preview { display: none !important; }
+  }
+
+  /* ── MOBILE (≤600px) ── */
+  @media (max-width: 600px) {
+    nav { padding: 0 1rem; }
+    section { padding: 2.5rem 1rem; }
+    #hero { padding: 6rem 1rem 2.5rem; }
+
+    .hero-name { font-size: clamp(2.4rem, 11vw, 3.5rem); }
+    .hero-role { font-size: 0.82rem; }
+    .hero-desc { font-size: 0.9rem; }
+    .hero-actions { flex-direction: column; gap: 0.75rem; }
+    .btn-primary, .btn-ghost { text-align: center; }
+
+    .section-title { font-size: 1.6rem; margin-bottom: 1.5rem; }
+
+    .about-sidebar { gap: 0.75rem; }
+    .stat-card { padding: 0.9rem 1rem; }
+
+    .edu-row { grid-template-columns: 80px 1fr; }
+    .edu-year { font-size: 0.65rem; padding-right: 1rem; }
+    .edu-body { padding-left: 1.2rem; }
+
+    .skills-grid { grid-template-columns: 1fr 1fr; }
+    .skill-chip { font-size: 0.78rem; padding: 0.6rem 0.75rem; }
+
+    .featured-row { grid-template-columns: 1fr 1fr; }
+
+    .projects-grid { grid-template-columns: 1fr; }
+    .project-card { padding: 1.2rem; }
+
+    .certs-grid { grid-template-columns: 1fr; }
+    .cert-card { padding: 1rem; }
+
+    .progress-cards { grid-template-columns: 1fr; }
+
+    .connect-inner { padding: 1.5rem 1rem; }
+    .connect-title { font-size: 1.7rem; }
+    .connect-icons { gap: 1.4rem; flex-wrap: wrap; justify-content: center; }
+    .connect-icon-link i, .connect-icon-link svg { font-size: 28px; width: 28px; height: 28px; }
+
+    .divider { margin: 0 1rem; }
+
+    footer { padding: 1.5rem 1rem; font-size: 0.7rem; }
+
+    .nav-drawer a { padding: 0.65rem 1.5rem; font-size: 0.85rem; }
+  }
+
+  /* ── SMALL MOBILE (≤380px) ── */
+  @media (max-width: 380px) {
+    .hero-name { font-size: 2.2rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .featured-row { grid-template-columns: 1fr; }
+    .connect-icons { gap: 1rem; }
+  }
+</style>
+</head>
+<body>
+<canvas id="node-canvas"></canvas>
+<div id="page-wrap">
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">Portfolio</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#featured">Featured</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#certs">Certifications</a></li>
+    <li><a href="#progress">Progress</a></li>
+    <li><a href="#contact">Connect</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE DRAWER -->
+<div class="nav-drawer" id="nav-drawer">
+  <a href="#about">About</a>
+  <a href="#education">Education</a>
+  <a href="#skills">Skills</a>
+  <a href="#featured">Featured</a>
+  <a href="#projects">Projects</a>
+  <a href="#certs">Certifications</a>
+  <a href="#progress">Progress</a>
+  <a href="#contact">Connect</a>
+</div>
+
+<!-- HERO -->
+<section id="hero" style="padding-top:0">
+  <div class="hero-glow"></div>
+  <div class="hero-inner">
+    <div class="hero-tag">Available for opportunities</div>
+    <h1 class="hero-name">Alex<br><em>Philip</em></h1>
+    <p class="hero-role">Cybersecurity Professional &nbsp;·&nbsp; <span>MSc Information Security</span></p>
+    <p class="hero-desc">
+      Specializing in application security, threat detection, and incident response. Passionate about analyzing security threats, investigating incidents, and building resilient defenses.
+    </p>
+    <div class="hero-actions">
+      <a href="#projects" class="btn-primary">View Projects</a>
+      <a href="CV.pdf" target="_blank" class="btn-ghost">Download CV</a>
+    </div>
+  </div>
+  <canvas id="bat-canvas" width="268" height="228" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-52%);pointer-events:none;opacity:0.92;"></canvas>
+</section>
+
+<div class="divider"></div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="section-label">// about</div>
+  <div class="section-title">Background &amp; Focus</div>
+  <div class="about-grid">
+    <div class="about-text">
+      <p>Cybersecurity professional with an <strong style="color:var(--text)">MSc in Information Security from Royal Holloway, University of London</strong> — an NCSC/GCHQ-accredited programme. My focus spans threat detection, SOC operations, incident response, and digital forensics, with a strong interest in applying analytical skills to real-world security challenges.</p>
+      <p>During a six-month internship at the <strong style="color:var(--text)">Cyber Crime Department, Government of Puducherry</strong>, I investigated cases involving phishing, financial fraud, and identity theft using tools such as <strong style="color:var(--text)">Autopsy and FTK</strong>. I supported ISO/IEC 27001-aligned policy development, collaborated with law enforcement on incident response, and delivered cybersecurity training to over <strong style="color:var(--text)">200 officers</strong>.</p>
+      <p>I continuously build hands-on skills through <strong style="color:var(--text)">Blue Team Labs Online</strong> and <strong style="color:var(--text)">TryHackMe</strong> — working through log analysis, threat hunting, malware investigation, and network defence scenarios. I also develop Python and Bash tools to automate security workflows, with projects in phishing detection, SOC log analysis, and threat intelligence.</p>
+    </div>
+    <div class="about-sidebar">
+      <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div>
+          <div class="stat-label">Education</div>
+          <div class="stat-value">MSc Information Security</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏛️</div>
+        <div>
+          <div class="stat-label">Internship</div>
+          <div class="stat-value">Cybercrime Dept, Govt of India</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛡️</div>
+        <div>
+          <div class="stat-label">Certifications</div>
+          <div class="stat-value">CompTIA Security+ &amp; CySA+</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚙️</div>
+        <div>
+          <div class="stat-label">Focus</div>
+          <div class="stat-value">Blue Team · Threat Detection · DFIR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="section-label">// education</div>
+  <div class="section-title">Academic Background</div>
+  <div class="edu-timeline">
+
+    <div class="edu-row">
+      <div class="edu-year">2022 – 2024</div>
+      <div class="edu-body">
+        <div class="edu-degree">MSc Information Security</div>
+        <div class="edu-school">Royal Holloway, University of London</div>
+        <span class="edu-badge">NCSC / GCHQ Accredited</span>
+        <div class="edu-modules">Cryptography · Network Security · Cyber Forensics · Software Security · Penetration Testing · Security Management · Incident Response</div>
+      </div>
+    </div>
+
+    <div class="edu-row">
+      <div class="edu-year">2017 – 2021</div>
+      <div class="edu-body">
+        <div class="edu-degree">B.E Electrical &amp; Electronics Engineering</div>
+        <div class="edu-school">Sri Krishna Institutions, Coimbatore</div>
+        <div class="edu-modules">Data Structures · Linux &amp; C++ Programming · Control Systems · Smart Grid Technology · Digital Signal Processing · Power System Analysis · Microprocessors &amp; Microcontrollers</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="section-label">// skills</div>
+  <div class="section-title">Technical Expertise</div>
+
+  <div style="display:flex;flex-direction:column;gap:2.2rem;">
+
+    <!-- Monitoring & Incident Handling -->
+    <div>
+      <div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:0.75rem;">Monitoring &amp; Incident Handling</div>
+      <div class="skills-grid">
+        <div class="skill-chip"><div class="skill-dot"></div>Log Analysis</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Alert Triage</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Incident Response</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Incident Documentation</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Threat Detection</div>
+        <div class="skill-chip"><div class="skill-dot"></div>SOC Operations</div>
+      </div>
+    </div>
+
+    <!-- Digital Forensics & Security -->
+    <div>
+      <div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:0.75rem;">Security &amp; Forensics</div>
+      <div class="skills-grid">
+        <div class="skill-chip"><div class="skill-dot blue"></div>Digital Forensics</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Cyber Forensics</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Malware Analysis</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>SAST / DAST</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Ethical Hacking</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Penetration Testing</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Cryptography</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Risk Management</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Threat Analysis</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Risk Mitigation</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>Security Protocols</div>
+        <div class="skill-chip"><div class="skill-dot blue"></div>IoT Security</div>
+      </div>
+    </div>
+
+    <!-- Networking & Systems -->
+    <div>
+      <div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:0.75rem;">Networking &amp; Systems</div>
+      <div class="skills-grid">
+        <div class="skill-chip"><div class="skill-dot"></div>TCP/IP</div>
+        <div class="skill-chip"><div class="skill-dot"></div>DNS &amp; DHCP</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Routing &amp; Switching</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Network Security</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Windows Administration</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Linux Administration</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Active Directory</div>
+        <div class="skill-chip"><div class="skill-dot"></div>Autopsy &amp; FTK</div>
+      </div>
+    </div>
+
+    <!-- Languages & Scripting -->
+    <div>
+      <div style="font-family:var(--mono);font-size:0.7rem;letter-spacing:0.1em;color:var(--text3);text-transform:uppercase;margin-bottom:0.75rem;">Languages &amp; Scripting</div>
+      <div class="skills-grid">
+        <div class="skill-chip"><div class="skill-dot dim"></div>Python</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>Bash</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>PowerShell</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>C++</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>HTML</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>Secure Coding</div>
+        <div class="skill-chip"><div class="skill-dot dim"></div>Secure Data Transmission</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURED -->
+<section id="featured">
+  <div class="section-label">// featured</div>
+  <div class="section-title">Quick Access</div>
+  <div class="featured-row">
+    <a href="cv.html" class="featured-item">
+      <div class="featured-preview">
+        <div class="featured-preview-title">Curriculum Vitae</div>
+        <div class="featured-preview-text">
+          <strong>Alex Amitraj Philip</strong><br>
+          MSc Information Security · Royal Holloway, University of London<br><br>
+          <span class="hl">CompTIA Security+ &amp; CySA+</span><br>
+          Cybercrime Intern · Govt of India<br>
+          Python · Bash · Threat Detection
+        </div>
+      </div>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      My CV
+    </a>
+    <a href="coverletter.html" class="featured-item">
+      <div class="featured-preview">
+        <div class="featured-preview-title">Cover Letter</div>
+        <div class="featured-preview-text">
+          Cybersecurity professional seeking roles in <span class="hl">security monitoring, incident response &amp; threat detection</span>.<br><br>
+          Highlights: Govt of India internship · BTLO &amp; TryHackMe · Security+ &amp; CySA+ certified.
+        </div>
+      </div>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Cover Letter
+    </a>
+    <div class="featured-item featured-blogs">
+      <div class="featured-preview featured-blog-menu">
+        <div class="featured-preview-title">Blogs</div>
+        <a href="malware-analysis.html" class="blog-sub-link">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Malware Analysis
+        </a>
+        <div class="blog-sub-soon">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          More coming soon
+        </div>
+      </div>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Blogs
+    </div>
+    <div class="featured-item featured-blogs" id="writeups-item">
+      <div class="featured-preview featured-blog-menu" style="width:220px;">
+        <div class="featured-preview-title">Security Write-ups</div>
+        <a href="malware-analysis.html" class="blog-sub-link">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Malware Analysis
+        </a>
+        <div class="blog-sub-soon">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          More coming soon
+        </div>
+      </div>
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      Security Write-ups
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="section-label">// projects</div>
+  <div class="section-title">Notable Work</div>
+  <div class="projects-grid">
+
+    <a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank" class="project-card">
+      <div class="project-header">
+        <div class="project-icon">📧</div>
+        <span class="project-arrow">↗</span>
+      </div>
+      <div>
+        <div class="project-name">Phishing Email Analyzer</div>
+        <div class="project-desc">Python tool that parses .eml headers to detect phishing indicators, extract sender IPs, and highlight suspicious patterns used in phishing campaigns.</div>
+      </div>
+      <div class="project-tags">
+        <span class="tag green">Python</span>
+        <span class="tag">Email Security</span>
+        <span class="tag">Threat Detection</span>
+      </div>
+    </a>
+
+    <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank" class="project-card">
+      <div class="project-header">
+        <div class="project-icon blue">🔍</div>
+        <span class="project-arrow">↗</span>
+      </div>
+      <div>
+        <div class="project-name">SOC Log Analyzer</div>
+        <div class="project-desc">Security log analysis tool that detects suspicious authentication activity and identifies brute-force attacks through automated log parsing.</div>
+      </div>
+      <div class="project-tags">
+        <span class="tag blue">Python</span>
+        <span class="tag">Log Analysis</span>
+        <span class="tag">SOC</span>
+      </div>
+    </a>
+
+    <a href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank" class="project-card">
+      <div class="project-header">
+        <div class="project-icon">🌐</div>
+        <span class="project-arrow">↗</span>
+      </div>
+      <div>
+        <div class="project-name">Threat Intel IP Checker</div>
+        <div class="project-desc">Extracts IP addresses from logs and evaluates their reputation using AbuseIPDB to identify potentially malicious hosts in real time.</div>
+      </div>
+      <div class="project-tags">
+        <span class="tag green">Python</span>
+        <span class="tag">OSINT</span>
+        <span class="tag">AbuseIPDB</span>
+      </div>
+    </a>
+
+
+    <div class="project-card" style="cursor:default; opacity:0.65;">
+      <div class="project-header">
+        <div class="project-icon blue">🤖</div>
+      </div>
+      <div>
+        <div class="project-name">Financial Fraud Detection</div>
+        <div class="project-desc">Hybrid ML system using Neural Networks, Random Forest, and XGBoost to detect fraudulent financial transactions at scale.</div>
+      </div>
+      <div class="project-tags">
+        <span class="tag">Machine Learning</span>
+        <span class="tag">XGBoost</span>
+        <span class="tag">Python</span>
+      </div>
+    </div>
+
+    <div class="project-card" style="cursor:default; opacity:0.65;">
+      <div class="project-header">
+        <div class="project-icon">🖥️</div>
+      </div>
+      <div>
+        <div class="project-name">Cybersecurity Monitoring Lab</div>
+        <div class="project-desc">Home lab environment for investigating logs, configuring firewall rules, and practicing real-world incident investigation techniques.</div>
+      </div>
+      <div class="project-tags">
+        <span class="tag">Homelab</span>
+        <span class="tag">Firewall</span>
+        <span class="tag">Incident Response</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CERTIFICATIONS -->
+<section id="certs">
+  <div class="section-label">// certifications</div>
+  <div class="section-title">Achievements &amp; Credentials</div>
+  <div class="certs-grid">
+
+    <!-- Security+ -->
+    <a href="securityplus.html" class="cert-card">
+      <div class="cert-preview">
+        <img src="security.png" alt="CompTIA Security+ badge">
+        <div class="cert-preview-label">Click to view certificate</div>
+      </div>
+      <div class="cert-badge" style="background:transparent;">
+        <img src="security.png" alt="Security+ badge">
+      </div>
+      <div>
+        <div class="cert-name">CompTIA Security+</div>
+        <div class="cert-issuer">CompTIA · CE Certified</div>
+        <div class="cert-date">May 2024 · Exp Jun 2027</div>
+      </div>
+    </a>
+
+    <!-- CySA+ -->
+    <a href="cysa.html" class="cert-card">
+      <div class="cert-preview">
+        <img src="cysa.png" alt="CompTIA CySA+ badge">
+        <div class="cert-preview-label">Click to view certificate</div>
+      </div>
+      <div class="cert-badge" style="background:transparent;">
+        <img src="cysa.png" alt="CySA+ badge">
+      </div>
+      <div>
+        <div class="cert-name">CompTIA CySA+</div>
+        <div class="cert-issuer">CompTIA · CE Certified</div>
+        <div class="cert-date">Jun 2024 · Exp Jun 2027</div>
+      </div>
+    </a>
+
+    <a href="cybercrime.html" class="cert-card">
+      <div class="cert-preview">
+        <img src="cybercrime.jpg" alt="Cybercrime Internship Certificate preview" style="width:150px;height:auto;border-radius:6px;">
+        <div class="cert-preview-label">Click to view certificate</div>
+      </div>
+      <div class="cert-badge amber" style="background:transparent;padding:0;">
+        <img src="govt.png" alt="Govt of India" style="width:44px;height:44px;object-fit:contain;border-radius:6px;">
+      </div>
+      <div>
+        <div class="cert-name">Cybercrime Internship</div>
+        <div class="cert-issuer">Govt of Puducherry UT · Police Dept</div>
+        <div class="cert-date">Jul 2024 – Jan 2025</div>
+      </div>
+    </a>
+
+    <a href="awareness.html" class="cert-card">
+      <div class="cert-preview" style="width:200px;">
+        <img src="letter1.jpg" alt="Appreciation Letter preview" style="width:160px;height:auto;border-radius:6px;">
+        <div class="cert-preview-label">6 appreciation letters · Click to view</div>
+      </div>
+      <div class="cert-badge">📢</div>
+      <div>
+        <div class="cert-name">Cybersecurity Awareness Programs</div>
+        <div class="cert-issuer">Various Institutions</div>
+        <div class="cert-date">6 Appreciation Letters</div>
+      </div>
+    </a>
+
+    <a href="cyberxplore.html" class="cert-card">
+      <div class="cert-badge blue">🔭</div>
+      <div>
+        <div class="cert-name">Cyberxplore Workshop</div>
+        <div class="cert-issuer">Workshop</div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROGRESS -->
+<section id="progress">
+  <div class="section-label">// current progress</div>
+  <div class="section-title">Ongoing Learning</div>
+  <div class="progress-cards">
+    <div class="progress-card">
+      <div class="progress-card-title">Blue Team Labs Online</div>
+      <div class="progress-card-desc">Log analysis, threat hunting, and incident investigation challenges with real-world security scenarios.</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:75%"></div></div>
+      <div class="progress-pct">Active</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-card-title">TryHackMe</div>
+      <div class="progress-card-desc">Structured learning paths in penetration testing, defensive security, and network analysis.</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:65%"></div></div>
+      <div class="progress-pct">Active</div>
+    </div>
+    <div class="progress-card">
+      <div class="progress-card-title">Security Write-ups</div>
+      <div class="progress-card-desc">Documenting threat analysis, malware investigations, and lab findings to contribute to the community.</div>
+      <div class="progress-bar-track"><div class="progress-bar-fill" style="width:30%"></div></div>
+      <div class="progress-pct">In Progress</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CONNECT -->
+<section id="contact">
+  <div class="connect-inner">
+    <div class="connect-title">Let's Work Together</div>
+    <p style="color:var(--text2);font-size:0.95rem;max-width:480px;margin:0 auto 2.5rem;line-height:1.75;">Open to cybersecurity roles, collaborations, and conversations about security research and defensive operations.</p>
+    <div class="connect-icons">
+      <a href="https://github.com/AlexPhilip01" target="_blank" class="connect-icon-link" aria-label="GitHub"><i class="fab fa-github"></i></a>
+      <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="connect-icon-link" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+      <a href="mailto:alex.philip99@hotmail.com" class="connect-icon-link" aria-label="Email"><i class="fas fa-envelope"></i></a>
+      <a href="https://tryhackme.com/p/Alex.philip99" target="_blank" class="connect-icon-link" aria-label="TryHackMe"><i class="fas fa-terminal"></i></a>
+      <a href="https://blueteamlabs.online/home/investigations?category=ALL" target="_blank" class="connect-icon-link" aria-label="Blue Team Labs"><i class="fas fa-shield-halved"></i></a>
+      <a href="https://www.instagram.com/mr.philip_01/" target="_blank" class="connect-icon-link" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <span>Alex Philip</span> · Built with intention · 2025
+</footer>
+
+</div><!-- end #page-wrap -->
+
+<script>
+// ── HAMBURGER ──
+const hamburger = document.getElementById('hamburger');
+const drawer = document.getElementById('nav-drawer');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('open');
+  drawer.classList.toggle('open');
+});
+// close drawer on link click
+drawer.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    drawer.classList.remove('open');
+  });
+});
+
+// ── SCROLL SPY ──
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-links a, .nav-drawer a');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(a => {
+        a.classList.remove('active');
+        if (a.getAttribute('href') === '#' + entry.target.id) {
+          a.classList.add('active');
+        }
+      });
+    }
+  });
+}, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+
+<script>
+(function() {
+  // ── NODE CANVAS ──
+  const canvas = document.getElementById('node-canvas');
+  const ctx = canvas.getContext('2d');
+  const ACCENT = '#a855f7';
+  const ACCENT2 = '#c084fc';
+  const isMobile = () => window.innerWidth <= 600;
+  const MAX_DIST = 160;
+  const MOUSE_RADIUS = 200;
+
+  let W, H, nodes, mouse = { x: -9999, y: -9999 };
+
+  function rand(a, b) { return a + Math.random() * (b - a); }
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function initNodes() {
+    const count = isMobile() ? 40 : 80;
+    nodes = [];
+    for (let i = 0; i < count; i++) {
+      nodes.push({
+        x: rand(0, W), y: rand(0, H),
+        vx: rand(-0.35, 0.35), vy: rand(-0.35, 0.35),
+        r: rand(1.2, isMobile() ? 2.5 : 3.2),
+        pulse: rand(0, Math.PI * 2),
+        pulseSpeed: rand(0.01, 0.025)
+      });
+    }
+  }
+
+  function hexToRgb(hex) {
+    return `${parseInt(hex.slice(1,3),16)},${parseInt(hex.slice(3,5),16)},${parseInt(hex.slice(5,7),16)}`;
+  }
+  const RGB1 = hexToRgb(ACCENT);
+  const RGB2 = hexToRgb(ACCENT2);
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    const maxDist = isMobile() ? 120 : MAX_DIST;
+
+    for (let n of nodes) {
+      n.x += n.vx; n.y += n.vy; n.pulse += n.pulseSpeed;
+      if (n.x < 0 || n.x > W) n.vx *= -1;
+      if (n.y < 0 || n.y > H) n.vy *= -1;
+      const dx = n.x - mouse.x, dy = n.y - mouse.y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < MOUSE_RADIUS && d > 0) {
+        const force = (MOUSE_RADIUS - d) / MOUSE_RADIUS * 0.6;
+        n.vx += (dx/d)*force; n.vy += (dy/d)*force;
+        const spd = Math.sqrt(n.vx*n.vx + n.vy*n.vy);
+        if (spd > 2.5) { n.vx = (n.vx/spd)*2.5; n.vy = (n.vy/spd)*2.5; }
+      }
+    }
+
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i+1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = a.x - b.x, dy = a.y - b.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < maxDist) {
+          const alpha = (1 - dist/maxDist) * 0.45;
+          ctx.strokeStyle = `rgba(${(i+j)%2===0?RGB1:RGB2},${alpha})`;
+          ctx.lineWidth = (1 - dist/maxDist) * 1.2;
+          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+        }
+      }
+    }
+
+    for (let n of nodes) {
+      const glow = (Math.sin(n.pulse)+1)/2;
+      const alpha = 0.5 + glow*0.5;
+      const radius = n.r + glow*1.2;
+      const rgb = Math.floor(n.pulse*10)%2===0 ? RGB1 : RGB2;
+      ctx.beginPath(); ctx.arc(n.x, n.y, radius*2.5, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${rgb},${0.04+glow*0.04})`; ctx.fill();
+      ctx.beginPath(); ctx.arc(n.x, n.y, radius, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${rgb},${alpha})`; ctx.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', () => { resize(); initNodes(); });
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+  window.addEventListener('touchmove', e => {
+    const t = e.touches[0];
+    mouse.x = t.clientX; mouse.y = t.clientY;
+  }, { passive: true });
+  window.addEventListener('touchend', () => { mouse.x = -9999; mouse.y = -9999; });
+
+  resize(); initNodes(); draw();
+
+  // ── BAT CANVAS ──
+  const batCanvas = document.getElementById('bat-canvas');
+  if (batCanvas) {
+    const bctx = batCanvas.getContext('2d');
+    const BAT_FRAMES = [[[21, 6, 1], [22, 6, 1], [13, 7, 1], [14, 7, 1], [15, 7, 1], [21, 7, 2], [22, 7, 2], [23, 7, 1], [11, 8, 1], [12, 8, 2], [13, 8, 1], [21, 8, 1], [22, 8, 2], [23, 8, 2], [24, 8, 2], [25, 8, 2], [26, 8, 1], [10, 9, 1], [11, 9, 2], [12, 9, 2], [13, 9, 1], [22, 9, 1], [23, 9, 2], [24, 9, 2], [25, 9, 2], [26, 9, 1], [9, 10, 1], [10, 10, 2], [11, 10, 2], [12, 10, 2], [23, 10, 2], [24, 10, 2], [25, 10, 2], [26, 10, 2], [27, 10, 1], [8, 11, 1], [9, 11, 2], [10, 11, 2], [11, 11, 2], [12, 11, 1], [21, 11, 1], [22, 11, 1], [23, 11, 2], [24, 11, 2], [25, 11, 2], [26, 11, 2], [27, 11, 2], [28, 11, 1], [8, 12, 2], [9, 12, 2], [10, 12, 2], [11, 12, 2], [12, 12, 1], [23, 12, 2], [24, 12, 2], [25, 12, 2], [26, 12, 2], [27, 12, 2], [28, 12, 2], [30, 12, 1], [7, 13, 1], [8, 13, 2], [9, 13, 2], [10, 13, 2], [11, 13, 2], [12, 13, 2], [13, 13, 2], [14, 13, 1], [22, 13, 1], [23, 13, 2], [24, 13, 2], [25, 13, 2], [26, 13, 2], [27, 13, 2], [28, 13, 2], [31, 13, 1], [32, 13, 1], [8, 14, 2], [9, 14, 2], [10, 14, 2], [11, 14, 2], [12, 14, 2], [13, 14, 2], [14, 14, 1], [21, 14, 1], [22, 14, 1], [23, 14, 2], [24, 14, 2], [25, 14, 2], [26, 14, 2], [27, 14, 2], [28, 14, 2], [31, 14, 2], [32, 14, 2], [33, 14, 1], [8, 15, 2], [9, 15, 2], [10, 15, 2], [11, 15, 2], [12, 15, 2], [13, 15, 1], [20, 15, 1], [21, 15, 2], [22, 15, 2], [23, 15, 2], [24, 15, 2], [25, 15, 2], [26, 15, 2], [27, 15, 2], [28, 15, 1], [29, 15, 1], [31, 15, 2], [32, 15, 2], [33, 15, 1], [7, 16, 1], [8, 16, 2], [9, 16, 2], [10, 16, 2], [11, 16, 2], [12, 16, 2], [14, 16, 1], [18, 16, 1], [21, 16, 2], [22, 16, 2], [23, 16, 2], [24, 16, 2], [25, 16, 2], [26, 16, 2], [27, 16, 2], [28, 16, 2], [29, 16, 1], [31, 16, 2], [5, 17, 1], [8, 17, 2], [9, 17, 2], [10, 17, 2], [11, 17, 2], [12, 17, 1], [13, 17, 1], [14, 17, 2], [15, 17, 1], [17, 17, 1], [18, 17, 2], [21, 17, 1], [22, 17, 2], [23, 17, 2], [24, 17, 2], [25, 17, 2], [26, 17, 2], [27, 17, 2], [28, 17, 2], [4, 18, 1], [5, 18, 2], [6, 18, 1], [8, 18, 1], [9, 18, 2], [10, 18, 2], [11, 18, 2], [12, 18, 1], [13, 18, 2], [14, 18, 2], [15, 18, 2], [16, 18, 1], [17, 18, 2], [18, 18, 2], [19, 18, 1], [20, 18, 1], [21, 18, 2], [22, 18, 2], [23, 18, 2], [24, 18, 2], [25, 18, 2], [26, 18, 2], [27, 18, 2], [28, 18, 1], [31, 18, 1], [5, 19, 1], [7, 19, 2], [8, 19, 2], [9, 19, 2], [10, 19, 2], [11, 19, 2], [12, 19, 1], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 1], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 2], [25, 19, 2], [26, 19, 2], [27, 19, 2], [28, 19, 1], [31, 19, 2], [7, 20, 2], [8, 20, 1], [9, 20, 1], [10, 20, 2], [11, 20, 2], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 2], [24, 20, 2], [25, 20, 2], [26, 20, 2], [27, 20, 1], [30, 20, 1], [31, 20, 1], [10, 21, 1], [11, 21, 1], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 2], [21, 21, 2], [22, 21, 2], [23, 21, 1], [24, 21, 1], [25, 21, 1], [7, 22, 1], [8, 22, 1], [9, 22, 2], [11, 22, 1], [12, 22, 2], [13, 22, 2], [14, 22, 2], [15, 22, 2], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 2], [21, 22, 2], [22, 22, 2], [23, 22, 1], [7, 23, 2], [8, 23, 2], [10, 23, 2], [12, 23, 1], [14, 23, 2], [15, 23, 2], [18, 23, 2], [19, 23, 2], [20, 23, 2], [21, 23, 2], [22, 23, 2], [23, 23, 2], [24, 23, 2], [25, 23, 2], [26, 23, 1], [12, 24, 1], [13, 24, 2], [14, 24, 2], [15, 24, 2], [16, 24, 2], [17, 24, 2], [18, 24, 2], [19, 24, 2], [20, 24, 2], [21, 24, 2], [22, 24, 2], [23, 24, 2], [24, 24, 2], [25, 24, 1], [13, 25, 2], [14, 25, 2], [15, 25, 2], [16, 25, 2], [17, 25, 2], [18, 25, 2], [19, 25, 2], [20, 25, 2], [21, 25, 2], [22, 25, 1], [23, 25, 1], [24, 25, 1], [15, 26, 1], [16, 26, 1], [17, 26, 1], [18, 26, 1], [19, 26, 1], [20, 26, 1], [30, 28, 2], [14, 29, 2]], [[12, 7, 1], [11, 8, 2], [12, 8, 2], [22, 8, 1], [23, 8, 2], [24, 8, 1], [26, 8, 1], [27, 8, 1], [8, 9, 1], [10, 9, 1], [11, 9, 2], [12, 9, 1], [23, 9, 2], [24, 9, 2], [25, 9, 1], [26, 9, 2], [27, 9, 2], [28, 9, 1], [8, 10, 1], [9, 10, 1], [10, 10, 2], [11, 10, 1], [23, 10, 1], [24, 10, 2], [25, 10, 2], [26, 10, 1], [27, 10, 2], [28, 10, 2], [8, 11, 2], [9, 11, 2], [10, 11, 2], [23, 11, 1], [24, 11, 2], [25, 11, 2], [26, 11, 1], [27, 11, 2], [28, 11, 2], [29, 11, 1], [7, 12, 1], [8, 12, 2], [9, 12, 2], [10, 12, 2], [23, 12, 1], [24, 12, 2], [25, 12, 2], [26, 12, 2], [27, 12, 2], [28, 12, 2], [29, 12, 1], [6, 13, 1], [7, 13, 1], [8, 13, 2], [9, 13, 2], [10, 13, 2], [12, 13, 1], [23, 13, 2], [24, 13, 2], [25, 13, 2], [26, 13, 2], [27, 13, 2], [28, 13, 2], [29, 13, 2], [30, 13, 1], [33, 13, 1], [6, 14, 1], [7, 14, 1], [8, 14, 2], [9, 14, 2], [10, 14, 2], [11, 14, 1], [12, 14, 2], [23, 14, 1], [24, 14, 2], [25, 14, 2], [26, 14, 2], [27, 14, 2], [28, 14, 2], [29, 14, 2], [30, 14, 1], [33, 14, 2], [6, 15, 1], [7, 15, 1], [8, 15, 2], [9, 15, 2], [10, 15, 2], [11, 15, 2], [12, 15, 1], [21, 15, 1], [22, 15, 1], [23, 15, 1], [24, 15, 2], [25, 15, 2], [26, 15, 2], [27, 15, 2], [28, 15, 2], [29, 15, 2], [30, 15, 1], [4, 16, 2], [5, 16, 2], [6, 16, 1], [7, 16, 2], [8, 16, 2], [9, 16, 2], [10, 16, 2], [11, 16, 1], [13, 16, 1], [14, 16, 1], [18, 16, 1], [22, 16, 2], [23, 16, 2], [24, 16, 2], [25, 16, 2], [26, 16, 2], [27, 16, 2], [28, 16, 2], [29, 16, 1], [30, 16, 1], [5, 17, 2], [6, 17, 1], [7, 17, 2], [8, 17, 2], [9, 17, 2], [10, 17, 2], [11, 17, 1], [13, 17, 1], [14, 17, 2], [15, 17, 1], [17, 17, 1], [18, 17, 2], [22, 17, 1], [23, 17, 2], [24, 17, 2], [25, 17, 2], [26, 17, 2], [27, 17, 2], [28, 17, 2], [29, 17, 2], [30, 17, 1], [6, 18, 1], [7, 18, 1], [8, 18, 2], [9, 18, 2], [10, 18, 2], [11, 18, 1], [12, 18, 1], [13, 18, 2], [14, 18, 2], [15, 18, 2], [16, 18, 2], [17, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 1], [23, 18, 2], [24, 18, 2], [25, 18, 2], [26, 18, 2], [27, 18, 2], [28, 18, 2], [29, 18, 2], [30, 18, 1], [31, 18, 2], [32, 18, 2], [7, 19, 1], [8, 19, 2], [9, 19, 2], [10, 19, 2], [11, 19, 1], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 1], [22, 19, 1], [23, 19, 2], [24, 19, 2], [25, 19, 2], [26, 19, 2], [27, 19, 2], [28, 19, 2], [29, 19, 1], [7, 20, 1], [8, 20, 2], [9, 20, 2], [10, 20, 2], [11, 20, 1], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 1], [22, 20, 2], [23, 20, 2], [24, 20, 2], [25, 20, 2], [26, 20, 2], [27, 20, 2], [28, 20, 2], [8, 21, 2], [9, 21, 2], [10, 21, 2], [11, 21, 2], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 2], [21, 21, 2], [22, 21, 2], [23, 21, 2], [24, 21, 2], [25, 21, 2], [26, 21, 2], [27, 21, 1], [8, 22, 1], [9, 22, 1], [10, 22, 2], [11, 22, 1], [12, 22, 2], [13, 22, 2], [14, 22, 2], [15, 22, 2], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 2], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 1], [8, 23, 2], [11, 23, 1], [12, 23, 1], [14, 23, 2], [15, 23, 2], [18, 23, 2], [19, 23, 2], [20, 23, 2], [21, 23, 2], [22, 23, 2], [23, 23, 1], [24, 23, 2], [25, 23, 2], [12, 24, 1], [13, 24, 2], [14, 24, 2], [15, 24, 2], [16, 24, 2], [17, 24, 2], [18, 24, 2], [19, 24, 2], [20, 24, 2], [21, 24, 2], [22, 24, 2], [23, 24, 1], [24, 24, 1], [25, 24, 1], [13, 25, 1], [14, 25, 1], [15, 25, 2], [16, 25, 2], [17, 25, 2], [18, 25, 2], [19, 25, 2], [20, 25, 1], [21, 25, 1], [22, 25, 1], [32, 27, 2]], [[11, 10, 2], [12, 10, 2], [9, 11, 2], [10, 11, 2], [26, 11, 2], [9, 12, 2], [10, 12, 2], [9, 13, 2], [24, 13, 2], [28, 13, 2], [8, 14, 2], [9, 14, 2], [25, 14, 2], [28, 14, 2], [8, 15, 2], [25, 15, 2], [28, 15, 2], [29, 15, 2], [7, 16, 2], [8, 16, 2], [25, 16, 2], [26, 16, 2], [28, 16, 2], [29, 16, 2], [6, 17, 2], [7, 17, 2], [8, 17, 2], [14, 17, 2], [25, 17, 2], [26, 17, 2], [27, 17, 2], [29, 17, 2], [6, 18, 2], [7, 18, 2], [8, 18, 2], [14, 18, 2], [16, 18, 2], [17, 18, 2], [20, 18, 2], [21, 18, 1], [23, 18, 2], [24, 18, 2], [25, 18, 2], [26, 18, 2], [27, 18, 2], [29, 18, 2], [30, 18, 2], [7, 19, 2], [8, 19, 2], [12, 19, 2], [13, 19, 2], [14, 19, 2], [16, 19, 2], [17, 19, 2], [20, 19, 2], [23, 19, 2], [24, 19, 2], [26, 19, 2], [27, 19, 2], [28, 19, 2], [29, 19, 2], [30, 19, 2], [6, 20, 2], [7, 20, 2], [8, 20, 2], [13, 20, 2], [14, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [23, 20, 2], [24, 20, 2], [26, 20, 2], [27, 20, 2], [28, 20, 2], [29, 20, 2], [30, 20, 2], [6, 21, 2], [7, 21, 2], [8, 21, 2], [11, 21, 2], [12, 21, 2], [13, 21, 2], [14, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 2], [21, 21, 2], [22, 21, 2], [23, 21, 2], [24, 21, 2], [25, 21, 2], [26, 21, 2], [27, 21, 2], [28, 21, 2], [29, 21, 2], [6, 22, 2], [7, 22, 2], [8, 22, 2], [10, 22, 2], [11, 22, 2], [12, 22, 2], [13, 22, 2], [14, 22, 2], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 2], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 2], [27, 22, 2], [28, 22, 2], [6, 23, 2], [7, 23, 2], [8, 23, 2], [10, 23, 2], [12, 23, 2], [13, 23, 2], [14, 23, 2], [15, 23, 2], [17, 23, 2], [18, 23, 2], [19, 23, 2], [20, 23, 2], [23, 23, 2], [24, 23, 2], [25, 23, 2], [26, 23, 2], [27, 23, 2], [28, 23, 2], [6, 24, 2], [7, 24, 2], [8, 24, 2], [9, 24, 2], [10, 24, 2], [13, 24, 2], [14, 24, 2], [15, 24, 2], [17, 24, 2], [18, 24, 2], [19, 24, 2], [23, 24, 2], [24, 24, 2], [25, 24, 2], [26, 24, 2], [27, 24, 2], [28, 24, 2], [6, 25, 2], [7, 25, 2], [8, 25, 2], [9, 25, 2], [10, 25, 2], [11, 25, 2], [12, 25, 2], [13, 25, 2], [14, 25, 2], [15, 25, 2], [19, 25, 2], [23, 25, 2], [24, 25, 2], [25, 25, 2], [26, 25, 2], [27, 25, 2], [28, 25, 2], [6, 26, 2], [7, 26, 2], [8, 26, 2], [9, 26, 2], [10, 26, 2], [14, 26, 2], [22, 26, 2], [23, 26, 2], [25, 26, 2], [26, 26, 2], [27, 26, 2], [7, 27, 2], [8, 27, 2], [9, 27, 2], [10, 27, 2], [14, 27, 2], [22, 27, 2], [23, 27, 2], [25, 27, 2], [26, 27, 2], [27, 27, 2], [8, 28, 2], [9, 28, 2], [10, 28, 2], [11, 28, 2], [25, 28, 2], [26, 28, 2], [27, 28, 2], [9, 29, 2], [10, 29, 2], [12, 29, 2], [24, 29, 2], [25, 29, 2], [26, 29, 2], [10, 30, 2], [11, 30, 2], [12, 30, 2], [24, 30, 2], [25, 30, 2], [26, 30, 2]], [[18, 13, 1], [28, 13, 2], [8, 14, 2], [13, 14, 1], [14, 14, 1], [15, 14, 1], [17, 14, 1], [18, 14, 2], [13, 15, 1], [14, 15, 2], [15, 15, 2], [16, 15, 1], [17, 15, 1], [18, 15, 2], [19, 15, 1], [6, 16, 2], [7, 16, 2], [8, 16, 2], [13, 16, 2], [14, 16, 2], [15, 16, 2], [16, 16, 2], [17, 16, 2], [18, 16, 2], [19, 16, 2], [20, 16, 2], [21, 16, 1], [6, 17, 2], [7, 17, 2], [8, 17, 2], [12, 17, 1], [13, 17, 2], [14, 17, 2], [15, 17, 2], [16, 17, 2], [17, 17, 2], [18, 17, 2], [19, 17, 2], [20, 17, 2], [21, 17, 2], [22, 17, 1], [6, 18, 2], [7, 18, 2], [8, 18, 2], [9, 18, 1], [12, 18, 1], [13, 18, 1], [14, 18, 2], [15, 18, 2], [16, 18, 1], [17, 18, 1], [18, 18, 2], [19, 18, 2], [20, 18, 2], [21, 18, 2], [22, 18, 2], [27, 18, 1], [28, 18, 2], [6, 19, 1], [7, 19, 2], [8, 19, 2], [11, 19, 1], [12, 19, 2], [14, 19, 2], [15, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 1], [27, 19, 1], [28, 19, 2], [29, 19, 1], [7, 20, 1], [8, 20, 1], [12, 20, 1], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 1], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 1], [24, 20, 1], [28, 20, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 1], [21, 21, 2], [22, 21, 2], [23, 21, 2], [24, 21, 2], [25, 21, 1], [28, 21, 1], [29, 21, 2], [30, 21, 2], [12, 22, 1], [13, 22, 2], [14, 22, 1], [15, 22, 2], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 1], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 1], [28, 22, 2], [29, 22, 2], [30, 22, 2], [5, 23, 2], [8, 23, 2], [9, 23, 1], [11, 23, 1], [12, 23, 2], [13, 23, 2], [14, 23, 2], [15, 23, 2], [17, 23, 1], [18, 23, 1], [19, 23, 1], [20, 23, 1], [21, 23, 2], [22, 23, 2], [23, 23, 2], [24, 23, 2], [25, 23, 1], [28, 23, 1], [29, 23, 2], [30, 23, 2], [8, 24, 2], [11, 24, 1], [12, 24, 2], [13, 24, 2], [14, 24, 2], [15, 24, 1], [19, 24, 1], [20, 24, 1], [21, 24, 2], [22, 24, 2], [23, 24, 2], [24, 24, 2], [25, 24, 2], [26, 24, 1], [27, 24, 1], [28, 24, 1], [29, 24, 2], [30, 24, 2], [11, 25, 1], [12, 25, 2], [13, 25, 2], [14, 25, 2], [15, 25, 1], [19, 25, 1], [20, 25, 2], [21, 25, 2], [22, 25, 2], [23, 25, 2], [24, 25, 2], [25, 25, 2], [26, 25, 2], [27, 25, 2], [28, 25, 1], [29, 25, 1], [30, 25, 1], [6, 26, 1], [7, 26, 2], [8, 26, 1], [11, 26, 2], [12, 26, 2], [13, 26, 2], [14, 26, 2], [15, 26, 2], [16, 26, 1], [17, 26, 1], [18, 26, 1], [19, 26, 1], [20, 26, 1], [21, 26, 2], [22, 26, 2], [23, 26, 2], [24, 26, 2], [25, 26, 2], [26, 26, 1], [6, 27, 2], [7, 27, 2], [8, 27, 2], [11, 27, 2], [12, 27, 2], [13, 27, 2], [14, 27, 2], [15, 27, 2], [16, 27, 1], [20, 27, 1], [21, 27, 2], [22, 27, 2], [23, 27, 2], [24, 27, 2], [25, 27, 2], [26, 27, 1], [27, 27, 1], [29, 27, 1], [30, 27, 1], [6, 28, 2], [7, 28, 2], [8, 28, 2], [10, 28, 1], [11, 28, 2], [12, 28, 2], [13, 28, 2], [14, 28, 2], [15, 28, 2], [21, 28, 2], [22, 28, 2], [23, 28, 2], [24, 28, 2], [25, 28, 2], [26, 28, 2], [27, 28, 1], [28, 28, 2], [29, 28, 2], [30, 28, 2], [6, 29, 1], [7, 29, 2], [8, 29, 2], [11, 29, 1], [12, 29, 2], [13, 29, 2], [14, 29, 2], [15, 29, 2], [21, 29, 1], [22, 29, 2], [23, 29, 2], [24, 29, 2], [25, 29, 2], [26, 29, 1], [28, 29, 2], [29, 29, 2], [30, 29, 1], [7, 30, 1], [8, 30, 1], [11, 30, 1], [12, 30, 2], [13, 30, 2], [14, 30, 2], [15, 30, 2], [21, 30, 1], [22, 30, 2], [23, 30, 2], [24, 30, 2], [25, 30, 2], [27, 30, 1], [28, 30, 1], [29, 30, 1], [9, 31, 2], [10, 31, 2], [11, 31, 1], [12, 31, 1], [13, 31, 2], [14, 31, 2], [15, 31, 2], [22, 31, 1], [23, 31, 2], [24, 31, 2], [25, 31, 1], [26, 31, 2], [27, 31, 2], [28, 31, 2], [8, 32, 1], [9, 32, 1], [10, 32, 2], [13, 32, 2], [14, 32, 2], [15, 32, 2], [22, 32, 1], [23, 32, 2], [24, 32, 2], [25, 32, 1], [26, 32, 2], [27, 32, 2], [28, 32, 1], [11, 33, 1], [14, 33, 1], [15, 33, 2], [22, 33, 1], [23, 33, 2], [24, 33, 1], [25, 33, 2], [26, 33, 1], [27, 33, 1], [15, 34, 1], [16, 34, 1], [22, 34, 1], [23, 34, 2], [25, 34, 1], [16, 35, 1], [22, 35, 1], [23, 35, 1]], [[19, 12, 1], [20, 12, 1], [13, 13, 1], [14, 13, 2], [15, 13, 1], [17, 13, 1], [18, 13, 1], [19, 13, 2], [20, 13, 2], [13, 14, 1], [14, 14, 2], [15, 14, 2], [16, 14, 1], [17, 14, 1], [18, 14, 2], [19, 14, 1], [20, 14, 1], [13, 15, 2], [14, 15, 2], [15, 15, 2], [16, 15, 2], [17, 15, 2], [18, 15, 2], [19, 15, 2], [20, 15, 2], [21, 15, 1], [11, 16, 1], [12, 16, 2], [13, 16, 2], [14, 16, 2], [15, 16, 2], [16, 16, 2], [17, 16, 2], [18, 16, 2], [19, 16, 2], [20, 16, 2], [21, 16, 2], [22, 16, 2], [11, 17, 1], [12, 17, 2], [13, 17, 2], [14, 17, 2], [15, 17, 2], [16, 17, 2], [17, 17, 2], [18, 17, 2], [19, 17, 2], [20, 17, 2], [21, 17, 2], [22, 17, 2], [23, 17, 1], [8, 18, 1], [11, 18, 1], [12, 18, 2], [14, 18, 2], [15, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 2], [21, 18, 2], [22, 18, 2], [23, 18, 2], [24, 18, 1], [7, 19, 1], [8, 19, 2], [9, 19, 1], [11, 19, 1], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 1], [25, 19, 1], [7, 20, 1], [8, 20, 2], [9, 20, 1], [12, 20, 1], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 1], [24, 20, 2], [25, 20, 2], [26, 20, 1], [29, 20, 2], [30, 20, 2], [11, 21, 1], [12, 21, 1], [13, 21, 1], [14, 21, 1], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 1], [20, 21, 1], [21, 21, 2], [22, 21, 2], [23, 21, 2], [24, 21, 2], [25, 21, 2], [26, 21, 1], [11, 22, 1], [12, 22, 2], [13, 22, 2], [14, 22, 2], [15, 22, 1], [16, 22, 1], [17, 22, 2], [18, 22, 1], [19, 22, 1], [20, 22, 1], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 1], [11, 23, 2], [12, 23, 2], [13, 23, 2], [14, 23, 1], [18, 23, 1], [19, 23, 1], [21, 23, 1], [22, 23, 2], [23, 23, 2], [24, 23, 2], [25, 23, 2], [26, 23, 2], [27, 23, 1], [29, 23, 1], [30, 23, 2], [11, 24, 2], [12, 24, 2], [13, 24, 2], [14, 24, 1], [21, 24, 1], [22, 24, 2], [23, 24, 2], [24, 24, 2], [25, 24, 2], [26, 24, 2], [27, 24, 2], [28, 24, 1], [29, 24, 2], [30, 24, 2], [31, 24, 1], [5, 25, 2], [8, 25, 2], [10, 25, 1], [11, 25, 2], [12, 25, 2], [13, 25, 2], [14, 25, 1], [15, 25, 1], [20, 25, 1], [21, 25, 2], [22, 25, 2], [23, 25, 2], [24, 25, 2], [25, 25, 2], [26, 25, 2], [27, 25, 1], [28, 25, 1], [29, 25, 1], [30, 25, 2], [31, 25, 1], [10, 26, 1], [11, 26, 2], [12, 26, 2], [13, 26, 2], [14, 26, 2], [15, 26, 2], [19, 26, 1], [20, 26, 2], [21, 26, 2], [22, 26, 2], [23, 26, 2], [24, 26, 2], [25, 26, 2], [26, 26, 2], [27, 26, 2], [28, 26, 1], [30, 26, 2], [10, 27, 1], [11, 27, 2], [12, 27, 2], [13, 27, 2], [14, 27, 2], [15, 27, 2], [20, 27, 1], [21, 27, 1], [22, 27, 2], [23, 27, 2], [24, 27, 2], [25, 27, 2], [26, 27, 2], [27, 27, 2], [28, 27, 1], [7, 28, 1], [9, 28, 1], [10, 28, 2], [11, 28, 2], [12, 28, 2], [13, 28, 2], [14, 28, 2], [15, 28, 1], [21, 28, 1], [22, 28, 2], [23, 28, 2], [24, 28, 2], [25, 28, 2], [26, 28, 2], [27, 28, 2], [6, 29, 1], [7, 29, 2], [8, 29, 1], [11, 29, 2], [12, 29, 2], [13, 29, 2], [14, 29, 1], [22, 29, 1], [23, 29, 2], [24, 29, 2], [25, 29, 2], [26, 29, 2], [27, 29, 1], [28, 29, 2], [29, 29, 2], [6, 30, 1], [7, 30, 2], [8, 30, 2], [11, 30, 2], [12, 30, 2], [13, 30, 2], [14, 30, 1], [22, 30, 1], [23, 30, 2], [24, 30, 2], [25, 30, 2], [26, 30, 1], [28, 30, 2], [29, 30, 1], [11, 31, 1], [12, 31, 2], [13, 31, 2], [14, 31, 1], [23, 31, 2], [24, 31, 2], [25, 31, 2], [28, 31, 2], [9, 32, 1], [12, 32, 1], [13, 32, 2], [14, 32, 2], [15, 32, 1], [23, 32, 2], [24, 32, 2], [25, 32, 1], [26, 32, 1], [27, 32, 1], [9, 33, 1], [10, 33, 2], [14, 33, 1], [15, 33, 2], [22, 33, 1], [23, 33, 2], [24, 33, 1], [25, 33, 1], [26, 33, 2], [27, 33, 1], [15, 34, 1], [22, 34, 1], [23, 34, 1], [26, 34, 1], [22, 35, 1]], [[20, 11, 1], [19, 12, 1], [20, 12, 2], [21, 12, 1], [13, 13, 1], [14, 13, 2], [15, 13, 1], [17, 13, 1], [18, 13, 1], [19, 13, 2], [20, 13, 2], [21, 13, 2], [22, 13, 1], [13, 14, 1], [14, 14, 2], [15, 14, 1], [17, 14, 1], [18, 14, 2], [19, 14, 1], [20, 14, 1], [21, 14, 1], [13, 15, 2], [14, 15, 2], [15, 15, 2], [16, 15, 1], [17, 15, 2], [18, 15, 2], [19, 15, 1], [20, 15, 1], [12, 16, 1], [13, 16, 2], [14, 16, 2], [15, 16, 2], [16, 16, 2], [17, 16, 2], [18, 16, 2], [19, 16, 2], [20, 16, 2], [21, 16, 2], [22, 16, 1], [23, 16, 1], [11, 17, 1], [12, 17, 2], [13, 17, 2], [14, 17, 2], [15, 17, 2], [16, 17, 2], [17, 17, 2], [18, 17, 2], [19, 17, 2], [20, 17, 2], [21, 17, 2], [22, 17, 2], [23, 17, 1], [11, 18, 1], [12, 18, 1], [14, 18, 2], [15, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 2], [21, 18, 2], [22, 18, 2], [23, 18, 1], [24, 18, 1], [25, 18, 1], [11, 19, 1], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 2], [25, 19, 1], [11, 20, 1], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 2], [24, 20, 2], [25, 20, 2], [26, 20, 1], [27, 20, 1], [10, 21, 1], [11, 21, 2], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 1], [20, 21, 2], [21, 21, 2], [22, 21, 1], [23, 21, 2], [24, 21, 2], [25, 21, 2], [26, 21, 2], [27, 21, 2], [28, 21, 1], [9, 22, 1], [10, 22, 2], [11, 22, 2], [12, 22, 2], [13, 22, 1], [14, 22, 1], [15, 22, 1], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 1], [20, 22, 1], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 2], [27, 22, 2], [28, 22, 1], [9, 23, 1], [10, 23, 2], [11, 23, 2], [12, 23, 2], [13, 23, 1], [19, 23, 1], [20, 23, 2], [21, 23, 2], [22, 23, 1], [23, 23, 2], [24, 23, 2], [25, 23, 2], [26, 23, 2], [27, 23, 2], [28, 23, 2], [29, 23, 1], [8, 24, 1], [9, 24, 2], [10, 24, 2], [11, 24, 2], [12, 24, 2], [13, 24, 1], [21, 24, 1], [22, 24, 1], [23, 24, 2], [24, 24, 2], [25, 24, 2], [26, 24, 2], [27, 24, 2], [28, 24, 2], [29, 24, 1], [8, 25, 1], [9, 25, 2], [10, 25, 2], [11, 25, 2], [12, 25, 2], [13, 25, 2], [14, 25, 1], [22, 25, 1], [23, 25, 2], [24, 25, 2], [25, 25, 2], [26, 25, 2], [27, 25, 2], [28, 25, 2], [29, 25, 1], [8, 26, 1], [9, 26, 2], [10, 26, 2], [11, 26, 2], [12, 26, 2], [13, 26, 2], [14, 26, 1], [21, 26, 1], [22, 26, 2], [23, 26, 2], [24, 26, 2], [25, 26, 2], [26, 26, 2], [27, 26, 2], [28, 26, 2], [29, 26, 1], [31, 26, 2], [8, 27, 1], [9, 27, 1], [10, 27, 2], [11, 27, 2], [12, 27, 2], [13, 27, 2], [14, 27, 2], [15, 27, 1], [21, 27, 2], [22, 27, 2], [23, 27, 2], [24, 27, 2], [25, 27, 2], [26, 27, 2], [27, 27, 2], [28, 27, 2], [31, 27, 2], [9, 28, 1], [10, 28, 2], [11, 28, 2], [12, 28, 2], [13, 28, 1], [14, 28, 1], [15, 28, 1], [21, 28, 1], [22, 28, 1], [23, 28, 1], [24, 28, 2], [25, 28, 2], [26, 28, 2], [27, 28, 2], [28, 28, 2], [9, 29, 1], [10, 29, 1], [11, 29, 2], [12, 29, 2], [23, 29, 1], [24, 29, 1], [25, 29, 2], [26, 29, 2], [27, 29, 1], [28, 29, 2], [10, 30, 1], [11, 30, 2], [12, 30, 2], [24, 30, 1], [25, 30, 2], [26, 30, 2], [27, 30, 1], [28, 30, 1], [8, 31, 2], [11, 31, 1], [12, 31, 2], [13, 31, 1], [24, 31, 1], [25, 31, 2], [26, 31, 1], [12, 32, 1], [13, 32, 2], [14, 32, 1], [23, 32, 1], [24, 32, 2], [25, 32, 2], [23, 33, 1], [24, 33, 1], [26, 33, 2]], [[20, 11, 1], [19, 12, 1], [20, 12, 2], [21, 12, 1], [13, 13, 1], [14, 13, 2], [15, 13, 1], [17, 13, 1], [18, 13, 1], [19, 13, 2], [20, 13, 2], [21, 13, 2], [22, 13, 1], [13, 14, 1], [14, 14, 2], [15, 14, 1], [17, 14, 1], [18, 14, 2], [19, 14, 1], [20, 14, 1], [21, 14, 1], [13, 15, 2], [14, 15, 2], [15, 15, 2], [16, 15, 1], [17, 15, 2], [18, 15, 2], [19, 15, 1], [20, 15, 1], [12, 16, 1], [13, 16, 2], [14, 16, 2], [15, 16, 2], [16, 16, 2], [17, 16, 2], [18, 16, 2], [19, 16, 2], [20, 16, 2], [21, 16, 2], [22, 16, 1], [23, 16, 1], [11, 17, 1], [12, 17, 2], [13, 17, 2], [14, 17, 2], [15, 17, 2], [16, 17, 2], [17, 17, 2], [18, 17, 2], [19, 17, 2], [20, 17, 2], [21, 17, 2], [22, 17, 2], [23, 17, 1], [11, 18, 1], [12, 18, 1], [14, 18, 2], [15, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 2], [21, 18, 2], [22, 18, 2], [23, 18, 1], [24, 18, 1], [25, 18, 1], [11, 19, 1], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 2], [25, 19, 1], [11, 20, 1], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 2], [24, 20, 2], [25, 20, 2], [26, 20, 1], [27, 20, 1], [10, 21, 1], [11, 21, 2], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 1], [20, 21, 2], [21, 21, 2], [22, 21, 1], [23, 21, 2], [24, 21, 2], [25, 21, 2], [26, 21, 2], [27, 21, 2], [28, 21, 1], [9, 22, 1], [10, 22, 2], [11, 22, 2], [12, 22, 2], [13, 22, 1], [14, 22, 1], [15, 22, 1], [16, 22, 2], [17, 22, 2], [18, 22, 2], [19, 22, 1], [20, 22, 1], [21, 22, 2], [22, 22, 2], [23, 22, 2], [24, 22, 2], [25, 22, 2], [26, 22, 2], [27, 22, 2], [28, 22, 1], [9, 23, 1], [10, 23, 2], [11, 23, 2], [12, 23, 2], [13, 23, 1], [19, 23, 1], [20, 23, 2], [21, 23, 2], [22, 23, 1], [23, 23, 2], [24, 23, 2], [25, 23, 2], [26, 23, 2], [27, 23, 2], [28, 23, 2], [29, 23, 1], [8, 24, 1], [9, 24, 2], [10, 24, 2], [11, 24, 2], [12, 24, 2], [13, 24, 1], [21, 24, 1], [22, 24, 1], [23, 24, 2], [24, 24, 2], [25, 24, 2], [26, 24, 2], [27, 24, 2], [28, 24, 2], [29, 24, 1], [8, 25, 1], [9, 25, 2], [10, 25, 2], [11, 25, 2], [12, 25, 2], [13, 25, 2], [14, 25, 1], [22, 25, 1], [23, 25, 2], [24, 25, 2], [25, 25, 2], [26, 25, 2], [27, 25, 2], [28, 25, 2], [29, 25, 1], [8, 26, 1], [9, 26, 2], [10, 26, 2], [11, 26, 2], [12, 26, 2], [13, 26, 2], [14, 26, 1], [21, 26, 1], [22, 26, 2], [23, 26, 2], [24, 26, 2], [25, 26, 2], [26, 26, 2], [27, 26, 2], [28, 26, 2], [29, 26, 1], [31, 26, 2], [8, 27, 1], [9, 27, 1], [10, 27, 2], [11, 27, 2], [12, 27, 2], [13, 27, 2], [14, 27, 2], [15, 27, 1], [21, 27, 2], [22, 27, 2], [23, 27, 2], [24, 27, 2], [25, 27, 2], [26, 27, 2], [27, 27, 2], [28, 27, 2], [31, 27, 2], [9, 28, 1], [10, 28, 2], [11, 28, 2], [12, 28, 2], [13, 28, 1], [14, 28, 1], [15, 28, 1], [21, 28, 1], [22, 28, 1], [23, 28, 1], [24, 28, 2], [25, 28, 2], [26, 28, 2], [27, 28, 2], [28, 28, 2], [9, 29, 1], [10, 29, 1], [11, 29, 2], [12, 29, 2], [23, 29, 1], [24, 29, 1], [25, 29, 2], [26, 29, 2], [27, 29, 1], [28, 29, 2], [10, 30, 1], [11, 30, 2], [12, 30, 2], [24, 30, 1], [25, 30, 2], [26, 30, 2], [27, 30, 1], [28, 30, 1], [8, 31, 2], [11, 31, 1], [12, 31, 2], [13, 31, 1], [24, 31, 1], [25, 31, 2], [26, 31, 1], [12, 32, 1], [13, 32, 2], [14, 32, 1], [23, 32, 1], [24, 32, 2], [25, 32, 2], [23, 33, 1], [24, 33, 1], [26, 33, 2]], [[14, 6, 1], [15, 6, 1], [19, 6, 1], [20, 6, 1], [21, 6, 2], [22, 6, 1], [13, 7, 1], [14, 7, 2], [15, 7, 2], [20, 7, 1], [21, 7, 2], [22, 7, 2], [23, 7, 1], [24, 7, 1], [11, 8, 1], [12, 8, 2], [13, 8, 2], [14, 8, 2], [15, 8, 1], [21, 8, 2], [22, 8, 2], [23, 8, 2], [24, 8, 2], [25, 8, 2], [11, 9, 2], [12, 9, 2], [13, 9, 2], [14, 9, 1], [21, 9, 1], [22, 9, 2], [23, 9, 2], [24, 9, 2], [25, 9, 2], [26, 9, 1], [9, 10, 1], [10, 10, 1], [11, 10, 2], [12, 10, 2], [13, 10, 1], [21, 10, 1], [22, 10, 2], [23, 10, 2], [24, 10, 2], [25, 10, 2], [26, 10, 2], [27, 10, 1], [9, 11, 1], [10, 11, 2], [11, 11, 2], [12, 11, 2], [13, 11, 1], [18, 11, 2], [22, 11, 1], [23, 11, 2], [24, 11, 2], [25, 11, 2], [26, 11, 2], [27, 11, 2], [28, 11, 1], [8, 12, 1], [9, 12, 2], [10, 12, 2], [11, 12, 2], [12, 12, 2], [13, 12, 1], [22, 12, 1], [23, 12, 2], [24, 12, 2], [25, 12, 2], [26, 12, 2], [27, 12, 2], [28, 12, 1], [6, 13, 1], [8, 13, 1], [9, 13, 2], [10, 13, 2], [11, 13, 2], [12, 13, 2], [13, 13, 2], [14, 13, 1], [21, 13, 2], [22, 13, 2], [23, 13, 2], [24, 13, 2], [25, 13, 2], [26, 13, 2], [27, 13, 1], [28, 13, 2], [29, 13, 2], [30, 13, 1], [6, 14, 2], [8, 14, 1], [9, 14, 2], [10, 14, 2], [11, 14, 2], [12, 14, 2], [13, 14, 2], [14, 14, 1], [15, 14, 1], [20, 14, 1], [21, 14, 2], [22, 14, 2], [23, 14, 2], [24, 14, 2], [25, 14, 2], [26, 14, 2], [27, 14, 1], [28, 14, 2], [29, 14, 2], [30, 14, 2], [6, 15, 2], [8, 15, 1], [9, 15, 2], [10, 15, 2], [11, 15, 2], [12, 15, 2], [13, 15, 1], [19, 15, 1], [20, 15, 2], [21, 15, 2], [22, 15, 2], [23, 15, 2], [24, 15, 2], [25, 15, 2], [26, 15, 2], [27, 15, 2], [28, 15, 1], [29, 15, 2], [30, 15, 2], [8, 16, 1], [9, 16, 1], [10, 16, 2], [11, 16, 2], [12, 16, 2], [14, 16, 1], [15, 16, 1], [17, 16, 1], [18, 16, 1], [21, 16, 2], [22, 16, 2], [23, 16, 2], [24, 16, 2], [25, 16, 2], [26, 16, 1], [27, 16, 1], [28, 16, 1], [29, 16, 2], [30, 16, 2], [8, 17, 1], [9, 17, 2], [10, 17, 2], [11, 17, 2], [12, 17, 2], [13, 17, 1], [14, 17, 2], [15, 17, 1], [17, 17, 1], [18, 17, 2], [21, 17, 2], [22, 17, 2], [23, 17, 2], [24, 17, 2], [25, 17, 2], [26, 17, 1], [29, 17, 2], [30, 17, 1], [5, 18, 1], [6, 18, 2], [7, 18, 2], [9, 18, 1], [10, 18, 2], [11, 18, 2], [12, 18, 2], [13, 18, 2], [14, 18, 2], [15, 18, 2], [16, 18, 2], [17, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 1], [21, 18, 2], [22, 18, 2], [23, 18, 2], [24, 18, 2], [25, 18, 2], [26, 18, 1], [27, 18, 1], [29, 18, 1], [30, 18, 1], [4, 19, 1], [5, 19, 2], [6, 19, 2], [7, 19, 2], [8, 19, 1], [10, 19, 1], [11, 19, 2], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 1], [25, 19, 1], [29, 19, 2], [4, 20, 1], [5, 20, 2], [6, 20, 2], [7, 20, 2], [8, 20, 2], [10, 20, 1], [11, 20, 2], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 1], [24, 20, 1], [30, 20, 1], [6, 21, 1], [7, 21, 1], [11, 21, 1], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 2], [21, 21, 2], [22, 21, 2], [23, 21, 1], [25, 21, 1], [26, 21, 1], [27, 21, 1], [29, 21, 1], [30, 21, 2], [31, 21, 1], [8, 22, 1], [9, 22, 1], [11, 22, 2], [12, 22, 2], [14, 22, 2], [15, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 2], [21, 22, 2], [22, 22, 2], [23, 22, 1], [24, 22, 1], [25, 22, 2], [26, 22, 1], [30, 22, 1], [7, 23, 2], [8, 23, 2], [9, 23, 2], [10, 23, 1], [12, 23, 1], [13, 23, 1], [14, 23, 2], [15, 23, 2], [16, 23, 1], [17, 23, 1], [18, 23, 2], [19, 23, 2], [20, 23, 2], [21, 23, 2], [22, 23, 2], [23, 23, 2], [24, 23, 1], [25, 23, 1], [7, 24, 1], [8, 24, 2], [9, 24, 1], [13, 24, 2], [14, 24, 2], [15, 24, 2], [16, 24, 2], [17, 24, 2], [18, 24, 2], [19, 24, 2], [20, 24, 2], [21, 24, 2], [22, 24, 2], [23, 24, 1], [8, 25, 1], [13, 25, 1], [14, 25, 1], [15, 25, 2], [16, 25, 2], [17, 25, 2], [18, 25, 2], [19, 25, 2], [20, 25, 1], [21, 25, 1], [22, 25, 1], [23, 25, 2], [10, 27, 2], [28, 27, 2], [28, 28, 2], [29, 28, 2], [12, 29, 2], [28, 29, 2], [29, 29, 1], [28, 34, 2]], [[14, 6, 1], [15, 6, 1], [19, 6, 1], [20, 6, 1], [21, 6, 2], [22, 6, 1], [13, 7, 1], [14, 7, 2], [15, 7, 2], [20, 7, 1], [21, 7, 2], [22, 7, 2], [23, 7, 1], [24, 7, 1], [11, 8, 1], [12, 8, 2], [13, 8, 2], [14, 8, 2], [15, 8, 1], [21, 8, 2], [22, 8, 2], [23, 8, 2], [24, 8, 2], [25, 8, 2], [11, 9, 2], [12, 9, 2], [13, 9, 2], [14, 9, 1], [21, 9, 1], [22, 9, 2], [23, 9, 2], [24, 9, 2], [25, 9, 2], [26, 9, 1], [9, 10, 1], [10, 10, 1], [11, 10, 2], [12, 10, 2], [13, 10, 1], [21, 10, 1], [22, 10, 2], [23, 10, 2], [24, 10, 2], [25, 10, 2], [26, 10, 2], [27, 10, 1], [9, 11, 1], [10, 11, 2], [11, 11, 2], [12, 11, 2], [13, 11, 1], [18, 11, 2], [22, 11, 1], [23, 11, 2], [24, 11, 2], [25, 11, 2], [26, 11, 2], [27, 11, 2], [28, 11, 1], [8, 12, 1], [9, 12, 2], [10, 12, 2], [11, 12, 2], [12, 12, 2], [13, 12, 1], [22, 12, 1], [23, 12, 2], [24, 12, 2], [25, 12, 2], [26, 12, 2], [27, 12, 2], [28, 12, 1], [6, 13, 1], [8, 13, 1], [9, 13, 2], [10, 13, 2], [11, 13, 2], [12, 13, 2], [13, 13, 2], [14, 13, 1], [21, 13, 2], [22, 13, 2], [23, 13, 2], [24, 13, 2], [25, 13, 2], [26, 13, 2], [27, 13, 1], [28, 13, 2], [29, 13, 2], [30, 13, 1], [6, 14, 2], [8, 14, 1], [9, 14, 2], [10, 14, 2], [11, 14, 2], [12, 14, 2], [13, 14, 2], [14, 14, 1], [15, 14, 1], [20, 14, 1], [21, 14, 2], [22, 14, 2], [23, 14, 2], [24, 14, 2], [25, 14, 2], [26, 14, 2], [27, 14, 1], [28, 14, 2], [29, 14, 2], [30, 14, 2], [6, 15, 2], [8, 15, 1], [9, 15, 2], [10, 15, 2], [11, 15, 2], [12, 15, 2], [13, 15, 1], [19, 15, 1], [20, 15, 2], [21, 15, 2], [22, 15, 2], [23, 15, 2], [24, 15, 2], [25, 15, 2], [26, 15, 2], [27, 15, 2], [28, 15, 1], [29, 15, 2], [30, 15, 2], [8, 16, 1], [9, 16, 1], [10, 16, 2], [11, 16, 2], [12, 16, 2], [14, 16, 1], [15, 16, 1], [17, 16, 1], [18, 16, 1], [21, 16, 2], [22, 16, 2], [23, 16, 2], [24, 16, 2], [25, 16, 2], [26, 16, 1], [27, 16, 1], [28, 16, 1], [29, 16, 2], [30, 16, 2], [8, 17, 1], [9, 17, 2], [10, 17, 2], [11, 17, 2], [12, 17, 2], [13, 17, 1], [14, 17, 2], [15, 17, 1], [17, 17, 1], [18, 17, 2], [21, 17, 2], [22, 17, 2], [23, 17, 2], [24, 17, 2], [25, 17, 2], [26, 17, 1], [29, 17, 2], [30, 17, 1], [5, 18, 1], [6, 18, 2], [7, 18, 2], [9, 18, 1], [10, 18, 2], [11, 18, 2], [12, 18, 2], [13, 18, 2], [14, 18, 2], [15, 18, 2], [16, 18, 2], [17, 18, 2], [18, 18, 2], [19, 18, 2], [20, 18, 1], [21, 18, 2], [22, 18, 2], [23, 18, 2], [24, 18, 2], [25, 18, 2], [26, 18, 1], [27, 18, 1], [29, 18, 1], [30, 18, 1], [4, 19, 1], [5, 19, 2], [6, 19, 2], [7, 19, 2], [8, 19, 1], [10, 19, 1], [11, 19, 2], [12, 19, 2], [13, 19, 2], [14, 19, 2], [15, 19, 2], [16, 19, 2], [17, 19, 2], [18, 19, 2], [19, 19, 2], [20, 19, 2], [21, 19, 2], [22, 19, 2], [23, 19, 2], [24, 19, 1], [25, 19, 1], [29, 19, 2], [4, 20, 1], [5, 20, 2], [6, 20, 2], [7, 20, 2], [8, 20, 2], [10, 20, 1], [11, 20, 2], [12, 20, 2], [13, 20, 2], [14, 20, 2], [15, 20, 2], [16, 20, 2], [17, 20, 2], [18, 20, 2], [19, 20, 2], [20, 20, 2], [21, 20, 2], [22, 20, 2], [23, 20, 1], [24, 20, 1], [30, 20, 1], [6, 21, 1], [7, 21, 1], [11, 21, 1], [12, 21, 2], [13, 21, 2], [14, 21, 2], [15, 21, 2], [16, 21, 2], [17, 21, 2], [18, 21, 2], [19, 21, 2], [20, 21, 2], [21, 21, 2], [22, 21, 2], [23, 21, 1], [25, 21, 1], [26, 21, 1], [27, 21, 1], [29, 21, 1], [30, 21, 2], [31, 21, 1], [8, 22, 1], [9, 22, 1], [11, 22, 2], [12, 22, 2], [14, 22, 2], [15, 22, 2], [18, 22, 2], [19, 22, 2], [20, 22, 2], [21, 22, 2], [22, 22, 2], [23, 22, 1], [24, 22, 1], [25, 22, 2], [26, 22, 1], [30, 22, 1], [7, 23, 2], [8, 23, 2], [9, 23, 2], [10, 23, 1], [12, 23, 1], [13, 23, 1], [14, 23, 2], [15, 23, 2], [16, 23, 1], [17, 23, 1], [18, 23, 2], [19, 23, 2], [20, 23, 2], [21, 23, 2], [22, 23, 2], [23, 23, 2], [24, 23, 1], [25, 23, 1], [7, 24, 1], [8, 24, 2], [9, 24, 1], [13, 24, 2], [14, 24, 2], [15, 24, 2], [16, 24, 2], [17, 24, 2], [18, 24, 2], [19, 24, 2], [20, 24, 2], [21, 24, 2], [22, 24, 2], [23, 24, 1], [8, 25, 1], [13, 25, 1], [14, 25, 1], [15, 25, 2], [16, 25, 2], [17, 25, 2], [18, 25, 2], [19, 25, 2], [20, 25, 1], [21, 25, 1], [22, 25, 1], [23, 25, 2], [10, 27, 2], [28, 27, 2], [28, 28, 2], [29, 28, 2], [12, 29, 2], [28, 29, 2], [29, 29, 1], [28, 34, 2]]];
+    const S = 6, BPAD = 14;
+    const COLORS = ['#3b0764','#4c1d95','#5b21b6','#5b21b6','#6d28d9','#6d28d9','#7c3aed','#7c3aed','#8b5cf6','#a855f7','#a855f7','#a855f7','#c084fc','#c084fc','#c084fc','#c084fc','#c084fc','#c084fc','#c084fc','#c084fc'];
+    let bframe = 0, bob = 0, epulse = 0;
+    function drawBat() {
+      bctx.clearRect(0, 0, 268, 228);
+      const dy = Math.sin(bob) * 4; bob += 0.04; epulse += 0.07;
+      const grid = BAT_FRAMES[bframe];
+      for (const [gx, gy, v] of grid) {
+        const x = BPAD + gx * S, y = BPAD + gy * S + dy;
+        if (v === 1) { bctx.fillStyle = '#4c1d95'; bctx.globalAlpha = 0.45; }
+        else { const idx = Math.min(Math.abs(gx-20), COLORS.length-1); bctx.fillStyle = COLORS[idx]; bctx.globalAlpha = 1; }
+        bctx.fillRect(x, y, S, S);
+      }
+      bctx.globalAlpha = 0.7 + Math.sin(epulse)*0.3;
+      bctx.fillStyle = '#e9d5ff';
+      for (const [gx,gy] of [[13,17],[14,17],[18,17],[19,17]]) {
+        bctx.fillRect(BPAD+gx*S, BPAD+gy*S+dy, S, S);
+      }
+      bctx.globalAlpha = 1;
+      bframe = (bframe+1) % BAT_FRAMES.length;
+      setTimeout(() => requestAnimationFrame(drawBat), 100);
+    }
+    drawBat();
+  }
+})();
+</script>
+</body>
+</html>
