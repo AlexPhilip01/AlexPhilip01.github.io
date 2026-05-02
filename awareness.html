@@ -96,41 +96,35 @@
   }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* ── CAROUSEL ── */
-  .carousel-wrap {
-    position: relative;
+  /* ── LETTER STACK ── */
+  .letters-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
     margin-bottom: 2rem;
   }
-  .carousel-track-outer {
-    overflow: hidden;
-    border-radius: 14px;
-    position: relative;
-  }
-  .carousel-track {
-    display: flex;
-    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  }
   .gallery-item {
-    flex: 0 0 100%;
     position: relative;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
     cursor: pointer;
-    aspect-ratio: 3/4;
-    max-height: 75vh;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .gallery-item:hover {
+    border-color: var(--border2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(168,85,247,0.1);
   }
   .gallery-item img {
-    width: 100%; height: 100%;
-    object-fit: cover; object-position: top;
-    display: block;
+    width: 100%; display: block;
     transition: transform 0.35s;
   }
-  .gallery-item:hover img { transform: scale(1.02); }
+  .gallery-item:hover img { transform: scale(1.01); }
   .gallery-overlay {
     position: absolute; inset: 0;
-    background: linear-gradient(to top, rgba(8,6,8,0.85) 0%, transparent 55%);
+    background: linear-gradient(to top, rgba(8,6,8,0.8) 0%, transparent 40%);
     opacity: 0; transition: opacity 0.25s;
     display: flex; align-items: flex-end;
     padding: 1.4rem;
@@ -147,49 +141,6 @@
     background: rgba(8,6,8,0.8); color: var(--accent);
     padding: 0.25rem 0.65rem; border-radius: 4px;
     letter-spacing: 0.06em;
-  }
-
-  /* nav arrows */
-  .carousel-btn {
-    position: absolute; top: 50%; z-index: 10;
-    transform: translateY(-50%);
-    width: 44px; height: 44px;
-    background: rgba(20,13,26,0.85);
-    border: 1px solid var(--border2);
-    border-radius: 50%; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text2);
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
-    backdrop-filter: blur(8px);
-  }
-  .carousel-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .carousel-btn.prev { left: -22px; }
-  .carousel-btn.next { right: -22px; }
-
-  /* dots */
-  .carousel-dots {
-    display: flex; justify-content: center; gap: 8px;
-    margin-top: 1.2rem;
-  }
-  .carousel-dot {
-    width: 8px; height: 8px; border-radius: 50%;
-    background: var(--text3); cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    border: none; padding: 0;
-  }
-  .carousel-dot.active { background: var(--accent); transform: scale(1.3); }
-
-  /* counter */
-  .carousel-counter {
-    text-align: center; margin-top: 0.8rem;
-    font-family: var(--mono); font-size: 0.75rem;
-    color: var(--text3); letter-spacing: 0.08em;
-  }
-  .carousel-counter span { color: var(--accent); }
-
-  @media (max-width: 600px) {
-    .carousel-btn.prev { left: -12px; }
-    .carousel-btn.next { right: -12px; }
   }
 
   /* ── LIGHTBOX ── */
@@ -288,69 +239,46 @@
     <div class="stat-pill"><div class="stat-pill-dot"></div>200+ Officers Trained</div>
   </div>
 
-  <!-- Carousel -->
-  <div class="carousel-wrap">
+  <!-- Letters stacked vertically -->
+  <div class="letters-stack">
 
-    <div class="carousel-track-outer" id="carousel-outer">
-      <div class="carousel-track" id="carousel-track">
-
-        <div class="gallery-item" onclick="openLightbox(0)">
-          <div class="gallery-num">01 / 06</div>
-          <img src="letter1.jpg" alt="Appreciation Letter 1" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox(1)">
-          <div class="gallery-num">02 / 06</div>
-          <img src="letter2.jpg" alt="Appreciation Letter 2" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox(2)">
-          <div class="gallery-num">03 / 06</div>
-          <img src="letter3.jpg" alt="Appreciation Letter 3" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox(3)">
-          <div class="gallery-num">04 / 06</div>
-          <img src="letter4.jpg" alt="Appreciation Letter 4" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox(4)">
-          <div class="gallery-num">05 / 06</div>
-          <img src="letter5.jpg" alt="Appreciation Letter 5" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-        <div class="gallery-item" onclick="openLightbox(5)">
-          <div class="gallery-num">06 / 06</div>
-          <img src="letter6.jpeg" alt="Appreciation Letter 6" loading="lazy">
-          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
-        </div>
-
-      </div>
+    <div class="gallery-item" onclick="openLightbox(0)">
+      <div class="gallery-num">01 / 06</div>
+      <img src="letter1.jpg" alt="Appreciation Letter 1" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
     </div>
 
-    <button class="carousel-btn prev" id="carousel-prev" aria-label="Previous">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    </button>
-    <button class="carousel-btn next" id="carousel-next" aria-label="Next">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-    </button>
+    <div class="gallery-item" onclick="openLightbox(1)">
+      <div class="gallery-num">02 / 06</div>
+      <img src="letter2.jpg" alt="Appreciation Letter 2" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    </div>
+
+    <div class="gallery-item" onclick="openLightbox(2)">
+      <div class="gallery-num">03 / 06</div>
+      <img src="letter3.jpg" alt="Appreciation Letter 3" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    </div>
+
+    <div class="gallery-item" onclick="openLightbox(3)">
+      <div class="gallery-num">04 / 06</div>
+      <img src="letter4.jpg" alt="Appreciation Letter 4" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    </div>
+
+    <div class="gallery-item" onclick="openLightbox(4)">
+      <div class="gallery-num">05 / 06</div>
+      <img src="letter5.jpg" alt="Appreciation Letter 5" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    </div>
+
+    <div class="gallery-item" onclick="openLightbox(5)">
+      <div class="gallery-num">06 / 06</div>
+      <img src="letter6.jpeg" alt="Appreciation Letter 6" loading="lazy">
+      <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+    </div>
 
   </div>
-
-  <div class="carousel-dots" id="carousel-dots">
-    <button class="carousel-dot active" onclick="goTo(0)"></button>
-    <button class="carousel-dot" onclick="goTo(1)"></button>
-    <button class="carousel-dot" onclick="goTo(2)"></button>
-    <button class="carousel-dot" onclick="goTo(3)"></button>
-    <button class="carousel-dot" onclick="goTo(4)"></button>
-    <button class="carousel-dot" onclick="goTo(5)"></button>
-  </div>
-  <div class="carousel-counter"><span id="c-cur">1</span> / <span>6</span></div>
 
 </div>
 
@@ -377,45 +305,6 @@
 </div>
 
 <script>
-// ── CAROUSEL ──
-let current_slide = 0;
-const TOTAL = 6;
-
-function updateCarousel() {
-  document.getElementById('carousel-track').style.transform = `translateX(-${current_slide * 100}%)`;
-  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === current_slide));
-  document.getElementById('c-cur').textContent = current_slide + 1;
-}
-
-function goTo(idx) {
-  current_slide = (idx + TOTAL) % TOTAL;
-  updateCarousel();
-  resetAutoplay();
-}
-
-document.getElementById('carousel-prev').addEventListener('click', () => goTo(current_slide - 1));
-document.getElementById('carousel-next').addEventListener('click', () => goTo(current_slide + 1));
-
-// swipe support
-let touchStartX = 0;
-const outer = document.getElementById('carousel-outer');
-outer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
-outer.addEventListener('touchend', e => {
-  const diff = touchStartX - e.changedTouches[0].clientX;
-  if (Math.abs(diff) > 50) goTo(diff > 0 ? current_slide + 1 : current_slide - 1);
-});
-
-// keyboard
-document.addEventListener('keydown', e => {
-  if (document.getElementById('lightbox').classList.contains('open')) return;
-  if (e.key === 'ArrowRight') goTo(current_slide + 1);
-  if (e.key === 'ArrowLeft') goTo(current_slide - 1);
-});
-
-// autoplay
-let autoplay = setInterval(() => goTo(current_slide + 1), 3500);
-function resetAutoplay() { clearInterval(autoplay); autoplay = setInterval(() => goTo(current_slide + 1), 3500); }
-
 // ── LIGHTBOX ──
 const images = [
   'letter1.jpg',
