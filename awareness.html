@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cybersecurity Awareness Programs – Alex Philip</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -279,9 +280,61 @@
   @media (max-width: 600px) {
     .gallery-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
   }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(7,5,10,0.95); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.65rem 2rem;
+    margin-bottom: 0;
+  }
+  .topbar-back {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text2); text-decoration: none;
+    letter-spacing: 0.04em; transition: color 0.2s;
+  }
+  .topbar-back:hover { color: var(--accent); }
+  .topbar-logo {
+    display: flex; align-items: center; gap: 0.6rem;
+    text-decoration: none;
+  }
+  .topbar-logo img {
+    width: 28px; height: 28px;
+    border-radius: 6px; object-fit: cover;
+    border: 1px solid var(--border2);
+  }
+  .topbar-logo-name {
+    font-family: var(--sans); font-size: 0.9rem; font-weight: 700;
+    color: var(--accent); letter-spacing: 0.01em;
+  }
+  .topbar-tag {
+    font-family: var(--mono); font-size: 0.68rem;
+    color: var(--accent); background: var(--accent-dim);
+    border: 1px solid rgba(168,85,247,0.2);
+    padding: 0.25rem 0.75rem; border-radius: 100px;
+    letter-spacing: 0.06em;
+  }
+  /* remove old back-link margin since topbar handles nav */
+  .back-link { display: none; }
+  .page-inner { padding-top: 2.5rem; }
 </style>
 </head>
 <body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-back">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <a href="index.html" class="topbar-logo">
+    <img src="logo.jpg" alt="Alex Philip Logo">
+    <span class="topbar-logo-name">Portfolio</span>
+  </a>
+  <span class="topbar-tag">Achievements</span>
+</div>
 
 <div class="page-inner">
 
