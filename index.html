@@ -1242,7 +1242,9 @@
         <img src="letter1.jpg" alt="Appreciation Letter preview" style="width:160px;height:auto;border-radius:6px;">
         <div class="cert-preview-label">6 appreciation letters · Click to view</div>
       </div>
-      <div class="cert-badge">📢</div>
+      <div class="cert-badge" style="background:transparent;padding:0;">
+        <img src="logo.jpg" alt="Cybersecurity Awareness" style="width:44px;height:44px;object-fit:cover;border-radius:8px;">
+      </div>
       <div>
         <div class="cert-name">Cybersecurity Awareness Programs</div>
         <div class="cert-issuer">Various Institutions</div>
@@ -1251,10 +1253,17 @@
     </a>
 
     <a href="cyberxplore.html" class="cert-card">
-      <div class="cert-badge blue">🔭</div>
+      <div class="cert-preview" style="width:220px;">
+        <div class="cert-preview-title">Cyberxplore Workshop</div>
+        <div class="cert-preview-label" style="margin-top:0.4rem;">9 Jan 2025 · Sri Manakula Vinayagar Engineering College · 650 participants · Organised by Starfort</div>
+      </div>
+      <div class="cert-badge" style="background:var(--accent-dim);">
+        <svg width="22" height="22" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
       <div>
         <div class="cert-name">Cyberxplore Workshop</div>
-        <div class="cert-issuer">Workshop</div>
+        <div class="cert-issuer">Starfort · Jan 2025</div>
+        <div class="cert-date">650 Participants</div>
       </div>
     </a>
 
@@ -1455,7 +1464,7 @@ sections.forEach(s => observer.observe(s));
     let bframe = 0, bob = 0, epulse = 0;
     function drawBat() {
       bctx.clearRect(0, 0, 268, 228);
-      const dy = Math.sin(bob) * 4; bob += 0.04; epulse += 0.07;
+      const dy = Math.sin(bob) * 4; bob += 0.08; epulse += 0.12;
       const grid = BAT_FRAMES[bframe];
       for (const [gx, gy, v] of grid) {
         const x = BPAD + gx * S, y = BPAD + gy * S + dy;
@@ -1470,7 +1479,7 @@ sections.forEach(s => observer.observe(s));
       }
       bctx.globalAlpha = 1;
       bframe = (bframe+1) % BAT_FRAMES.length;
-      setTimeout(() => requestAnimationFrame(drawBat), 100);
+      setTimeout(() => requestAnimationFrame(drawBat), 60);
     }
     drawBat();
   }
