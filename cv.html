@@ -1,121 +1,329 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>My CV</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CV – Alex Amitraj Philip</title>
 <link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-
-body{
-background:black;
-color:white;
-font-family:Arial;
-margin:0;
-padding:20px 10px;
-text-align:center;
-}
-
-body{
-overflow-x:hidden;
-}
-
-h1{
-color:#f97316;
-margin-top:30px;
-}
-
-.container{
-width:100%;
-max-width:900px;
-padding:10px;
-margin:0 auto;
-box-sizing:border-box;
-}
-
-iframe{
-width:100%;
-height:85vh;
-border:2px solid #f97316;
-border-radius:10px;
-box-sizing:border-box;
-background:white;
-}
-
-.download-btn{
-display:inline-block;
-margin-top:20px;
-padding:12px 20px;
-background:#f97316;
-color:white;
-border-radius:8px;
-text-decoration:none;
-font-weight:bold;
-}
-
-.download-btn:hover{
-background:#ea580c;
-}
-
-a.back{
-display:block;
-margin:20px;
-color:#f97316;
-text-decoration:none;
-}
-
-img{
-width:100%;
-max-width:100%;
-height:auto;
-display:block;
-margin:20px auto;
-}
-
-@media (max-width:768px){
-
-iframe{
-height:70vh;
-}
-
-}
-
-.cv-preview{
-width:100%;
-max-width:900px;
-border:2px solid #f97316;
-border-radius:10px;
-display:block;
-margin:20px auto;
-background:white;
-}
-
+:root{--bg:#07050a;--surface:#110a18;--surface2:#1a1025;--border:rgba(255,255,255,0.07);--border2:rgba(168,85,247,0.25);--accent:#a855f7;--accent2:#c084fc;--accent-dim:rgba(168,85,247,0.1);--text:#f0eaff;--text2:#9a8aaa;--text3:#5a4a6a;--mono:"DM Mono",monospace;--serif:"DM Serif Display",Georgia,serif;--sans:"Outfit",sans-serif}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.03) 1px,transparent 1px);background-size:36px 36px;pointer-events:none;z-index:0}
+.topbar{position:sticky;top:0;z-index:100;background:rgba(7,5,10,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
+.topbar-back{display:flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.04em;transition:color 0.2s}
+.topbar-back:hover{color:var(--accent)}
+.topbar-actions{display:flex;gap:0.75rem}
+.btn-action{font-family:var(--mono);font-size:0.72rem;padding:0.4rem 1rem;cursor:pointer;border:1px solid var(--border2);border-radius:4px;color:var(--accent);background:transparent;letter-spacing:0.04em;transition:background 0.2s,color 0.2s;text-decoration:none;display:inline-flex;align-items:center;gap:0.4rem}
+.btn-action:hover{background:var(--accent);color:var(--bg)}
+.cv-page{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3rem 2rem 5rem;display:grid;grid-template-columns:1fr 260px;gap:0 3rem}
+.cv-header{grid-column:1/-1;padding-bottom:2.5rem;margin-bottom:2.5rem;border-bottom:1px solid var(--border2);display:flex;align-items:flex-end;justify-content:space-between;gap:2rem}
+.cv-name{font-family:var(--serif);font-size:clamp(2.8rem,6vw,4.5rem);line-height:1.0;color:var(--text);letter-spacing:-0.02em}
+.cv-name em{font-style:italic;color:var(--accent)}
+.cv-title{font-family:var(--mono);font-size:0.8rem;color:var(--accent2);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.6rem}
+.cv-contacts{display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem}
+.cv-contact-item{display:flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.03em;transition:color 0.2s}
+.cv-contact-item:hover{color:var(--accent)}
+.cv-contact-item svg{flex-shrink:0;opacity:0.6}
+.cv-main{grid-column:1}
+.cv-sidebar{grid-column:2}
+.cv-section{margin-bottom:2.5rem}
+.cv-section-label{font-family:var(--mono);font-size:0.65rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;display:flex;align-items:center;gap:0.75rem}
+.cv-section-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--border2),transparent)}
+.cv-summary{font-size:0.92rem;color:var(--text2);line-height:1.8}
+.cv-summary strong{color:var(--text);font-weight:600}
+.exp-item{margin-bottom:2rem;position:relative;padding-left:1.2rem}
+.exp-item::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+.exp-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.3rem}
+.exp-role{font-size:0.98rem;font-weight:600;color:var(--text)}
+.exp-date{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.6rem;border-radius:4px;white-space:nowrap;flex-shrink:0;letter-spacing:0.04em}
+.exp-company{font-size:0.82rem;color:var(--accent2);font-weight:500;margin-bottom:0.75rem}
+.exp-bullets{list-style:none;display:flex;flex-direction:column;gap:0.45rem}
+.exp-bullets li{font-size:0.85rem;color:var(--text2);line-height:1.65;padding-left:1rem;position:relative}
+.exp-bullets li::before{content:"›";position:absolute;left:0;color:var(--accent);font-weight:600}
+.edu-item{margin-bottom:1.8rem;padding-left:1.2rem;position:relative}
+.edu-item::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent2);box-shadow:0 0 0 3px rgba(192,132,252,0.12)}
+.edu-degree{font-size:0.95rem;font-weight:600;color:var(--text);margin-bottom:0.2rem}
+.edu-school{font-size:0.82rem;color:var(--accent2);font-weight:500;margin-bottom:0.3rem}
+.edu-date-badge{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.68rem;color:var(--text3);margin-bottom:0.5rem}
+.edu-accred{display:inline-block;font-family:var(--mono);font-size:0.65rem;padding:0.2rem 0.55rem;border-radius:3px;background:var(--accent-dim);color:var(--accent);margin-bottom:0.5rem;letter-spacing:0.04em}
+.edu-modules{font-size:0.78rem;color:var(--text3);line-height:1.65}
+.proj-item{margin-bottom:1.5rem;padding-left:1.2rem;position:relative}
+.proj-item::before{content:"";position:absolute;left:0;top:7px;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:0.6}
+.proj-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.3rem;flex-wrap:wrap}
+.proj-name{font-size:0.92rem;font-weight:600;color:var(--text)}
+.proj-tech{font-family:var(--mono);font-size:0.65rem;padding:0.15rem 0.5rem;border-radius:3px;background:rgba(168,85,247,0.08);color:var(--accent2);letter-spacing:0.04em}
+.proj-link{font-family:var(--mono);font-size:0.65rem;color:var(--accent);text-decoration:none;opacity:0.7;transition:opacity 0.2s;margin-left:auto}
+.proj-link:hover{opacity:1}
+.proj-desc{font-size:0.82rem;color:var(--text2);line-height:1.65}
+.side-section{margin-bottom:2rem}
+.side-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;padding-bottom:0.5rem;border-bottom:1px solid var(--border)}
+.cert-item{display:flex;align-items:center;gap:0.75rem;margin-bottom:0.85rem;padding:0.7rem 0.85rem;background:var(--surface);border:1px solid var(--border);border-radius:8px;transition:border-color 0.2s;text-decoration:none}
+.cert-item:hover{border-color:var(--border2)}
+.cert-badge-img{width:32px;height:32px;object-fit:contain;flex-shrink:0}
+.cert-name{font-size:0.8rem;font-weight:600;color:var(--text)}
+.cert-meta{font-family:var(--mono);font-size:0.65rem;color:var(--text3)}
+.skills-group{margin-bottom:1.2rem}
+.skills-group-name{font-family:var(--mono);font-size:0.65rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:0.5rem}
+.skills-chips{display:flex;flex-wrap:wrap;gap:0.4rem}
+.skill-chip{font-size:0.74rem;padding:0.25rem 0.65rem;border-radius:4px;border:1px solid var(--border);background:var(--surface);color:var(--text2);transition:border-color 0.2s,color 0.2s}
+.skill-chip:hover{border-color:var(--accent);color:var(--text)}
+.skill-chip.hi{border-color:rgba(168,85,247,0.35);color:var(--accent2)}
+.lang-item{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem}
+.lang-name{font-size:0.82rem;color:var(--text)}
+.lang-level{font-family:var(--mono);font-size:0.68rem;padding:0.15rem 0.55rem;border-radius:3px;background:var(--surface);border:1px solid var(--border);color:var(--text3)}
+.vol-item{margin-bottom:0.8rem}
+.vol-name{font-size:0.82rem;color:var(--text);font-weight:500;margin-bottom:0.15rem}
+.vol-role{font-family:var(--mono);font-size:0.68rem;color:var(--text3)}
+.profile-link{display:flex;align-items:center;gap:0.55rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;padding:0.5rem 0;border-bottom:1px solid var(--border);transition:color 0.2s}
+.profile-link:hover{color:var(--accent)}
+.profile-link:last-child{border-bottom:none}
+.profile-link svg{flex-shrink:0;opacity:0.6}
+.cv-section,.cv-header{opacity:0;transform:translateY(16px);animation:fadein 0.5s ease forwards}
+.cv-header{animation-delay:0.05s}
+.cv-main .cv-section:nth-child(1){animation-delay:0.1s}
+.cv-main .cv-section:nth-child(2){animation-delay:0.18s}
+.cv-main .cv-section:nth-child(3){animation-delay:0.26s}
+.cv-main .cv-section:nth-child(4){animation-delay:0.34s}
+.cv-sidebar .side-section{opacity:0;transform:translateY(16px);animation:fadein 0.5s ease forwards}
+.cv-sidebar .side-section:nth-child(1){animation-delay:0.12s}
+.cv-sidebar .side-section:nth-child(2){animation-delay:0.2s}
+.cv-sidebar .side-section:nth-child(3){animation-delay:0.28s}
+.cv-sidebar .side-section:nth-child(4){animation-delay:0.36s}
+.cv-sidebar .side-section:nth-child(5){animation-delay:0.44s}
+@keyframes fadein{to{opacity:1;transform:translateY(0)}}
+@media print{body{background:#fff;color:#111}body::before{display:none}.topbar{display:none}.cv-page{padding:1.5rem}.cv-name{color:#111}.cv-name em{color:#7c3aed}.cv-section-label,.side-label{color:#7c3aed}.cv-summary,.exp-bullets li,.proj-desc,.edu-modules{color:#444}.exp-company,.edu-school{color:#7c3aed}.exp-date{background:#f3e8ff;color:#7c3aed}.cert-item,.skill-chip{background:#f9fafb;border-color:#e5e7eb}.cv-contact-item,.profile-link{color:#555}.skill-chip{color:#555}.cert-name{color:#111}*{animation:none!important;opacity:1!important;transform:none!important}}
+@media(max-width:720px){.cv-page{grid-template-columns:1fr;padding:2rem 1rem 3rem}.cv-header{flex-direction:column;align-items:flex-start}.cv-contacts{align-items:flex-start}.cv-main,.cv-sidebar{grid-column:1}}
 </style>
-
 </head>
-
 <body>
 
-<a href="index.html" class="back">← Back to Portfolio</a>
+<div class="topbar">
+  <a href="index.html" class="topbar-back">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <div class="topbar-actions">
+    <a href="CV.pdf" target="_blank" class="btn-action">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download PDF
+    </a>
+    <button class="btn-action" onclick="window.print()">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Print
+    </button>
+  </div>
+</div>
 
-<h1>My CV</h1>
+<div class="cv-page">
 
-<div class="container">
+  <div class="cv-header">
+    <div>
+      <h1 class="cv-name">Alex Amitraj<br><em>Philip</em></h1>
+      <div class="cv-title">Cybersecurity Professional</div>
+    </div>
+    <div class="cv-contacts">
+      <a href="mailto:alex.philip99@hotmail.com" class="cv-contact-item">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        alex.philip99@hotmail.com
+      </a>
+      <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="cv-contact-item">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+        linkedin.com/in/alexphilip170803
+      </a>
+      <a href="https://github.com/AlexPhilip01" target="_blank" class="cv-contact-item">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+        github.com/AlexPhilip01
+      </a>
+      <a href="https://alexphilip01.github.io" target="_blank" class="cv-contact-item">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        alexphilip01.github.io
+      </a>
+    </div>
+  </div>
 
-<!-- PDF VIEWER -->
-<img src="IMG_6705.jpeg" class="cv-preview">
+  <div class="cv-main">
 
-<!-- DOWNLOAD BUTTON -->
-<br>
-<a href="CV.pdf" download class="download-btn">
-⬇ Download CV
-</a>
+    <div class="cv-section">
+      <div class="cv-section-label">Professional Summary</div>
+      <p class="cv-summary">Cybersecurity professional with an <strong>MSc in Information Security from Royal Holloway, University of London</strong> (NCSC/GCHQ-accredited). Experienced in threat detection, SOC operations, incident response, and digital forensics. Completed a six-month internship at the <strong>Cyber Crime Department, Government of Puducherry</strong>, investigating phishing, financial fraud, and identity theft using Autopsy and FTK. Certified in <strong>CompTIA Security+</strong> and <strong>CompTIA CySA+</strong>. Passionate about building automated security tools and contributing to resilient, well-defended systems.</p>
+    </div>
 
+    <div class="cv-section">
+      <div class="cv-section-label">Professional Experience</div>
+      <div class="exp-item">
+        <div class="exp-header">
+          <div class="exp-role">Cyber Crime Intern</div>
+          <span class="exp-date">Jul 2024 – Jan 2025</span>
+        </div>
+        <div class="exp-company">Cyber Crime Department &middot; Government of Puducherry UT, India</div>
+        <ul class="exp-bullets">
+          <li>Investigated cybercrime cases including phishing, financial fraud, and identity theft; performed digital forensics using <strong style="color:var(--text)">Autopsy</strong> and <strong style="color:var(--text)">FTK</strong>.</li>
+          <li>Supported <strong style="color:var(--text)">ISO/IEC 27001</strong>-aligned policy development, incident response planning, and threat mitigation in collaboration with law enforcement.</li>
+          <li>Delivered cybersecurity awareness and technical training to <strong style="color:var(--text)">200+ police officers</strong>, covering cyber hygiene, digital literacy, and crime prevention.</li>
+          <li>Assisted in drafting Computer Security Policy and contributed to network security architecture improvements.</li>
+          <li>Solved complex cybercrime cases and delivered capacity-building technical training sessions to the Police Cyber Team.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cv-section">
+      <div class="cv-section-label">Education</div>
+      <div class="edu-item">
+        <div class="edu-degree">MSc Information Security</div>
+        <div class="edu-school">Royal Holloway, University of London</div>
+        <div class="edu-date-badge">2022 – 2024</div><br>
+        <span class="edu-accred">NCSC / GCHQ Accredited</span>
+        <div class="edu-modules">Cryptography &middot; Network Security &middot; Cyber Security &middot; Cyber Forensics &middot; Software Security &middot; Penetration Testing &middot; Security Management &middot; Incident Response</div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-degree">B.E Electrical &amp; Electronics Engineering</div>
+        <div class="edu-school">Sri Krishna Institutions, Coimbatore</div>
+        <div class="edu-date-badge">2017 – 2021</div>
+        <div class="edu-modules">Data Structures &middot; Linux &amp; C++ Programming &middot; Control Systems &middot; Smart Grid Technology &middot; Digital Signal Processing &middot; Power System Analysis &middot; Microprocessors &amp; Microcontrollers</div>
+      </div>
+    </div>
+
+    <div class="cv-section">
+      <div class="cv-section-label">Academic Projects</div>
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Phishing Email Analyzer</span>
+          <span class="proj-tech">Python</span>
+          <a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank" class="proj-link">GitHub &#x2197;</a>
+        </div>
+        <div class="proj-desc">Parses .eml email headers to detect phishing indicators &mdash; extracting sender IPs, analysing metadata, and flagging suspicious keywords. Demonstrates practical email forensics and phishing investigation techniques.</div>
+      </div>
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">SOC Log Analyzer</span>
+          <span class="proj-tech">Python</span>
+          <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank" class="proj-link">GitHub &#x2197;</a>
+        </div>
+        <div class="proj-desc">Detects suspicious authentication activity from system logs &mdash; flags repeated SSH failures and brute-force patterns, generating SOC-style alerts with suspicious IP details.</div>
+      </div>
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Threat Intelligence IP Checker</span>
+          <span class="proj-tech">Python</span>
+          <a href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank" class="proj-link">GitHub &#x2197;</a>
+        </div>
+        <div class="proj-desc">Extracts IPs from network logs and evaluates reputation via AbuseIPDB API &mdash; automated risk classification combining log analysis with external threat intelligence for IOC enrichment.</div>
+      </div>
+      <div class="proj-item">
+        <div class="proj-header">
+          <span class="proj-name">Financial Fraud Detection System</span>
+          <span class="proj-tech">Python</span>
+          <span class="proj-tech">Machine Learning</span>
+        </div>
+        <div class="proj-desc">Hybrid ML system using Neural Networks, Random Forest, and XGBoost to detect fraudulent financial transactions. Combines multiple classifiers for improved accuracy and reduced false positives.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cv-sidebar">
+
+    <div class="side-section">
+      <div class="side-label">Certifications</div>
+      <a href="securityplus.html" class="cert-item">
+        <img src="security.png" alt="Security+" class="cert-badge-img">
+        <div><div class="cert-name">CompTIA Security+</div><div class="cert-meta">CE &middot; May 2024 &middot; Exp Jun 2027</div></div>
+      </a>
+      <a href="cysa.html" class="cert-item">
+        <img src="cysa.png" alt="CySA+" class="cert-badge-img">
+        <div><div class="cert-name">CompTIA CySA+</div><div class="cert-meta">CE &middot; Jun 2024 &middot; Exp Jun 2027</div></div>
+      </a>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Technical Skills</div>
+      <div class="skills-group">
+        <div class="skills-group-name">SOC &amp; Incident Response</div>
+        <div class="skills-chips">
+          <span class="skill-chip hi">Log Analysis</span>
+          <span class="skill-chip hi">Alert Triage</span>
+          <span class="skill-chip hi">Incident Response</span>
+          <span class="skill-chip hi">Threat Detection</span>
+          <span class="skill-chip">Threat Hunting</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <div class="skills-group-name">Forensics &amp; Security</div>
+        <div class="skills-chips">
+          <span class="skill-chip hi">Digital Forensics</span>
+          <span class="skill-chip">Autopsy &middot; FTK</span>
+          <span class="skill-chip hi">Malware Analysis</span>
+          <span class="skill-chip">SAST / DAST</span>
+          <span class="skill-chip">Pen Testing</span>
+          <span class="skill-chip">Cryptography</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <div class="skills-group-name">Networking &amp; Systems</div>
+        <div class="skills-chips">
+          <span class="skill-chip">TCP/IP &middot; DNS &middot; DHCP</span>
+          <span class="skill-chip">Windows Admin</span>
+          <span class="skill-chip">Linux Admin</span>
+          <span class="skill-chip">Active Directory</span>
+        </div>
+      </div>
+      <div class="skills-group">
+        <div class="skills-group-name">Languages &amp; Scripting</div>
+        <div class="skills-chips">
+          <span class="skill-chip hi">Python</span>
+          <span class="skill-chip hi">Bash</span>
+          <span class="skill-chip">PowerShell</span>
+          <span class="skill-chip">C++</span>
+          <span class="skill-chip">HTML</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Volunteer Experience</div>
+      <div class="vol-item">
+        <div class="vol-name">Lions Club of Pondicherry</div>
+        <div class="vol-role">President 2021&ndash;22 &middot; Active Member 2016&ndash;Present</div>
+      </div>
+      <div class="vol-item">
+        <div class="vol-name">Starfort Cybersecurity Awareness</div>
+        <div class="vol-role">Volunteer &amp; Organizer &middot; 2024</div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Languages</div>
+      <div class="lang-item"><span class="lang-name">English</span><span class="lang-level">Fluent</span></div>
+      <div class="lang-item"><span class="lang-name">French</span><span class="lang-level">A2</span></div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Online Profiles</div>
+      <a href="https://tryhackme.com/p/Alex.philip99" target="_blank" class="profile-link">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+        TryHackMe
+      </a>
+      <a href="https://blueteamlabs.online/home/investigations?category=ALL" target="_blank" class="profile-link">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L3 7v5c0 5.25 3.75 10.15 9 11.35C17.25 22.15 21 17.25 21 12V7L12 2zm0 4l6 3.27V12c0 3.75-2.67 7.27-6 8.47C8.67 19.27 6 15.75 6 12V9.27L12 6z"/></svg>
+        Blue Team Labs Online
+      </a>
+      <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" class="profile-link">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452z"/></svg>
+        LinkedIn
+      </a>
+      <a href="https://alexphilip01.github.io" target="_blank" class="profile-link">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Portfolio
+      </a>
+    </div>
+
+  </div>
 </div>
 
 </body>
-
 </html>
