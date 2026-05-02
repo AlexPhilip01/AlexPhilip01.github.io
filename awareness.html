@@ -1,69 +1,466 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>Cybersecurity Awareness Programs</title>
-
-<link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybersecurity Awareness Programs – Alex Philip</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07050a;
+    --bg2: #0d0b0d;
+    --surface: #140d1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(160,80,255,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.12);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: 'DM Mono', monospace;
+    --serif: 'DM Serif Display', Georgia, serif;
+    --sans: 'Outfit', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 3rem 1.5rem 4rem;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
 
-body{
-background:black;
-color:white;
-font-family:Arial;
-text-align:center;
-}
+  .page-inner {
+    position: relative; z-index: 1;
+    max-width: 960px;
+    margin: 0 auto;
+  }
 
-h1{
-color:#f97316;
-}
+  /* back link */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text2); text-decoration: none;
+    margin-bottom: 2.5rem;
+    transition: color 0.2s; letter-spacing: 0.04em;
+  }
+  .back-link:hover { color: var(--accent); }
 
-.gallery{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:30px;
-margin-top:40px;
-}
+  /* header */
+  .page-header { margin-bottom: 3rem; }
+  .page-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.6rem;
+  }
+  .page-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--text); line-height: 1.15;
+    margin-bottom: 0.8rem;
+  }
+  .page-desc {
+    font-size: 0.95rem; color: var(--text2);
+    line-height: 1.75; max-width: 600px;
+  }
 
-.gallery img{
-width:300px;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  /* stats row */
+  .stats-row {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.4rem 1rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text2); letter-spacing: 0.04em;
+  }
+  .stat-pill-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-a{
-color:#f97316;
-text-decoration:none;
-}
+  /* ── CAROUSEL ── */
+  .carousel-wrap {
+    position: relative;
+    margin-bottom: 2rem;
+  }
+  .carousel-track-outer {
+    overflow: hidden;
+    border-radius: 14px;
+    position: relative;
+  }
+  .carousel-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .gallery-item {
+    flex: 0 0 100%;
+    position: relative;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    cursor: pointer;
+    aspect-ratio: 3/4;
+    max-height: 75vh;
+  }
+  .gallery-item img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+    display: block;
+    transition: transform 0.35s;
+  }
+  .gallery-item:hover img { transform: scale(1.02); }
+  .gallery-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(8,6,8,0.85) 0%, transparent 55%);
+    opacity: 0; transition: opacity 0.25s;
+    display: flex; align-items: flex-end;
+    padding: 1.4rem;
+  }
+  .gallery-item:hover .gallery-overlay { opacity: 1; }
+  .gallery-overlay-text {
+    font-family: var(--mono); font-size: 0.72rem;
+    color: rgba(255,255,255,0.75); letter-spacing: 0.06em;
+    display: flex; align-items: center; gap: 0.5rem;
+  }
+  .gallery-num {
+    position: absolute; top: 1rem; right: 1rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    background: rgba(8,6,8,0.8); color: var(--accent);
+    padding: 0.25rem 0.65rem; border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
 
+  /* nav arrows */
+  .carousel-btn {
+    position: absolute; top: 50%; z-index: 10;
+    transform: translateY(-50%);
+    width: 44px; height: 44px;
+    background: rgba(20,13,26,0.85);
+    border: 1px solid var(--border2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  .carousel-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .carousel-btn.prev { left: -22px; }
+  .carousel-btn.next { right: -22px; }
+
+  /* dots */
+  .carousel-dots {
+    display: flex; justify-content: center; gap: 8px;
+    margin-top: 1.2rem;
+  }
+  .carousel-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text3); cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    border: none; padding: 0;
+  }
+  .carousel-dot.active { background: var(--accent); transform: scale(1.3); }
+
+  /* counter */
+  .carousel-counter {
+    text-align: center; margin-top: 0.8rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text3); letter-spacing: 0.08em;
+  }
+  .carousel-counter span { color: var(--accent); }
+
+  @media (max-width: 600px) {
+    .carousel-btn.prev { left: -12px; }
+    .carousel-btn.next { right: -12px; }
+  }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(4,3,4,0.95);
+    backdrop-filter: blur(12px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 1.5rem;
+  }
+  .lightbox.open { display: flex; }
+
+  .lightbox-inner {
+    position: relative;
+    max-width: 800px; width: 100%;
+    max-height: 90vh;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 1rem;
+  }
+
+  .lightbox-img-wrap {
+    position: relative;
+    width: 100%; max-height: 80vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .lightbox-img-wrap img {
+    max-width: 100%; max-height: 78vh;
+    object-fit: contain;
+    border-radius: 8px;
+    border: 1px solid var(--border2);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+  }
+
+  .lightbox-close {
+    position: fixed; top: 1.5rem; right: 1.5rem;
+    width: 40px; height: 40px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2); font-size: 1.1rem;
+    transition: background 0.2s, color 0.2s;
+    z-index: 910;
+  }
+  .lightbox-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .lightbox-nav {
+    display: flex; align-items: center; gap: 1.5rem;
+  }
+  .lightbox-btn {
+    width: 40px; height: 40px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    font-size: 1rem;
+  }
+  .lightbox-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lightbox-counter {
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text3); letter-spacing: 0.08em;
+    min-width: 60px; text-align: center;
+  }
+
+  /* keyboard hint */
+  .lightbox-hint {
+    font-family: var(--mono); font-size: 0.65rem;
+    color: var(--text3); letter-spacing: 0.06em;
+    text-align: center;
+  }
+
+  @media (max-width: 600px) {
+    .gallery-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  }
 </style>
-
 </head>
-
-
 <body>
 
-<h1>Cybersecurity Awareness Programs</h1>
+<div class="page-inner">
 
-<p>Appreciation Letters from Institutions</p>
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
 
-<a href="index.html">← Back to Portfolio</a>
+  <div class="page-header">
+    <div class="page-label">// achievements</div>
+    <h1 class="page-title">Cybersecurity<br>Awareness Programs</h1>
+    <p class="page-desc">Appreciation letters received from institutions and organizations for conducting cybersecurity awareness sessions, training programs, and educational initiatives.</p>
+  </div>
 
-<div class="gallery">
+  <div class="stats-row">
+    <div class="stat-pill"><div class="stat-pill-dot"></div>6 Appreciation Letters</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Multiple Institutions</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>200+ Officers Trained</div>
+  </div>
 
-<img src="letter1.jpg">
-<img src="letter2.jpg">
-<img src="letter3.jpg">
-<img src="letter4.jpg">
-<img src="letter5.jpg">
-<img src="letter6.jpeg">
+  <!-- Carousel -->
+  <div class="carousel-wrap">
+
+    <div class="carousel-track-outer" id="carousel-outer">
+      <div class="carousel-track" id="carousel-track">
+
+        <div class="gallery-item" onclick="openLightbox(0)">
+          <div class="gallery-num">01 / 06</div>
+          <img src="letter1.jpg" alt="Appreciation Letter 1" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+        <div class="gallery-item" onclick="openLightbox(1)">
+          <div class="gallery-num">02 / 06</div>
+          <img src="letter2.jpg" alt="Appreciation Letter 2" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+        <div class="gallery-item" onclick="openLightbox(2)">
+          <div class="gallery-num">03 / 06</div>
+          <img src="letter3.jpg" alt="Appreciation Letter 3" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+        <div class="gallery-item" onclick="openLightbox(3)">
+          <div class="gallery-num">04 / 06</div>
+          <img src="letter4.jpg" alt="Appreciation Letter 4" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+        <div class="gallery-item" onclick="openLightbox(4)">
+          <div class="gallery-num">05 / 06</div>
+          <img src="letter5.jpg" alt="Appreciation Letter 5" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+        <div class="gallery-item" onclick="openLightbox(5)">
+          <div class="gallery-num">06 / 06</div>
+          <img src="letter6.jpeg" alt="Appreciation Letter 6" loading="lazy">
+          <div class="gallery-overlay"><div class="gallery-overlay-text"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>Click to enlarge</div></div>
+        </div>
+
+      </div>
+    </div>
+
+    <button class="carousel-btn prev" id="carousel-prev" aria-label="Previous">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </button>
+    <button class="carousel-btn next" id="carousel-next" aria-label="Next">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
+
+  </div>
+
+  <div class="carousel-dots" id="carousel-dots">
+    <button class="carousel-dot active" onclick="goTo(0)"></button>
+    <button class="carousel-dot" onclick="goTo(1)"></button>
+    <button class="carousel-dot" onclick="goTo(2)"></button>
+    <button class="carousel-dot" onclick="goTo(3)"></button>
+    <button class="carousel-dot" onclick="goTo(4)"></button>
+    <button class="carousel-dot" onclick="goTo(5)"></button>
+  </div>
+  <div class="carousel-counter"><span id="c-cur">1</span> / <span>6</span></div>
 
 </div>
 
-</body>
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="handleLightboxClick(event)">
+  <button class="lightbox-close" onclick="closeLightbox()">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <div class="lightbox-inner">
+    <div class="lightbox-img-wrap">
+      <img id="lightbox-img" src="" alt="Appreciation Letter">
+    </div>
+    <div class="lightbox-nav">
+      <button class="lightbox-btn" onclick="changeSlide(-1)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <span class="lightbox-counter" id="lightbox-counter">1 / 6</span>
+      <button class="lightbox-btn" onclick="changeSlide(1)">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="lightbox-hint">← → arrow keys to navigate &nbsp;·&nbsp; Esc to close</div>
+  </div>
+</div>
 
+<script>
+// ── CAROUSEL ──
+let current_slide = 0;
+const TOTAL = 6;
+
+function updateCarousel() {
+  document.getElementById('carousel-track').style.transform = `translateX(-${current_slide * 100}%)`;
+  document.querySelectorAll('.carousel-dot').forEach((d, i) => d.classList.toggle('active', i === current_slide));
+  document.getElementById('c-cur').textContent = current_slide + 1;
+}
+
+function goTo(idx) {
+  current_slide = (idx + TOTAL) % TOTAL;
+  updateCarousel();
+  resetAutoplay();
+}
+
+document.getElementById('carousel-prev').addEventListener('click', () => goTo(current_slide - 1));
+document.getElementById('carousel-next').addEventListener('click', () => goTo(current_slide + 1));
+
+// swipe support
+let touchStartX = 0;
+const outer = document.getElementById('carousel-outer');
+outer.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+outer.addEventListener('touchend', e => {
+  const diff = touchStartX - e.changedTouches[0].clientX;
+  if (Math.abs(diff) > 50) goTo(diff > 0 ? current_slide + 1 : current_slide - 1);
+});
+
+// keyboard
+document.addEventListener('keydown', e => {
+  if (document.getElementById('lightbox').classList.contains('open')) return;
+  if (e.key === 'ArrowRight') goTo(current_slide + 1);
+  if (e.key === 'ArrowLeft') goTo(current_slide - 1);
+});
+
+// autoplay
+let autoplay = setInterval(() => goTo(current_slide + 1), 3500);
+function resetAutoplay() { clearInterval(autoplay); autoplay = setInterval(() => goTo(current_slide + 1), 3500); }
+
+// ── LIGHTBOX ──
+const images = [
+  'letter1.jpg',
+  'letter2.jpg',
+  'letter3.jpg',
+  'letter4.jpg',
+  'letter5.jpg',
+  'letter6.jpeg'
+];
+
+let current = 0;
+
+function openLightbox(index) {
+  current = index;
+  updateLightbox();
+  document.getElementById('lightbox').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function updateLightbox() {
+  document.getElementById('lightbox-img').src = images[current];
+  document.getElementById('lightbox-counter').textContent = (current + 1) + ' / ' + images.length;
+}
+
+function changeSlide(dir) {
+  current = (current + dir + images.length) % images.length;
+  updateLightbox();
+}
+
+function handleLightboxClick(e) {
+  if (e.target === document.getElementById('lightbox')) closeLightbox();
+}
+
+document.addEventListener('keydown', (e) => {
+  const lb = document.getElementById('lightbox');
+  if (!lb.classList.contains('open')) return;
+  if (e.key === 'Escape') closeLightbox();
+  if (e.key === 'ArrowRight') changeSlide(1);
+  if (e.key === 'ArrowLeft') changeSlide(-1);
+});
+</script>
+</body>
 </html>
