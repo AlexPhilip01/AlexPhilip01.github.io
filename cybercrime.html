@@ -1,87 +1,313 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>Cybercrime Internship</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cybercrime Internship – Alex Philip</title>
 <link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07050a;
+    --surface: #140d1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(168,85,247,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.1);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: "DM Mono", monospace;
+    --serif: "DM Serif Display", Georgia, serif;
+    --sans: "Outfit", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 3rem 1.5rem 5rem;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
 
-body{
-background:black;
-color:white;
-font-family:Arial;
-text-align:center;
-}
+  .page-inner {
+    position: relative; z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+  }
 
-h1{
-color:#f97316;
-}
+  /* back link */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text2); text-decoration: none;
+    margin-bottom: 2.5rem; letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
 
-.main-cert{
-width:90%;
-max-width:1200px;
-display:block;
-margin:40px auto;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  /* header */
+  .page-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.6rem;
+  }
+  .page-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: var(--text); line-height: 1.15;
+    margin-bottom: 0.8rem;
+  }
+  .page-title em { font-style: italic; color: var(--accent); }
 
-.bottom-section{
-display:flex;
-align-items:flex-start;
-justify-content:center;
-gap:30px;
-margin-top:30px;
-}
+  /* stat pills */
+  .stats-row {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 0.5rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.4rem 1rem;
+    font-family: var(--mono); font-size: 0.72rem;
+    color: var(--text2); letter-spacing: 0.04em;
+  }
+  .stat-pill-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-.bottom-section img{
-width:220px;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  /* certificate image */
+  .cert-wrap {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid var(--border2);
+    box-shadow: 0 0 60px rgba(168,85,247,0.1);
+    margin-bottom: 3rem;
+    cursor: zoom-in;
+  }
+  .cert-wrap img {
+    width: 100%; display: block;
+    transition: transform 0.4s;
+  }
+  .cert-wrap:hover img { transform: scale(1.01); }
+  .cert-zoom-hint {
+    position: absolute; bottom: 1rem; right: 1rem;
+    font-family: var(--mono); font-size: 0.65rem;
+    background: rgba(7,5,10,0.8); color: var(--accent);
+    padding: 0.3rem 0.75rem; border-radius: 4px;
+    letter-spacing: 0.06em; backdrop-filter: blur(4px);
+    pointer-events: none;
+  }
 
-.bottom-section p{
-max-width:700px;
-text-align:left;
-line-height:2;
-}
+  /* divider */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+    margin-bottom: 3rem;
+  }
 
-a{
-color:#f97316;
-text-decoration:none;
-}
+  /* about section */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 2rem;
+    align-items: flex-start;
+  }
+  .about-logo {
+    width: 120px; height: 120px;
+    object-fit: contain;
+    border-radius: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    padding: 12px;
+  }
+  .about-content {}
+  .about-section-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .about-section-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+  .about-text p {
+    font-size: 0.95rem; color: var(--text2);
+    line-height: 1.85; margin-bottom: 1rem;
+  }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-text strong { color: var(--text); font-weight: 600; }
+  .about-text .hl { color: var(--accent2); font-weight: 500; }
 
+  /* highlight bullets */
+  .highlights {
+    margin-top: 2rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  .highlight-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .highlight-item:hover { border-color: var(--border2); }
+  .highlight-icon {
+    font-size: 1.1rem; flex-shrink: 0; margin-top: 1px;
+  }
+  .highlight-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+  .highlight-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.6; }
+
+  /* lightbox */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(4,3,4,0.96); backdrop-filter: blur(12px);
+    display: none; align-items: center; justify-content: center;
+    padding: 1.5rem; cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw; max-height: 90vh;
+    object-fit: contain; border-radius: 10px;
+    border: 1px solid var(--border2);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+  }
+  .lightbox-close {
+    position: fixed; top: 1.5rem; right: 1.5rem;
+    width: 40px; height: 40px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2); transition: background 0.2s, color 0.2s; z-index: 910;
+  }
+  .lightbox-close:hover { background: var(--accent); color: #fff; }
+
+  /* animations */
+  .fade-in { opacity: 0; transform: translateY(14px); animation: fadein 0.5s ease forwards; }
+  .fade-in:nth-child(1) { animation-delay: 0.05s; }
+  .fade-in:nth-child(2) { animation-delay: 0.12s; }
+  .fade-in:nth-child(3) { animation-delay: 0.2s; }
+  .fade-in:nth-child(4) { animation-delay: 0.28s; }
+  .fade-in:nth-child(5) { animation-delay: 0.36s; }
+  @keyframes fadein { to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 640px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .about-logo { width: 80px; height: 80px; }
+    .highlights { grid-template-columns: 1fr; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<h1>Cybercrime Internship Certificate</h1>
+<div class="page-inner">
 
-<a href="index.html">← Back to Portfolio</a>
+  <a href="index.html" class="back-link fade-in">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
 
-<img src="cybercrime.jpg" class="main-cert">
+  <div class="fade-in">
+    <div class="page-label">// certifications &amp; experience</div>
+    <h1 class="page-title">Cybercrime <em>Internship</em></h1>
+  </div>
 
-<div class="bottom-section">
+  <div class="stats-row fade-in">
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Jul 2024 – Jan 2025</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Govt of Puducherry UT</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>200+ Officers Trained</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Digital Forensics</div>
+  </div>
 
-<img src="govt.png">
+  <!-- Certificate Image -->
+  <div class="cert-wrap fade-in" onclick="document.getElementById('lightbox').classList.add('open')">
+    <img src="cybercrime.jpg" alt="Cybercrime Internship Certificate">
+    <div class="cert-zoom-hint">Click to enlarge</div>
+  </div>
 
-<p>
+  <div class="divider fade-in"></div>
 
-During my internship with the Cybercrime Department of the Government of India, I gained practical exposure to real-world cybercrime investigations and digital forensic analysis. 
-I assisted in analyzing cyber incidents such as phishing attacks, financial fraud, and identity theft cases. As part of the investigation process, I worked with digital evidence and learned how to examine logs, 
-trace suspicious activities, and support investigative workflows using forensic tools. This experience strengthened my understanding of incident response procedures, cyber threat investigation, 
-and the importance of maintaining evidence integrity during forensic analysis. The internship also enhanced my analytical thinking and problem-solving skills while working alongside law enforcement professionals in addressing cybersecurity incidents.
+  <!-- About Section -->
+  <div class="fade-in">
+    <div class="about-grid">
+      <img src="govt.png" alt="Government of Puducherry" class="about-logo">
+      <div class="about-content">
+        <div class="about-section-label">About the Internship</div>
+        <div class="about-text">
+          <p>During my internship with the <strong>Cyber Crime Department, Government of Puducherry UT</strong>, I gained practical exposure to real-world cybercrime investigations and digital forensic analysis alongside active law enforcement professionals.</p>
+          <p>I assisted in analyzing cyber incidents including <span class="hl">phishing attacks</span>, <span class="hl">financial fraud</span>, and <span class="hl">identity theft</span> cases — examining logs, tracing suspicious activity, and supporting investigative workflows using tools such as <strong>Autopsy</strong> and <strong>FTK</strong>.</p>
+          <p>The internship also involved contributing to <strong>ISO/IEC 27001</strong>-aligned security policy development, delivering cybersecurity awareness training to over <strong>200 police officers</strong>, and assisting in network security architecture improvements. This experience deepened my understanding of incident response, evidence integrity, and cyber threat investigation in a real operational environment.</p>
+        </div>
+      </div>
+    </div>
 
-</p>
+    <div class="highlights">
+      <div class="highlight-item">
+        <div class="highlight-icon">🔍</div>
+        <div>
+          <div class="highlight-title">Cybercrime Investigation</div>
+          <div class="highlight-desc">Investigated phishing, financial fraud, and identity theft cases using Autopsy and FTK for digital forensic analysis.</div>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">🛡️</div>
+        <div>
+          <div class="highlight-title">Policy Development</div>
+          <div class="highlight-desc">Supported ISO/IEC 27001-aligned security policy drafting and Computer Security Policy documentation.</div>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">📢</div>
+        <div>
+          <div class="highlight-title">Awareness Training</div>
+          <div class="highlight-desc">Delivered cyber hygiene and digital literacy training sessions to 200+ police officers and public awareness programmes.</div>
+        </div>
+      </div>
+      <div class="highlight-item">
+        <div class="highlight-icon">🌐</div>
+        <div>
+          <div class="highlight-title">Network Security</div>
+          <div class="highlight-desc">Assisted in network security architecture improvements and capacity-building for the Police Cyber Team.</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
-</body>
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('open')">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <img src="cybercrime.jpg" alt="Cybercrime Internship Certificate">
+</div>
 
+<script>
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
+});
+</script>
+
+</body>
 </html>
