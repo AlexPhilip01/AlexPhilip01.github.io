@@ -1,100 +1,351 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-
 <meta charset="UTF-8">
-<title>Security+ </title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CompTIA Security+ – Alex Philip</title>
 <link rel="icon" type="image/jpeg" href="logo.jpg">
-
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+  :root {
+    --bg: #07050a;
+    --surface: #140d1a;
+    --border: rgba(255,255,255,0.07);
+    --border2: rgba(168,85,247,0.25);
+    --accent: #a855f7;
+    --accent2: #c084fc;
+    --accent-dim: rgba(168,85,247,0.1);
+    --text: #f0eaff;
+    --text2: #8a7a9a;
+    --text3: #5a4a6a;
+    --mono: "DM Mono", monospace;
+    --serif: "DM Serif Display", Georgia, serif;
+    --sans: "Outfit", sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 3rem 1.5rem 5rem;
+  }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none; z-index: 0;
+  }
 
-body{
-background:black;
-color:white;
-font-family:Arial;
-text-align:center;
-}
+  .page-inner {
+    position: relative; z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+  }
 
-h1{
-color:#f97316;
-}
+  .back-link {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-family: var(--mono); font-size: 0.75rem;
+    color: var(--text2); text-decoration: none;
+    margin-bottom: 2.5rem; letter-spacing: 0.04em;
+    transition: color 0.2s;
+  }
+  .back-link:hover { color: var(--accent); }
 
-.gallery{
-display:flex;
-flex-wrap:wrap;
-justify-content:center;
-gap:30px;
-margin-top:40px;
-}
+  .page-label {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 0.6rem;
+  }
+  .page-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: var(--text); line-height: 1.1;
+    margin-bottom: 0.8rem;
+  }
+  .page-title em { font-style: italic; color: var(--accent); }
 
-.gallery img{
-width:300px;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  .stats-row {
+    display: flex; gap: 0.75rem; flex-wrap: wrap;
+    margin-bottom: 3rem;
+  }
+  .stat-pill {
+    display: flex; align-items: center; gap: 0.45rem;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 100px; padding: 0.35rem 0.9rem;
+    font-family: var(--mono); font-size: 0.7rem;
+    color: var(--text2); letter-spacing: 0.04em;
+  }
+  .stat-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-.main-cert{
-width:90%;
-max-width:1200px;
-display:block;
-margin:40px auto;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  .cert-wrap {
+    position: relative; border-radius: 14px; overflow: hidden;
+    border: 1px solid var(--border2);
+    box-shadow: 0 0 60px rgba(168,85,247,0.1);
+    margin-bottom: 3rem; cursor: zoom-in;
+    transition: box-shadow 0.2s;
+  }
+  .cert-wrap:hover { box-shadow: 0 0 80px rgba(168,85,247,0.18); }
+  .cert-wrap img { width: 100%; display: block; }
+  .cert-zoom-hint {
+    position: absolute; bottom: 1rem; right: 1rem;
+    font-family: var(--mono); font-size: 0.65rem;
+    background: rgba(7,5,10,0.82); color: var(--accent);
+    padding: 0.3rem 0.75rem; border-radius: 4px;
+    letter-spacing: 0.06em; backdrop-filter: blur(4px); pointer-events: none;
+  }
 
-.bottom-section{
-display:flex;
-align-items:flex-start;
-justify-content:center;
-gap:30px;
-margin-top:30px;
-}
+  .divider { height: 1px; background: linear-gradient(90deg, var(--border2), transparent); margin-bottom: 3rem; }
 
-.bottom-section img{
-width:220px;
-border-radius:10px;
-border:3px solid #f97316;
-}
+  .about-grid {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 2.5rem;
+    align-items: flex-start;
+    margin-bottom: 3rem;
+  }
+  .badge-wrap {
+    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
+  }
+  .badge-img {
+    width: 140px; height: 140px;
+    object-fit: contain; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border2);
+    padding: 10px;
+    box-shadow: 0 0 30px rgba(168,85,247,0.12);
+  }
+  .badge-label {
+    font-family: var(--mono); font-size: 0.65rem;
+    color: var(--accent); background: var(--accent-dim);
+    padding: 0.2rem 0.6rem; border-radius: 4px;
+    letter-spacing: 0.06em; text-align: center;
+  }
+  .about-section-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .about-section-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+  .about-text p {
+    font-size: 0.94rem; color: var(--text2);
+    line-height: 1.85; margin-bottom: 1rem;
+  }
+  .about-text p:last-child { margin-bottom: 0; }
+  .about-text strong { color: var(--text); font-weight: 600; }
 
-.bottom-section p{
-max-width:500px;
-text-align:left;
-line-height:1.7;
-}
+  .skills-section-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 1.2rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+  .skills-section-label::after {
+    content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--border2), transparent);
+  }
+  .skills-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 3rem;
+  }
+  .skill-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 1rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 0.75rem;
+    transition: border-color 0.2s;
+  }
+  .skill-card:hover { border-color: var(--border2); }
+  .skill-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .skill-title { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+  .skill-desc { font-size: 0.78rem; color: var(--text2); line-height: 1.6; }
 
-a{
-color:#f97316;
-text-decoration:none;
-}
+  .cert-details {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.2rem 1.5rem;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+  }
+  .cert-detail-item { text-align: center; }
+  .cert-detail-label { font-family: var(--mono); font-size: 0.65rem; color: var(--text3); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.3rem; }
+  .cert-detail-value { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+  .cert-detail-value.accent { color: var(--accent); }
 
+  .lightbox {
+    position: fixed; inset: 0; z-index: 900;
+    background: rgba(4,3,4,0.96); backdrop-filter: blur(14px);
+    display: none; align-items: center; justify-content: center;
+    padding: 1.5rem; cursor: zoom-out;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw; max-height: 88vh;
+    object-fit: contain; border-radius: 10px;
+    border: 1px solid var(--border2);
+    box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+  }
+  .lb-close {
+    position: fixed; top: 1.5rem; right: 1.5rem;
+    width: 40px; height: 40px;
+    background: var(--surface); border: 1px solid var(--border2);
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text2); transition: background 0.2s, color 0.2s; z-index: 910;
+  }
+  .lb-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+  .fade-in { opacity: 0; transform: translateY(14px); animation: fadein 0.5s ease forwards; }
+  .fade-in:nth-child(1){animation-delay:0.05s} .fade-in:nth-child(2){animation-delay:0.12s}
+  .fade-in:nth-child(3){animation-delay:0.2s}  .fade-in:nth-child(4){animation-delay:0.28s}
+  .fade-in:nth-child(5){animation-delay:0.36s} .fade-in:nth-child(6){animation-delay:0.44s}
+  @keyframes fadein { to { opacity: 1; transform: translateY(0); } }
+
+  @media (max-width: 640px) {
+    .about-grid { grid-template-columns: 1fr; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .cert-details { grid-template-columns: 1fr 1fr; }
+  }
 </style>
-
 </head>
-
 <body>
 
-<h1>Comptia Security+ </h1>
-  
-<a href="index.html">← Back to Portfolio</a>
+<div class="page-inner">
 
-<img src="security.jpg" class="main-cert">
+  <a href="index.html" class="back-link fade-in">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
 
-<div class="bottom-section">
+  <div class="fade-in">
+    <div class="page-label">// certifications &amp; achievements</div>
+    <h1 class="page-title">CompTIA <em>Security+</em></h1>
+  </div>
 
-<img src="security.png">
+  <div class="stats-row fade-in">
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Certified CE</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>May 2024</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>Expires Jun 2027</div>
+    <div class="stat-pill"><div class="stat-pill-dot"></div>SY0-701</div>
+  </div>
 
-<p>
-My preparation for the CompTIA Security+ certification strengthened my
-understanding of fundamental cybersecurity concepts including network
-security, threat detection, risk management, and incident response.
-Through hands-on practice and security investigations, I developed
-skills in vulnerability identification, security monitoring, and
-implementing defensive security controls to protect systems and networks.
-</p>
+  <!-- Certificate -->
+  <div class="cert-wrap fade-in" onclick="document.getElementById('lightbox').classList.add('open')">
+    <img src="security.jpg" alt="CompTIA Security+ Certificate">
+    <div class="cert-zoom-hint">Click to enlarge</div>
+  </div>
+
+  <div class="divider fade-in"></div>
+
+  <!-- Badge + About -->
+  <div class="about-grid fade-in">
+    <div class="badge-wrap">
+      <img src="security.png" alt="CompTIA Security+ Badge" class="badge-img">
+      <div class="badge-label">CE Certified</div>
+    </div>
+    <div class="about-content">
+      <div class="about-section-label">About This Certification</div>
+      <div class="about-text">
+        <p>The <strong>CompTIA Security+</strong> is a globally recognised, vendor-neutral certification that validates baseline cybersecurity skills. It is DoD 8570-approved and ANSI/ISO-accredited, confirming competence in the core domains of modern security operations.</p>
+        <p>My preparation for this certification strengthened my foundational understanding of <strong>network security, threat detection, risk management, and incident response</strong>. Through hands-on practice and security investigations, I developed skills in vulnerability identification, security monitoring, and implementing defensive controls to protect systems and networks against evolving threats.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Skills -->
+  <div class="fade-in">
+    <div class="skills-section-label">Skills &amp; Knowledge Areas</div>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <div class="skill-icon">🌐</div>
+        <div>
+          <div class="skill-title">Network Security</div>
+          <div class="skill-desc">Securing network infrastructure through firewalls, VPNs, IDS/IPS, and network segmentation to reduce attack surface.</div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">⚠️</div>
+        <div>
+          <div class="skill-title">Threat Detection</div>
+          <div class="skill-desc">Identifying and analysing threats using signature-based and behavioural detection techniques across endpoints and networks.</div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">📊</div>
+        <div>
+          <div class="skill-title">Risk Management</div>
+          <div class="skill-desc">Assessing and mitigating organisational risk through frameworks, controls, and security policies aligned to business objectives.</div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🚨</div>
+        <div>
+          <div class="skill-title">Incident Response</div>
+          <div class="skill-desc">Responding to security incidents using structured IR methodologies — containing, eradicating, and recovering from breaches effectively.</div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🔓</div>
+        <div>
+          <div class="skill-title">Vulnerability Identification</div>
+          <div class="skill-desc">Scanning and assessing systems for weaknesses, prioritising remediation based on severity and potential business impact.</div>
+        </div>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🔒</div>
+        <div>
+          <div class="skill-title">Cryptography &amp; PKI</div>
+          <div class="skill-desc">Applying encryption standards, certificate management, and PKI concepts to protect data in transit and at rest.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cert Details Bar -->
+  <div class="cert-details fade-in">
+    <div class="cert-detail-item">
+      <div class="cert-detail-label">Exam Code</div>
+      <div class="cert-detail-value">SY0-701</div>
+    </div>
+    <div class="cert-detail-item">
+      <div class="cert-detail-label">Issued</div>
+      <div class="cert-detail-value">May 22, 2024</div>
+    </div>
+    <div class="cert-detail-item">
+      <div class="cert-detail-label">Expires</div>
+      <div class="cert-detail-value accent">June 07, 2027</div>
+    </div>
+    <div class="cert-detail-item">
+      <div class="cert-detail-label">Candidate ID</div>
+      <div class="cert-detail-value">COMP001022538215</div>
+    </div>
+  </div>
 
 </div>
-</body>
 
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open'); document.body.style.overflow=''">
+  <button class="lb-close" onclick="document.getElementById('lightbox').classList.remove('open'); document.body.style.overflow=''">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  </button>
+  <img src="security.jpg" alt="CompTIA Security+ Certificate">
+</div>
+
+<script>
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape") { document.getElementById("lightbox").classList.remove("open"); document.body.style.overflow=""; }
+});
+</script>
+
+</body>
 </html>
