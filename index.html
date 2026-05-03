@@ -376,6 +376,19 @@
     border: 2px solid var(--bg);
     box-shadow: 0 0 0 1px var(--accent);
   }
+
+  /* mobile: collapse year column, line moves to far left */
+  @media (max-width: 600px) {
+    .edu-row { grid-template-columns: 1fr; }
+    .edu-row::before { left: 10px; }
+    .edu-year {
+      text-align: left;
+      padding: 1rem 0 0 2.2rem;
+      font-size: 0.68rem;
+    }
+    .edu-body { padding: 0.5rem 0 1.5rem 2.2rem; }
+    .edu-body::before { left: 6px; top: 0.5rem; }
+  }
   .edu-degree {
     font-size: 1rem;
     font-weight: 600;
@@ -432,6 +445,37 @@
   }
   .skill-dot.blue { background: var(--accent2); }
   .skill-dot.dim { background: var(--text3); }
+
+  /* ── PROJECT PREVIEW IMAGE ── */
+  .project-preview-img {
+    position: relative;
+    width: calc(100% + 2px);
+    margin: -1px -1px 0;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+    height: 160px;
+  }
+  .project-preview-img img {
+    width: 100%; height: 100%;
+    object-fit: cover; object-position: top;
+    display: block;
+    transition: transform 0.4s;
+    filter: brightness(0.85);
+  }
+  .project-card:hover .project-preview-img img {
+    transform: scale(1.04);
+    filter: brightness(1);
+  }
+  .project-preview-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(7,5,10,0.7) 0%, transparent 60%);
+    display: flex; align-items: flex-end; gap: 0.4rem;
+    padding: 0.6rem 0.8rem;
+    font-family: var(--mono); font-size: 0.65rem;
+    color: rgba(255,255,255,0.6); letter-spacing: 0.06em;
+    opacity: 0; transition: opacity 0.25s;
+  }
+  .project-card:hover .project-preview-overlay { opacity: 1; }
 
   /* ── PROJECTS ── */
   .projects-grid {
@@ -727,6 +771,12 @@
   .featured-item:hover .featured-preview {
     opacity: 1;
     transform: translateX(-50%) scale(1);
+  }
+  /* mobile tap support */
+  .featured-preview.tap-open {
+    opacity: 1 !important;
+    transform: translateX(-50%) scale(1) !important;
+    pointer-events: auto !important;
   }
 
   /* blog dropdown sub-menu */
@@ -1098,9 +1148,16 @@
   <div class="projects-grid">
 
     <a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank" class="project-card">
+      <div class="project-preview-img">
+        <img src="phishing-output.png" alt="Phishing Email Analyzer Output">
+        <div class="project-preview-overlay">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Live Output
+        </div>
+      </div>
       <div class="project-header">
         <div class="project-icon">📧</div>
-        <span class="project-arrow">↗</span>
+        <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
         <div class="project-name">Phishing Email Analyzer</div>
@@ -1116,7 +1173,7 @@
     <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank" class="project-card">
       <div class="project-header">
         <div class="project-icon blue">🔍</div>
-        <span class="project-arrow">↗</span>
+        <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
         <div class="project-name">SOC Log Analyzer</div>
@@ -1132,7 +1189,7 @@
     <a href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank" class="project-card">
       <div class="project-header">
         <div class="project-icon">🌐</div>
-        <span class="project-arrow">↗</span>
+        <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
         <div class="project-name">Threat Intel IP Checker</div>
@@ -1353,6 +1410,30 @@ const observer = new IntersectionObserver((entries) => {
 }, { rootMargin: '-40% 0px -55% 0px', threshold: 0 });
 
 sections.forEach(s => observer.observe(s));
+
+// ── MOBILE DROPDOWN TAP SUPPORT ──
+// On touch devices, hover doesn't work — so we toggle dropdowns on tap
+document.querySelectorAll('.featured-blogs').forEach(item => {
+  item.addEventListener('click', function(e) {
+    // Only activate on touch / small screens
+    if (window.innerWidth > 900) return;
+    e.stopPropagation();
+    const preview = this.querySelector('.featured-preview');
+    if (!preview) return;
+    const isOpen = preview.classList.contains('tap-open');
+    // Close all others
+    document.querySelectorAll('.featured-preview.tap-open').forEach(p => {
+      p.classList.remove('tap-open');
+    });
+    if (!isOpen) preview.classList.add('tap-open');
+  });
+});
+// Close dropdowns when tapping elsewhere
+document.addEventListener('click', () => {
+  document.querySelectorAll('.featured-preview.tap-open').forEach(p => {
+    p.classList.remove('tap-open');
+  });
+});
 </script>
 
 <script>
