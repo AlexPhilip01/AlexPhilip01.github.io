@@ -3,540 +3,886 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phishing Email Analyzer – Security Write-up</title>
-<link rel="icon" type="image/jpeg" href="logo.jpg">
+<title>PhishGuard — Alex Philip · Portfolio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #07050a;
-    --surface: #140d1a;
-    --surface2: #1a1025;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(168,85,247,0.25);
-    --accent: #a855f7;
-    --accent2: #c084fc;
-    --accent-dim: rgba(168,85,247,0.1);
-    --text: #f0eaff;
-    --text2: #8a7a9a;
-    --text3: #5a4a6a;
-    --mono: "DM Mono", monospace;
-    --serif: "DM Serif Display", Georgia, serif;
-    --sans: "Outfit", sans-serif;
-  }
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body { font-family: var(--sans); background: var(--bg); color: var(--text); line-height: 1.7; }
-  body::before {
-    content: ""; position: fixed; inset: 0;
-    background-image: linear-gradient(rgba(168,85,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.03) 1px,transparent 1px);
-    background-size: 40px 40px; pointer-events: none; z-index: 0;
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-  /* topbar */
-  .topbar {
-    position: sticky; top: 0; z-index: 100;
-    background: rgba(7,5,10,0.95); backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 0.7rem 2rem;
-  }
-  .back-link {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-family: var(--mono); font-size: 0.72rem;
-    color: var(--text2); text-decoration: none; letter-spacing: 0.04em; transition: color 0.2s;
-  }
-  .back-link:hover { color: var(--accent); }
-  .topbar-tag {
-    font-family: var(--mono); font-size: 0.68rem; color: var(--accent);
-    background: var(--accent-dim); border: 1px solid rgba(168,85,247,0.2);
-    padding: 0.25rem 0.75rem; border-radius: 100px; letter-spacing: 0.06em;
-  }
+:root{
+  --bg:#080a0f;
+  --bg2:#0d1017;
+  --surface:#111520;
+  --border:#1e2535;
+  --border2:#2a3347;
+  --text:#e8edf5;
+  --muted:#5a6680;
+  --muted2:#3a4560;
+  --accent:#7c3aed;
+  --accent2:#a855f7;
+  --accent-glow:rgba(124,58,237,.25);
+  --green:#10d97a;
+  --red:#ef4444;
+  --yellow:#f59e0b;
+  --cyan:#22d3ee;
+}
 
-  /* hero */
-  .hero {
-    position: relative; z-index: 1; max-width: 860px; margin: 0 auto;
-    padding: 4rem 2rem 3rem; border-bottom: 1px solid var(--border);
-  }
-  .hero-label { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.7rem; }
-  .hero-title { font-family: var(--serif); font-size: clamp(2.2rem,5vw,3.5rem); line-height: 1.1; color: var(--text); margin-bottom: 0.7rem; }
-  .hero-title em { font-style: italic; color: var(--accent); }
-  .hero-sub { font-size: 0.95rem; color: var(--text2); line-height: 1.75; max-width: 580px; margin-bottom: 1.5rem; }
-  .hero-meta { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-  .meta-pill {
-    display: flex; align-items: center; gap: 0.45rem;
-    font-family: var(--mono); font-size: 0.7rem;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 100px; padding: 0.35rem 0.85rem; color: var(--text2); letter-spacing: 0.04em;
-  }
-  .meta-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+html{scroll-behavior:smooth}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-  /* layout */
-  .content-wrap {
-    position: relative; z-index: 1; max-width: 860px; margin: 0 auto;
-    padding: 3rem 2rem 6rem;
-    display: grid; grid-template-columns: 180px 1fr; gap: 0 3.5rem; align-items: start;
-  }
+/* ── Noise texture ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.6;
+}
 
-  /* toc */
-  .toc { position: sticky; top: 70px; grid-column: 1; }
-  .toc-label { font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text3); margin-bottom: 0.75rem; }
-  .toc-list { list-style: none; display: flex; flex-direction: column; }
-  .toc-list li a {
-    display: block; font-family: var(--mono); font-size: 0.7rem;
-    color: var(--text3); text-decoration: none;
-    padding: 0.38rem 0.65rem; border-left: 2px solid var(--border);
-    letter-spacing: 0.03em; line-height: 1.4; transition: color 0.2s, border-color 0.2s;
-  }
-  .toc-list li a:hover, .toc-list li a.active { color: var(--accent); border-left-color: var(--accent); }
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:2px}
 
-  /* article */
-  .article { grid-column: 2; }
-  .section-block { margin-bottom: 3.5rem; }
-  .section-heading {
-    font-family: var(--serif); font-size: 1.6rem; color: var(--text);
-    line-height: 1.2; margin-bottom: 1.2rem; padding-bottom: 0.6rem;
-    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0.75rem;
-  }
-  .h-num { font-family: var(--mono); font-size: 0.7rem; color: var(--accent); background: var(--accent-dim); padding: 0.2rem 0.55rem; border-radius: 3px; letter-spacing: 0.06em; flex-shrink: 0; }
+/* ── Nav ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 48px;
+  background:rgba(8,10,15,.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:2px;color:var(--text);
+  display:flex;align-items:center;gap:10px;
+  text-decoration:none;
+}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
-  .article p { font-size: 0.93rem; color: var(--text2); line-height: 1.85; margin-bottom: 1rem; }
-  .article p:last-child { margin-bottom: 0; }
-  .article p strong { color: var(--text); font-weight: 600; }
-  .article p .hl { color: var(--accent2); }
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{
+  font-size:12px;font-weight:600;color:var(--muted);text-decoration:none;
+  letter-spacing:1.5px;text-transform:uppercase;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{
+  display:flex;align-items:center;gap:8px;
+  padding:8px 20px;border-radius:6px;
+  background:var(--accent);color:#fff;
+  font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  text-decoration:none;transition:all .2s;
+  border:1px solid var(--accent2);
+}
+.nav-cta:hover{background:var(--accent2);box-shadow:0 0 24px var(--accent-glow)}
+.nav-cta svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 
-  .article ul, .article ol { margin: 0.5rem 0 1.1rem 0; display: flex; flex-direction: column; gap: 0.4rem; }
-  .article ul li, .article ol li { font-size: 0.9rem; color: var(--text2); padding-left: 1.2rem; position: relative; line-height: 1.7; }
-  .article ul li::before { content: "›"; position: absolute; left: 0; color: var(--accent); font-weight: 700; }
-  .article ol { counter-reset: item; }
-  .article ol li { counter-increment: item; }
-  .article ol li::before { content: counter(item)"."; position: absolute; left: 0; color: var(--accent); font-family: var(--mono); font-size: 0.8rem; font-weight: 600; }
+/* ── Hero ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;justify-content:flex-end;
+  padding:0 48px 72px;
+  position:relative;overflow:hidden;
+}
 
-  /* callout */
-  .callout {
-    background: var(--accent-dim); border: 1px solid rgba(168,85,247,0.25);
-    border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
-    padding: 1rem 1.2rem; margin: 1.2rem 0;
-    font-size: 0.88rem; color: var(--text2); line-height: 1.8;
-  }
-  .callout strong { color: var(--accent); }
+.hero-grid-bg{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(124,58,237,.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(124,58,237,.06) 1px, transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
+}
 
-  /* code */
-  .code-block {
-    background: rgba(0,0,0,0.45); border: 1px solid var(--border);
-    border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0;
-    font-family: var(--mono); font-size: 0.78rem; color: var(--accent2);
-    line-height: 1.7; overflow-x: auto;
-  }
-  code { font-family: var(--mono); font-size: 0.82rem; color: var(--accent2); background: rgba(168,85,247,0.08); padding: 0.1rem 0.35rem; border-radius: 3px; }
+.hero-orb{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  pointer-events:none;
+}
+.hero-orb-1{width:600px;height:600px;background:rgba(124,58,237,.15);top:-100px;right:-100px}
+.hero-orb-2{width:400px;height:400px;background:rgba(34,211,238,.06);bottom:100px;left:-50px}
 
-  /* step cards */
-  .steps { display: flex; flex-direction: column; gap: 1rem; }
-  .step-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 1.1rem 1.3rem;
-    display: flex; gap: 1rem; align-items: flex-start; transition: border-color 0.2s;
-  }
-  .step-card:hover { border-color: var(--border2); }
-  .step-badge { font-family: var(--mono); font-size: 0.68rem; color: var(--accent); background: var(--accent-dim); padding: 0.2rem 0.55rem; border-radius: 4px; flex-shrink: 0; margin-top: 2px; letter-spacing: 0.04em; }
-  .step-title { font-size: 0.92rem; font-weight: 600; color: var(--text); margin-bottom: 0.3rem; }
-  .step-desc { font-size: 0.84rem; color: var(--text2); line-height: 1.7; }
-  .step-desc strong { color: var(--text); }
+.hero-tag{
+  font-family:'JetBrains Mono',monospace;
+  font-size:11px;color:var(--accent2);letter-spacing:2px;text-transform:uppercase;
+  margin-bottom:24px;
+  display:flex;align-items:center;gap:10px;
+  animation:fadeUp .8s .1s both;
+}
+.hero-tag::before{content:'';width:32px;height:1px;background:var(--accent2)}
 
-  /* data table */
-  .data-table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.84rem; }
-  .data-table th {
-    font-family: var(--mono); font-size: 0.65rem; letter-spacing: 0.1em;
-    text-transform: uppercase; color: var(--accent); background: var(--accent-dim);
-    padding: 0.6rem 0.9rem; text-align: left; border: 1px solid var(--border2);
-  }
-  .data-table td { padding: 0.6rem 0.9rem; border: 1px solid var(--border); color: var(--text2); vertical-align: top; }
-  .data-table tr:hover td { background: rgba(168,85,247,0.04); }
-  .data-table td code { font-size: 0.78rem; }
+.hero-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(72px,10vw,140px);
+  line-height:.95;letter-spacing:-1px;
+  color:var(--text);
+  margin-bottom:8px;
+  animation:fadeUp .8s .2s both;
+}
+.hero-title span{color:var(--accent2)}
 
-  /* score table */
-  .score-badge { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.82rem; font-weight: 500; }
-  .score-badge.high { color: #f87171; }
-  .score-badge.med  { color: #fbbf24; }
-  .score-badge.low  { color: #fb923c; }
-  .score-badge.clean{ color: #4ade80; }
+.hero-subtitle{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(28px,4vw,52px);
+  color:var(--muted);letter-spacing:1px;
+  margin-bottom:32px;
+  animation:fadeUp .8s .3s both;
+}
 
-  /* result card */
-  .result-card {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 12px; overflow: hidden; margin: 1.2rem 0;
-  }
-  .result-card-header {
-    padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
-  }
-  .result-filename { font-family: var(--mono); font-size: 0.78rem; color: var(--text2); }
-  .result-verdict {
-    font-family: var(--mono); font-size: 0.72rem;
-    background: rgba(251,191,36,0.15); color: #fbbf24;
-    border: 1px solid rgba(251,191,36,0.3);
-    padding: 0.25rem 0.75rem; border-radius: 100px; letter-spacing: 0.04em;
-  }
-  .result-grid { display: grid; grid-template-columns: 1fr 1fr; }
-  .result-row { display: flex; gap: 0; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border); }
-  .result-row:nth-child(odd) { border-right: 1px solid var(--border); }
-  .result-label { font-family: var(--mono); font-size: 0.68rem; color: var(--text3); padding: 0.6rem 0.9rem; background: rgba(168,85,247,0.04); border-right: 1px solid var(--border); min-width: 100px; letter-spacing: 0.04em; text-transform: uppercase; display: flex; align-items: center; }
-  .result-value { font-size: 0.83rem; color: var(--text2); padding: 0.6rem 0.9rem; display: flex; align-items: center; }
+.hero-desc{
+  max-width:560px;font-size:15px;line-height:1.7;color:var(--muted);
+  margin-bottom:40px;
+  animation:fadeUp .8s .4s both;
+}
 
-  /* feature / tech grid */
-  .feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-  .feat-card {
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: 10px; padding: 0.9rem 1rem;
-    display: flex; align-items: flex-start; gap: 0.75rem; transition: border-color 0.2s;
-  }
-  .feat-card:hover { border-color: var(--border2); }
-  .feat-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
-  .feat-title { font-size: 0.84rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
-  .feat-desc { font-size: 0.77rem; color: var(--text2); line-height: 1.6; }
+.hero-actions{
+  display:flex;gap:16px;flex-wrap:wrap;
+  animation:fadeUp .8s .5s both;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:8px;
+  background:var(--accent);color:#fff;
+  font-size:13px;font-weight:700;letter-spacing:.5px;
+  text-decoration:none;transition:all .2s;
+  border:1px solid rgba(168,85,247,.3);
+}
+.btn-primary:hover{background:var(--accent2);box-shadow:0 0 32px var(--accent-glow);transform:translateY(-2px)}
+.btn-primary svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:8px;
+  background:transparent;color:var(--text);
+  font-size:13px;font-weight:700;letter-spacing:.5px;
+  text-decoration:none;transition:all .2s;
+  border:1px solid var(--border2);
+}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent2);transform:translateY(-2px)}
+.btn-secondary svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-  /* concepts list */
-  .concept-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
-  .concept-chip {
-    font-family: var(--mono); font-size: 0.72rem;
-    padding: 0.3rem 0.75rem; border-radius: 6px;
-    background: var(--surface); border: 1px solid var(--border2);
-    color: var(--accent2); letter-spacing: 0.04em; transition: background 0.2s;
-  }
-  .concept-chip:hover { background: var(--accent-dim); }
+.hero-chips{
+  position:absolute;right:48px;bottom:72px;
+  display:flex;flex-direction:column;gap:10px;align-items:flex-end;
+  animation:fadeUp .8s .6s both;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:7px 14px;border-radius:20px;
+  background:var(--surface);border:1px solid var(--border2);
+  font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+}
+.chip-dot{width:6px;height:6px;border-radius:50%}
 
-  /* github CTA */
-  .github-cta {
-    background: var(--surface); border: 1px solid var(--border2);
-    border-radius: 12px; padding: 1.5rem; text-align: center;
-    display: flex; flex-direction: column; align-items: center; gap: 0.75rem;
-  }
-  .github-cta-title { font-family: var(--serif); font-size: 1.2rem; color: var(--text); }
-  .github-cta-desc { font-size: 0.85rem; color: var(--text2); }
-  .github-btn {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-family: var(--mono); font-size: 0.78rem;
-    padding: 0.6rem 1.4rem; border-radius: 6px;
-    background: var(--accent); color: var(--bg);
-    text-decoration: none; letter-spacing: 0.04em;
-    transition: opacity 0.2s;
-  }
-  .github-btn:hover { opacity: 0.85; }
+.scroll-indicator{
+  position:absolute;bottom:30px;left:48px;
+  display:flex;align-items:center;gap:10px;
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);
+  letter-spacing:2px;text-transform:uppercase;
+  animation:fadeUp .8s .8s both;
+}
+.scroll-line{width:40px;height:1px;background:var(--muted2)}
 
-  /* output screenshot */
-  .output-img {
-    width: 100%; border-radius: 10px;
-    border: 1px solid var(--border2);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-    margin: 1rem 0; cursor: zoom-in;
-    transition: box-shadow 0.2s;
-  }
-  .output-img:hover { box-shadow: 0 12px 48px rgba(168,85,247,0.15); }
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-  /* lightbox */
-  .lightbox { position: fixed; inset: 0; z-index: 900; background: rgba(4,3,4,0.96); backdrop-filter: blur(14px); display: none; align-items: center; justify-content: center; padding: 1.5rem; cursor: zoom-out; }
-  .lightbox.open { display: flex; }
-  .lightbox img { max-width: 90vw; max-height: 88vh; object-fit: contain; border-radius: 10px; border: 1px solid var(--border2); box-shadow: 0 24px 80px rgba(0,0,0,0.9); }
-  .lb-close { position: fixed; top: 1.5rem; right: 1.5rem; width: 40px; height: 40px; background: var(--surface); border: 1px solid var(--border2); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text2); transition: background 0.2s, color 0.2s; z-index: 910; }
-  .lb-close:hover { background: var(--accent); color: #fff; }
+/* ── Sections ── */
+section{padding:100px 48px;position:relative}
 
-  /* responsive */
-  @media (max-width: 720px) {
-    .content-wrap { grid-template-columns: 1fr; padding: 2rem 1rem 4rem; }
-    .toc { display: none; }
-    .article { grid-column: 1; }
-    .result-grid, .feat-grid { grid-template-columns: 1fr; }
-    .hero { padding: 3rem 1rem 2rem; }
-    .topbar { padding: 0.7rem 1rem; }
-  }
+.section-eyebrow{
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;color:var(--accent2);letter-spacing:3px;text-transform:uppercase;
+  margin-bottom:16px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-eyebrow::after{content:'';flex:1;height:1px;background:var(--border);max-width:200px}
+
+.section-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(36px,5vw,64px);
+  letter-spacing:.5px;line-height:1;
+  color:var(--text);margin-bottom:20px;
+}
+
+.section-body{
+  font-size:15px;line-height:1.8;color:var(--muted);max-width:680px;
+}
+
+/* ── Divider ── */
+.divider{
+  height:1px;background:linear-gradient(90deg,transparent,var(--border2),transparent);
+  margin:0 48px;
+}
+
+/* ── Stats bar ── */
+.stats-bar{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;margin:60px 0 0;background:var(--surface);
+}
+.stat-item{
+  padding:32px 28px;
+  border-right:1px solid var(--border);
+  position:relative;overflow:hidden;
+}
+.stat-item:last-child{border-right:none}
+.stat-item::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(124,58,237,.04),transparent);
+  pointer-events:none;
+}
+.stat-val{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:52px;color:var(--accent2);line-height:1;
+  margin-bottom:6px;
+}
+.stat-label{font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.5px}
+
+/* ── Pipeline ── */
+.pipeline{display:flex;flex-direction:column;gap:0;margin-top:60px}
+.pipeline-step{
+  display:grid;grid-template-columns:60px 1fr;gap:0;
+  position:relative;
+}
+.pipeline-step::after{
+  content:'';position:absolute;left:29px;top:52px;bottom:-1px;
+  width:2px;background:var(--border);
+}
+.pipeline-step:last-child::after{display:none}
+
+.step-num{
+  width:60px;height:52px;
+  display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:1;
+}
+.step-circle{
+  width:36px;height:36px;border-radius:50%;
+  background:var(--surface);border:2px solid var(--accent);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--accent2);
+  box-shadow:0 0 16px var(--accent-glow);
+}
+.step-content{
+  padding:0 0 48px 24px;
+}
+.step-tag{
+  font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent2);
+  letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;
+}
+.step-title{font-size:17px;font-weight:700;color:var(--text);margin-bottom:8px}
+.step-body{font-size:14px;line-height:1.7;color:var(--muted)}
+
+/* ── Score table ── */
+.score-table-wrap{
+  display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:48px;
+}
+.score-table{
+  border:1px solid var(--border);border-radius:10px;overflow:hidden;
+}
+.score-table-head{
+  padding:14px 20px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  color:var(--accent2);letter-spacing:2px;text-transform:uppercase;
+}
+.score-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.score-row:last-child{border:none}
+.score-row-label{color:var(--muted);flex:1}
+.score-row-val{
+  font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;
+  color:var(--accent2);background:var(--surface);
+  padding:3px 10px;border-radius:20px;border:1px solid var(--border2);
+  white-space:nowrap;
+}
+
+/* ── Verdict row ── */
+.verdict-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  font-size:13px;
+}
+.verdict-row:last-child{border:none}
+.verdict-badge{
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
+  padding:3px 10px;border-radius:20px;letter-spacing:.5px;
+}
+.v-high{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
+.v-med{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
+.v-low{background:rgba(16,217,122,.15);color:#34d399;border:1px solid rgba(16,217,122,.3)}
+
+/* ── Test result card ── */
+.test-result{
+  margin-top:60px;
+  border:1px solid var(--border);border-radius:12px;
+  overflow:hidden;background:var(--surface);
+}
+.test-result-header{
+  padding:20px 28px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);
+}
+.test-result-title{
+  font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text);
+}
+.test-score-badge{
+  display:flex;align-items:center;gap:10px;
+  padding:8px 18px;border-radius:8px;
+  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);
+}
+.test-score-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f87171;line-height:1}
+.test-score-label{font-size:11px;color:#f87171;font-weight:700;letter-spacing:1px}
+.test-result-body{padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.test-field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
+.test-field-val{font-size:13px;color:var(--text);word-break:break-all}
+.test-field-val.danger{color:#f87171}
+.test-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.test-chip{
+  font-family:'JetBrains Mono',monospace;font-size:10px;
+  padding:3px 9px;border-radius:10px;
+  background:rgba(124,58,237,.1);color:var(--accent2);border:1px solid rgba(124,58,237,.2);
+}
+
+/* ── Features grid ── */
+.features-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--border);
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  margin-top:60px;
+}
+.feature-card{
+  background:var(--bg);padding:32px 28px;
+  transition:background .2s;
+}
+.feature-card:hover{background:var(--surface)}
+.feature-icon{
+  width:40px;height:40px;border-radius:9px;
+  background:var(--surface);border:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:16px;
+}
+.feature-icon svg{width:18px;height:18px;fill:none;stroke:var(--accent2);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.feature-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:8px}
+.feature-desc{font-size:13px;line-height:1.6;color:var(--muted)}
+
+/* ── Tech stack ── */
+.tech-stack{
+  display:flex;flex-wrap:wrap;gap:12px;margin-top:40px;
+}
+.tech-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 18px;border-radius:8px;
+  background:var(--surface);border:1px solid var(--border2);
+  font-size:13px;font-weight:600;color:var(--text);
+  transition:border-color .2s;
+}
+.tech-pill:hover{border-color:var(--accent)}
+.tech-pill span{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding-left:8px;border-left:1px solid var(--border2)}
+
+/* ── Challenges ── */
+.challenge-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:60px}
+.challenge-item{
+  background:var(--bg);padding:28px 32px;
+  display:grid;grid-template-columns:80px 1fr;gap:24px;align-items:flex-start;
+  transition:background .2s;
+  cursor:default;
+}
+.challenge-item:hover{background:var(--surface)}
+.challenge-code{
+  font-family:'Bebas Neue',sans-serif;font-size:42px;
+  color:var(--border2);line-height:1;
+  transition:color .2s;
+}
+.challenge-item:hover .challenge-code{color:var(--accent)}
+.challenge-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px}
+.challenge-body{font-size:13px;line-height:1.7;color:var(--muted)}
+
+/* ── Learnings ── */
+.learnings-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px;
+}
+.learning-item{
+  display:flex;align-items:flex-start;gap:14px;
+  padding:20px;border:1px solid var(--border);border-radius:10px;
+  background:var(--surface);transition:border-color .2s;
+}
+.learning-item:hover{border-color:var(--accent)}
+.learning-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);flex-shrink:0;margin-top:6px}
+.learning-text{font-size:13px;line-height:1.6;color:var(--muted)}
+
+/* ── CTA section ── */
+.cta-section{
+  padding:100px 48px;
+  text-align:center;
+  background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(124,58,237,.08) 0%, transparent 70%);
+  border-top:1px solid var(--border);
+}
+.cta-section .section-title{margin-bottom:16px}
+.cta-section .section-body{margin:0 auto 40px;text-align:center}
+.cta-actions{display:flex;justify-content:center;gap:16px;flex-wrap:wrap}
+
+/* ── Footer ── */
+footer{
+  padding:28px 48px;
+  border-top:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);
+}
+.footer-left{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2)}
+.footer-right{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);display:flex;gap:24px}
+.footer-right a{color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-right a:hover{color:var(--accent2)}
+
+/* ── Reveal animations ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ── Mobile ── */
+@media(max-width:768px){
+  nav{padding:16px 24px}
+  .nav-links{display:none}
+  section{padding:72px 24px}
+  .hero{padding:0 24px 64px}
+  .hero-chips{display:none}
+  .scroll-indicator{left:24px}
+  .divider{margin:0 24px}
+  .stats-bar{grid-template-columns:repeat(2,1fr)}
+  .stat-item{border-right:none;border-bottom:1px solid var(--border)}
+  .stat-item:nth-child(2n){border-left:1px solid var(--border)}
+  .score-table-wrap{grid-template-columns:1fr}
+  .test-result-body{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr}
+  .learnings-grid{grid-template-columns:1fr}
+  .challenge-item{grid-template-columns:60px 1fr}
+  .challenge-code{font-size:32px}
+  footer{flex-direction:column;gap:12px;text-align:center}
+  .footer-right{justify-content:center}
+  .cta-section{padding:72px 24px}
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="index.html" class="back-link">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-    Back to Portfolio
+<!-- Nav -->
+<nav>
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-dot"></div>
+    ALEXPHILIP
   </a>
-  <span class="topbar-tag">Security Write-up</span>
-</div>
+  <div class="nav-links">
+    <a href="#overview">Overview</a>
+    <a href="#pipeline">How It Works</a>
+    <a href="#result">Test Result</a>
+    <a href="#features">Features</a>
+  </div>
+  <a class="nav-cta" href="https://alexphilip01.github.io/phishing-email-analyzer" target="_blank">
+    <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+    Live App
+  </a>
+</nav>
 
+<!-- Hero -->
 <div class="hero">
-  <div class="hero-label">// security write-ups · project #01</div>
-  <h1 class="hero-title">Phishing Email<br><em>Analyzer</em></h1>
-  <p class="hero-sub">A Python-based cybersecurity tool that automatically parses .eml files, runs multi-stage detection checks, assigns a weighted risk score, and generates a PDF investigation report.</p>
-  <div class="hero-meta">
-    <div class="meta-pill"><div class="meta-dot"></div>Python</div>
-    <div class="meta-pill"><div class="meta-dot"></div>Email Forensics</div>
-    <div class="meta-pill"><div class="meta-dot"></div>Threat Detection</div>
-    <div class="meta-pill"><div class="meta-dot"></div>Google Colab</div>
+  <div class="hero-grid-bg"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+
+  <div class="hero-tag">Security Write-Up · Project #01</div>
+  <div class="hero-title">Phish<span>Guard</span></div>
+  <div class="hero-subtitle">Email & SMS Threat Analyzer</div>
+  <p class="hero-desc">A browser-based cybersecurity tool that analyzes phishing emails and SMS smishing messages in real time — detecting threats, scoring risk, and generating downloadable investigation reports.</p>
+
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://alexphilip01.github.io/phishing-email-analyzer" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Open Live App
+    </a>
+    <a class="btn-secondary" href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+      View Source
+    </a>
+  </div>
+
+  <div class="hero-chips">
+    <div class="chip"><div class="chip-dot" style="background:var(--green)"></div>Live on GitHub Pages</div>
+    <div class="chip"><div class="chip-dot" style="background:var(--accent2)"></div>Email + SMS Analysis</div>
+    <div class="chip"><div class="chip-dot" style="background:var(--cyan)"></div>Mobile Responsive</div>
+    <div class="chip"><div class="chip-dot" style="background:var(--yellow)"></div>No Server Required</div>
+  </div>
+
+  <div class="scroll-indicator">
+    <div class="scroll-line"></div>
+    Scroll to explore
   </div>
 </div>
 
-<div class="content-wrap">
+<!-- Overview -->
+<section id="overview">
+  <div class="section-eyebrow reveal">01 · Overview</div>
+  <h2 class="section-title reveal">Problem<br>Statement</h2>
+  <p class="section-body reveal">Phishing and smishing are among the most damaging forms of cyberattack. Most users cannot read email headers, recognize domain spoofing, or spot psychological manipulation in text messages. PhishGuard automates the entire investigation process and presents findings in plain language anyone can understand — accessible to anyone with a browser, including on mobile.</p>
 
-  <nav class="toc">
-    <div class="toc-label">Contents</div>
-    <ul class="toc-list">
-      <li><a href="#overview">Overview</a></li>
-      <li><a href="#problem">Problem Statement</a></li>
-      <li><a href="#how">How It Works</a></li>
-      <li><a href="#result">Test Result</a></li>
-      <li><a href="#features">Features</a></li>
-      <li><a href="#stack">Tech Stack</a></li>
-      <li><a href="#concepts">Concepts</a></li>
-      <li><a href="#challenges">Challenges</a></li>
-      <li><a href="#learnings">Learnings</a></li>
-    </ul>
-  </nav>
-
-  <article class="article">
-
-    <!-- OVERVIEW -->
-    <div class="section-block" id="overview">
-      <h2 class="section-heading"><span class="h-num">01</span> Project Overview</h2>
-      <p>The Phishing Email Analyzer is a <strong>Python-based cybersecurity tool</strong> that automatically reads and investigates email files (.eml format) to determine whether they are phishing or scam emails. It extracts key information from the email, runs multiple detection checks, assigns a <strong>weighted risk score from 0 to 100</strong>, and generates a professional PDF investigation report.</p>
-      <p>The project runs entirely in <strong>Google Colab</strong>, requiring no local installation. It demonstrates core email forensics techniques used in real-world cybersecurity investigations.</p>
-      <img src="phishing-output.png" alt="Phishing Email Analyzer Output" class="output-img" onclick="document.getElementById('lb').classList.add('open')">
+  <div class="stats-bar reveal">
+    <div class="stat-item">
+      <div class="stat-val">7</div>
+      <div class="stat-label">Detection Stages</div>
     </div>
-
-    <!-- PROBLEM -->
-    <div class="section-block" id="problem">
-      <h2 class="section-heading"><span class="h-num">02</span> Problem Statement</h2>
-      <p>Phishing is one of the most common and damaging forms of cyber attack. Attackers craft emails that impersonate trusted organizations — banks, payment platforms, government agencies — to trick recipients into revealing credentials or making fraudulent payments.</p>
-      <div class="callout"><strong>Why automate it?</strong> Manually identifying phishing indicators requires expertise and time. This tool automates the process by programmatically analyzing the technical structure of an email and flagging suspicious patterns that a non-technical user might miss.</div>
+    <div class="stat-item">
+      <div class="stat-val">5</div>
+      <div class="stat-label">Keyword Categories</div>
     </div>
-
-    <!-- HOW IT WORKS -->
-    <div class="section-block" id="how">
-      <h2 class="section-heading"><span class="h-num">03</span> How It Works</h2>
-      <p>The analyzer runs a pipeline of six detection checks on each email file:</p>
-      <div class="steps">
-        <div class="step-card">
-          <span class="step-badge">01</span>
-          <div>
-            <div class="step-title">Email Parsing</div>
-            <div class="step-desc">Python's built-in <code>email</code> library parses the .eml file and extracts key fields: From, To, Subject, Reply-To, Date, and Received headers. <strong>The raw header data contains the ground truth about where an email actually came from</strong> — often very different from what it appears to say.</div>
-          </div>
-        </div>
-        <div class="step-card">
-          <span class="step-badge">02</span>
-          <div>
-            <div class="step-title">Display Name Detection</div>
-            <div class="step-desc">The sender's display name is checked against psychological alarm words: <code>hacked</code>, <code>suspended</code>, <code>urgent</code>, <code>warning</code>, <code>blocked</code>, <code>virus</code>. Legitimate companies never use panic language in display names — this is a high-confidence signal worth <strong>+30 points</strong>.</div>
-          </div>
-        </div>
-        <div class="step-card">
-          <span class="step-badge">03</span>
-          <div>
-            <div class="step-title">IP Address Extraction</div>
-            <div class="step-desc">Regex extracts IPs from Received headers with two validation layers — rejecting octets with leading zeros (e.g. <code>04.04.01.02</code>) and excluding patterns matching the Date header to eliminate false positives. Private IPs appearing in public routing are flagged as anomalies.</div>
-          </div>
-        </div>
-        <div class="step-card">
-          <span class="step-badge">04</span>
-          <div>
-            <div class="step-title">Reply-To Mismatch Detection</div>
-            <div class="step-desc">A common phishing technique sets a legitimate-looking From address while pointing Reply-To at an attacker-controlled address. Example: <code>From: support@paypal.com</code> / <code>Reply-To: attacker@gmail.com</code>. Domain mismatch = <strong>+25 points</strong>.</div>
-          </div>
-        </div>
-        <div class="step-card">
-          <span class="step-badge">05</span>
-          <div>
-            <div class="step-title">Keyword Detection</div>
-            <div class="step-desc">The subject and body are scanned across four psychological categories: <strong>Urgency</strong> (immediately, expires), <strong>Fear</strong> (hacked, compromised), <strong>Credential Harvesting</strong> (verify, login, password), and <strong>Financial</strong> (payment, invoice, refund). Each category scores independently.</div>
-          </div>
-        </div>
-        <div class="step-card">
-          <span class="step-badge">06</span>
-          <div>
-            <div class="step-title">Weighted Risk Scoring</div>
-            <div class="step-desc">All findings combine into a single 0–100 score. Structural indicators (display name, Reply-To, IPs) are weighted higher than keyword matches, as they are harder to accidentally trigger in legitimate emails.</div>
-          </div>
-        </div>
-      </div>
-
-      <p style="margin-top:1.5rem;">Scoring breakdown:</p>
-      <table class="data-table">
-        <thead><tr><th>Indicator</th><th>Points</th></tr></thead>
-        <tbody>
-          <tr><td>Alarm words in display name</td><td><code>+30</code></td></tr>
-          <tr><td>Reply-To mismatch</td><td><code>+25</code></td></tr>
-          <tr><td>Private IP in routing headers</td><td><code>+15 each (max 30)</code></td></tr>
-          <tr><td>Credential harvesting keywords</td><td><code>+15</code></td></tr>
-          <tr><td>Urgency / Fear / Financial keywords</td><td><code>+10 each</code></td></tr>
-        </tbody>
-      </table>
-
-      <table class="data-table" style="margin-top:0.75rem;">
-        <thead><tr><th>Score</th><th>Verdict</th></tr></thead>
-        <tbody>
-          <tr><td><code>70 – 100</code></td><td><span class="score-badge high">🔴 HIGH RISK — Likely phishing</span></td></tr>
-          <tr><td><code>40 – 69</code></td><td><span class="score-badge med">🟡 MEDIUM RISK — Suspicious, review carefully</span></td></tr>
-          <tr><td><code>15 – 39</code></td><td><span class="score-badge low">🟠 LOW RISK — Some indicators present</span></td></tr>
-          <tr><td><code>0 – 14</code></td><td><span class="score-badge clean">🟢 CLEAN — No significant indicators found</span></td></tr>
-        </tbody>
-      </table>
+    <div class="stat-item">
+      <div class="stat-val">0</div>
+      <div class="stat-label">Server Dependencies</div>
     </div>
-
-    <!-- TEST RESULT -->
-    <div class="section-block" id="result">
-      <h2 class="section-heading"><span class="h-num">04</span> Real-World Test Result</h2>
-      <p>The tool was tested on a real phishing email received in a personal inbox. It correctly identified multiple indicators across all detection stages.</p>
-
-      <div class="result-card">
-        <div class="result-card-header">
-          <span class="result-filename">📧 Information about your online security (4).eml</span>
-          <span class="result-verdict">60 / 100 — 🟡 MEDIUM RISK</span>
-        </div>
-        <div class="result-grid">
-          <div class="result-row">
-            <div class="result-label">From</div>
-            <div class="result-value"><code>"You've been HACKED" &lt;kfixc@kawachi.zaq.ne.jp&gt;</code></div>
-          </div>
-          <div class="result-row">
-            <div class="result-label">Subject</div>
-            <div class="result-value">Information about your online security</div>
-          </div>
-          <div class="result-row">
-            <div class="result-label">IP Found</div>
-            <div class="result-value"><code>222.227.81.164</code> (Public)</div>
-          </div>
-          <div class="result-row">
-            <div class="result-label">Reply-To</div>
-            <div class="result-value">Not found</div>
-          </div>
-          <div class="result-row" style="grid-column:1/-1">
-            <div class="result-label">Keywords</div>
-            <div class="result-value">hacked (fear) · immediately (urgency) · payment (financial)</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="callout"><strong>Outcome:</strong> The tool correctly identified the panic-inducing display name as the strongest signal (+30), along with supporting keyword evidence across three categories (+30). The total score of 60 correctly classified this as MEDIUM RISK — suspicious, review carefully.</div>
+    <div class="stat-item">
+      <div class="stat-val">2</div>
+      <div class="stat-label">Analyzers — Email & SMS</div>
     </div>
+  </div>
+</section>
 
-    <!-- FEATURES -->
-    <div class="section-block" id="features">
-      <h2 class="section-heading"><span class="h-num">05</span> Full Feature List</h2>
-      <div class="feat-grid">
-        <div class="feat-card"><div class="feat-icon">📋</div><div><div class="feat-title">Header Parsing</div><div class="feat-desc">Extracts From, To, Subject, Reply-To, Date from .eml files.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">🚨</div><div><div class="feat-title">Display Name Detection</div><div class="feat-desc">Flags psychological alarm words in sender display names.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">🌐</div><div><div class="feat-title">IP Extraction</div><div class="feat-desc">Pulls IPs from Received headers with two-layer false positive filtering.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">🔄</div><div><div class="feat-title">Reply-To Mismatch</div><div class="feat-desc">Detects domain mismatch between From and Reply-To addresses.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">🔍</div><div><div class="feat-title">Keyword Detection</div><div class="feat-desc">4-category phishing language scanner across subject and body.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">📊</div><div><div class="feat-title">Weighted Risk Scoring</div><div class="feat-desc">0–100 score with labelled verdict and score breakdown.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">📁</div><div><div class="feat-title">Batch Mode</div><div class="feat-desc">Analyse multiple .eml files with a ranked summary table.</div></div></div>
-        <div class="feat-card"><div class="feat-icon">📄</div><div><div class="feat-title">PDF Export</div><div class="feat-desc">Styled, downloadable investigation report with stats dashboard.</div></div></div>
+<div class="divider"></div>
+
+<!-- Pipeline -->
+<section id="pipeline">
+  <div class="section-eyebrow reveal">02 · Detection Engine</div>
+  <h2 class="section-title reveal">How It<br>Works</h2>
+  <p class="section-body reveal">PhishGuard runs a seven-stage detection pipeline on each email. Structural indicators are weighted more heavily than keyword matches — they require deliberate construction and are far harder to accidentally trigger in legitimate email.</p>
+
+  <div class="pipeline">
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">01</div></div>
+      <div class="step-content">
+        <div class="step-tag">Parsing</div>
+        <div class="step-title">Email Header Extraction</div>
+        <p class="step-body">Raw email source is parsed in the browser. Key fields are extracted: From, To, Subject, Reply-To, Date, Received headers, and message body. The Received chain contains the ground truth about an email's origin — often very different from what the From field displays.</p>
       </div>
     </div>
-
-    <!-- TECH STACK -->
-    <div class="section-block" id="stack">
-      <h2 class="section-heading"><span class="h-num">06</span> Technology Stack</h2>
-      <table class="data-table">
-        <thead><tr><th>Technology</th><th>Role</th></tr></thead>
-        <tbody>
-          <tr><td><code>Python 3</code></td><td>Core programming language</td></tr>
-          <tr><td><code>Google Colab</code></td><td>Cloud execution — no local setup needed</td></tr>
-          <tr><td><code>email</code> (built-in)</td><td>Parses .eml format and extracts headers</td></tr>
-          <tr><td><code>re</code> (built-in)</td><td>Regular expressions for IP address pattern matching</td></tr>
-          <tr><td><code>requests</code></td><td>HTTP library for future API integrations</td></tr>
-          <tr><td><code>HTML / CSS</code></td><td>Generates the styled PDF investigation report</td></tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- CONCEPTS -->
-    <div class="section-block" id="concepts">
-      <h2 class="section-heading"><span class="h-num">07</span> Key Cybersecurity Concepts</h2>
-      <div class="concept-chips">
-        <span class="concept-chip">Email Header Forensics</span>
-        <span class="concept-chip">IP Address Analysis</span>
-        <span class="concept-chip">Routing Trace Analysis</span>
-        <span class="concept-chip">Social Engineering Patterns</span>
-        <span class="concept-chip">Threat Indicator Scoring</span>
-        <span class="concept-chip">Automated Investigation</span>
-        <span class="concept-chip">False Positive Reduction</span>
-        <span class="concept-chip">Weighted Detection Systems</span>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">02</div></div>
+      <div class="step-content">
+        <div class="step-tag">Structural</div>
+        <div class="step-title">Display Name Alarm Detection</div>
+        <p class="step-body">The sender's display name is checked against psychological alarm vocabulary: hacked, suspended, urgent, warning, bitcoin, payment required. Legitimate organizations never use panic language in display names — this is a high-confidence structural signal weighted at +15 per finding.</p>
       </div>
     </div>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">03</div></div>
+      <div class="step-content">
+        <div class="step-tag">Structural</div>
+        <div class="step-title">Brand Impersonation Check</div>
+        <p class="step-body">The display name is cross-referenced against major brands — PayPal, Amazon, Google, Apple, Microsoft. If a brand name appears in the display name but the sending domain does not match the official domain, the discrepancy is flagged as spoofing.</p>
+      </div>
+    </div>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">04</div></div>
+      <div class="step-content">
+        <div class="step-tag">Structural</div>
+        <div class="step-title">Reply-To Mismatch Detection</div>
+        <p class="step-body">A common phishing technique sets a legitimate-looking From address while routing replies to an attacker-controlled address. Domain mismatch between From and Reply-To is a strong structural indicator (+15 points). Example: From: support@paypal.com / Reply-To: attacker@gmail.com.</p>
+      </div>
+    </div>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">05</div></div>
+      <div class="step-content">
+        <div class="step-tag">Forensic</div>
+        <div class="step-title">IP Address Extraction</div>
+        <p class="step-body">Regex extracts IPv4 addresses from Received headers with two validation layers — rejecting octets with leading zeros (preventing false positives from date strings like 04.04.01.02) and deduplicating across all routing hops. Private IPs in public routing chains indicate possible header forgery.</p>
+      </div>
+    </div>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">06</div></div>
+      <div class="step-content">
+        <div class="step-tag">Content</div>
+        <div class="step-title">Five-Category Keyword Scanner</div>
+        <p class="step-body">The subject and body are scanned across five psychological manipulation categories: Urgency, Financial Lure, Threat, Credential Harvesting, and Extortion/Sextortion. Bitcoin wallet addresses are detected via regex. The extortion category auto-escalates any email with 2+ indicators to a minimum score of 75.</p>
+      </div>
+    </div>
+    <div class="pipeline-step reveal">
+      <div class="step-num"><div class="step-circle">07</div></div>
+      <div class="step-content">
+        <div class="step-tag">Content</div>
+        <div class="step-title">URL Analysis</div>
+        <p class="step-body">URLs extracted from the email body are checked for: suspicious TLDs (.xyz, .ru, .tk, .ml), URL shorteners hiding the true destination, IP addresses used as domains, excessive subdomains, redirect parameters, and brand name spoofing within non-official domains.</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- CHALLENGES -->
-    <div class="section-block" id="challenges">
-      <h2 class="section-heading"><span class="h-num">08</span> Challenges Solved</h2>
+  <!-- Scoring tables -->
+  <div class="score-table-wrap reveal">
+    <div class="score-table">
+      <div class="score-table-head">Scoring Breakdown</div>
+      <div class="score-row"><span class="score-row-label">Alarm words in display name</span><span class="score-row-val">+15 each</span></div>
+      <div class="score-row"><span class="score-row-label">Reply-To domain mismatch</span><span class="score-row-val">+15</span></div>
+      <div class="score-row"><span class="score-row-label">Brand impersonation</span><span class="score-row-val">+15</span></div>
+      <div class="score-row"><span class="score-row-label">Private IP in routing</span><span class="score-row-val">+8 each</span></div>
+      <div class="score-row"><span class="score-row-label">Extortion keywords (2+)</span><span class="score-row-val">Auto ≥75</span></div>
+      <div class="score-row"><span class="score-row-label">Credential harvesting</span><span class="score-row-val">+10/cat</span></div>
+      <div class="score-row"><span class="score-row-label">Suspicious URL flags</span><span class="score-row-val">+8/flag</span></div>
+    </div>
+    <div class="score-table">
+      <div class="score-table-head">Risk Verdict</div>
+      <div class="verdict-row"><span class="score-row-label">70 – 100</span><span class="verdict-badge v-high">HIGH RISK</span></div>
+      <div class="verdict-row"><span class="score-row-label">40 – 69</span><span class="verdict-badge v-med">MEDIUM RISK</span></div>
+      <div class="verdict-row"><span class="score-row-label">15 – 39</span><span class="verdict-badge" style="background:rgba(245,158,11,.08);color:#fbbf24;border:1px solid rgba(245,158,11,.2)">LOW RISK</span></div>
+      <div class="verdict-row"><span class="score-row-label">0 – 14</span><span class="verdict-badge v-low">CLEAN</span></div>
+    </div>
+  </div>
+</section>
 
-      <div class="step-card" style="margin-bottom:0.85rem;">
-        <span class="step-badge">C1</span>
+<div class="divider"></div>
+
+<!-- Test Result -->
+<section id="result">
+  <div class="section-eyebrow reveal">03 · Real-World Test</div>
+  <h2 class="section-title reveal">Tested on a<br>Real Phishing Email</h2>
+  <p class="section-body reveal">The tool was tested against a real sextortion/extortion scam received in a personal inbox — a sophisticated attack using psychological panic tactics and a Bitcoin payment demand.</p>
+
+  <div class="test-result reveal">
+    <div class="test-result-header">
+      <div class="test-result-title" style="font-size:13px">📧 Information about your online security.eml</div>
+      <div class="test-score-badge">
         <div>
-          <div class="step-title">False Positive IP Detection</div>
-          <div class="step-desc">Email Date headers (e.g. <code>Sat, 4 Apr 2026 01:02:27</code>) contain sequences that match IP address patterns. Initial regex extracted <code>04.04.01.02</code> as a valid IP. Solved by adding two validation layers: rejecting octets with leading zeros, and cross-referencing against the Date header.</div>
+          <div class="test-score-num">85</div>
+          <div class="test-score-label">/ 100</div>
         </div>
-      </div>
-      <div class="step-card" style="margin-bottom:0.85rem;">
-        <span class="step-badge">C2</span>
-        <div>
-          <div class="step-title">Scoring Calibration</div>
-          <div class="step-desc">Simple keyword matching produces too many false positives — a legitimate urgent business email would score high. Solved by weighting structural email indicators (display name, Reply-To, private IPs) more heavily than keyword matches, as these are far harder to accidentally trigger.</div>
-        </div>
-      </div>
-      <div class="step-card">
-        <span class="step-badge">C3</span>
-        <div>
-          <div class="step-title">PDF Generation in Colab</div>
-          <div class="step-desc">Google Colab lacks native PDF rendering libraries. Solved by generating a styled HTML report and using the browser's built-in print-to-PDF function, which produces higher quality output than any Python PDF library.</div>
-        </div>
+        <div class="verdict-badge v-high" style="align-self:center">HIGH RISK</div>
       </div>
     </div>
-
-    <!-- LEARNINGS -->
-    <div class="section-block" id="learnings">
-      <h2 class="section-heading"><span class="h-num">09</span> What I Learned</h2>
-      <ul>
-        <li>How email headers work and what information they expose about an email's true origin</li>
-        <li>How to use Python's built-in <code>email</code> library to parse real-world .eml files</li>
-        <li>How to write robust regex patterns that handle edge cases and false positives</li>
-        <li>How weighted scoring systems work in threat detection</li>
-        <li>How phishing attacks use psychological manipulation techniques</li>
-        <li>How to structure a Python project into reusable, well-documented functions</li>
-      </ul>
-
-      <div class="github-cta" style="margin-top:2rem;">
-        <div class="github-cta-title">View Full Source Code</div>
-        <div class="github-cta-desc">Full source code, sample .eml file, and output screenshot available on GitHub.</div>
-        <a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank" class="github-btn">
-          <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
-          github.com/AlexPhilip01/phishing-email-analyzer
-        </a>
+    <div class="test-result-body">
+      <div>
+        <div class="test-field-label">From</div>
+        <div class="test-field-val danger">"You've been HACKED" &lt;kfixc@kawachi.zaq.ne.jp&gt;</div>
+      </div>
+      <div>
+        <div class="test-field-label">Subject</div>
+        <div class="test-field-val">Information about your online security</div>
+      </div>
+      <div>
+        <div class="test-field-label">IP Found</div>
+        <div class="test-field-val">222.227.81.164 — Public</div>
+      </div>
+      <div>
+        <div class="test-field-label">Reply-To</div>
+        <div class="test-field-val" style="color:var(--muted)">Not found</div>
+      </div>
+      <div style="grid-column:1/-1">
+        <div class="test-field-label">Indicators Detected</div>
+        <div class="test-chips">
+          <span class="test-chip">Alarming display name</span>
+          <span class="test-chip">Extortion keywords</span>
+          <span class="test-chip">Bitcoin wallet address</span>
+          <span class="test-chip">recorded you</span>
+          <span class="test-chip">your webcam</span>
+          <span class="test-chip">hacking group</span>
+          <span class="test-chip">48 hours</span>
+          <span class="test-chip">payment</span>
+          <span class="test-chip">immediately</span>
+        </div>
+      </div>
+      <div style="grid-column:1/-1;padding-top:8px;border-top:1px solid var(--border)">
+        <div class="test-field-label" style="margin-bottom:8px">Outcome</div>
+        <p style="font-size:13px;line-height:1.7;color:var(--muted)">The extortion category auto-escalated the score when two or more extortion-specific indicators were found, correctly classifying this sextortion scam as <strong style="color:#f87171">HIGH RISK</strong>. Without the dedicated extortion category, this email previously scored only 8% — a critical detection gap now resolved.</p>
       </div>
     </div>
+  </div>
+</section>
 
-  </article>
+<div class="divider"></div>
+
+<!-- Features -->
+<section id="features">
+  <div class="section-eyebrow reveal">04 · Feature Set</div>
+  <h2 class="section-title reveal">Full<br>Capabilities</h2>
+
+  <div class="features-grid reveal">
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div class="feature-title">Email Header Forensics</div>
+      <p class="feature-desc">Extracts and analyzes From, To, Subject, Reply-To, Date, and the full Received routing chain from .eml files or pasted raw source.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      <div class="feature-title">SMS Smishing Analyzer</div>
+      <p class="feature-desc">Dedicated analyzer for text message phishing with 5 detection categories, URL scanning, phone UI preview, and actionable advice.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <div class="feature-title">Extortion Detection</div>
+      <p class="feature-desc">Dedicated sextortion/extortion category with auto-escalation scoring. Bitcoin wallet address detection via regex pattern matching.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 010 20M12 2a15.3 15.3 0 000 20"/></svg></div>
+      <div class="feature-title">IP Forensics</div>
+      <p class="feature-desc">Extracts IPs from routing headers with false positive filtering. Detects private IPs in public routing chains — a strong indicator of header forgery.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg></div>
+      <div class="feature-title">URL Scanner</div>
+      <p class="feature-desc">Checks for suspicious TLDs, URL shorteners, IP-based domains, excessive subdomains, redirect parameters, and brand name spoofing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="feature-title">Investigation Report</div>
+      <p class="feature-desc">Generates a downloadable HTML investigation report with full findings, scoring breakdown, and risk verdict. Print-to-PDF supported.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <div class="feature-title">Full Mobile Support</div>
+      <p class="feature-desc">Bottom navigation bar, slide-up drawers, FAB button, and Email/SMS mode toggle — designed for full mobile usability on any device.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></div>
+      <div class="feature-title">Keyword Detection</div>
+      <p class="feature-desc">Five-category phishing language scanner: Urgency, Financial Lure, Threat, Credential Harvesting, and Extortion across both email and SMS.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+      <div class="feature-title">No Backend Required</div>
+      <p class="feature-desc">Runs entirely client-side in the browser. No server, no API, no data uploaded anywhere. Hosted free on GitHub Pages.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Tech Stack -->
+<section>
+  <div class="section-eyebrow reveal">05 · Stack</div>
+  <h2 class="section-title reveal">Technology</h2>
+  <p class="section-body reveal">Built entirely with vanilla web technologies — no frameworks, no build tools, no dependencies. The entire application ships as a single HTML file.</p>
+
+  <div class="tech-stack reveal">
+    <div class="tech-pill">HTML5 / CSS3 <span>Structure & Design</span></div>
+    <div class="tech-pill">Vanilla JavaScript <span>Detection Engine</span></div>
+    <div class="tech-pill">SVG Icons <span>No icon libraries</span></div>
+    <div class="tech-pill">GitHub Pages <span>Free Hosting</span></div>
+    <div class="tech-pill">CSS Flexbox / Grid <span>Responsive Layout</span></div>
+    <div class="tech-pill">Regex <span>IP & Wallet Detection</span></div>
+    <div class="tech-pill">Bebas Neue + Syne + JetBrains Mono <span>Typography</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Challenges -->
+<section>
+  <div class="section-eyebrow reveal">06 · Engineering</div>
+  <h2 class="section-title reveal">Challenges<br>Solved</h2>
+
+  <div class="challenge-list reveal">
+    <div class="challenge-item">
+      <div class="challenge-code">C1</div>
+      <div>
+        <div class="challenge-title">Sextortion Detection Gap</div>
+        <p class="challenge-body">Standard keyword lists failed to detect sextortion emails, which scored only 8% despite being clear threats. Solved by adding a dedicated extortion category with targeted vocabulary and an auto-escalation rule that guarantees ≥75 score when two or more extortion-specific indicators are found.</p>
+      </div>
+    </div>
+    <div class="challenge-item">
+      <div class="challenge-code">C2</div>
+      <div>
+        <div class="challenge-title">False Positive IP Extraction</div>
+        <p class="challenge-body">Email Date headers (e.g. Sat, 4 Apr 2026 01:02:27) contain sequences matching IPv4 patterns. Initial regex extracted 04.04.01.02 as a valid IP. Solved by rejecting octets with leading zeros and deduplicating across the full received header chain.</p>
+      </div>
+    </div>
+    <div class="challenge-item">
+      <div class="challenge-code">C3</div>
+      <div>
+        <div class="challenge-title">Mobile Accessibility</div>
+        <p class="challenge-body">The original tool required Google Colab — unusable on mobile. Rebuilt as a pure HTML/CSS/JS application with a dedicated mobile layout: bottom navigation bar, slide-up drawers for input, and a FAB button. Email/SMS mode toggle accessible from both sidebar and mobile drawer.</p>
+      </div>
+    </div>
+    <div class="challenge-item">
+      <div class="challenge-code">C4</div>
+      <div>
+        <div class="challenge-title">Scoring Calibration</div>
+        <p class="challenge-body">Simple keyword matching produces too many false positives — a legitimate urgent business email would score high. Solved by weighting structural indicators (display name, Reply-To, private IPs) more heavily than keyword matches, as these require deliberate construction.</p>
+      </div>
+    </div>
+    <div class="challenge-item">
+      <div class="challenge-code">C5</div>
+      <div>
+        <div class="challenge-title">Base64 Browser Parser Crash</div>
+        <p class="challenge-body">An attempt to embed the logo as a 41,000-character base64 JPEG caused Safari's HTML parser to choke, rendering the entire script block as visible page text. Solved by replacing all base64 assets with inline SVGs — smaller, faster, and parser-safe across all browsers.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- Learnings -->
+<section>
+  <div class="section-eyebrow reveal">07 · Learnings</div>
+  <h2 class="section-title reveal">What I<br>Learned</h2>
+
+  <div class="learnings-grid reveal">
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How email headers expose the true origin of a message, independent of what the From field displays</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How to write robust regex patterns handling real-world edge cases like date-string false positives</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How weighted scoring systems balance sensitivity and specificity in automated threat detection</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How sextortion scams differ structurally from standard phishing, requiring dedicated detection categories</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How to design mobile-first web applications with slide-up drawers, FAB buttons, and bottom navigation</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How browser HTML parsers fail under malformed inline data, and how to build defensively with SVGs</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How to take a Python/Colab prototype and rebuild it as a zero-dependency production web application</p></div>
+    <div class="learning-item"><div class="learning-dot"></div><p class="learning-text">How smishing (SMS phishing) differs from email phishing in structure, vocabulary, and detection approach</p></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div class="cta-section">
+  <div class="section-eyebrow" style="justify-content:center;margin-bottom:20px">Try It Live</div>
+  <h2 class="section-title">See It In Action</h2>
+  <p class="section-body">Upload a .eml file or paste a suspicious SMS — PhishGuard analyzes it instantly in your browser.</p>
+  <div class="cta-actions">
+    <a class="btn-primary" href="https://alexphilip01.github.io/phishing-email-analyzer" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Open PhishGuard
+    </a>
+    <a class="btn-secondary" href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
+      GitHub Source
+    </a>
+  </div>
 </div>
 
-<!-- LIGHTBOX -->
-<div class="lightbox" id="lb" onclick="this.classList.remove('open')">
-  <button class="lb-close" onclick="document.getElementById('lb').classList.remove('open')">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-  </button>
-  <img src="phishing-output.png" alt="Phishing Analyzer Output">
-</div>
+<footer>
+  <div class="footer-left">© 2026 Alex Philip · Cybersecurity Portfolio</div>
+  <div class="footer-right">
+    <a href="https://github.com/AlexPhilip01" target="_blank">GitHub</a>
+    <a href="https://linkedin.com/in/alexphilip170803" target="_blank">LinkedIn</a>
+    <a href="https://alexphilip01.github.io/phishing-email-analyzer" target="_blank">Live App</a>
+  </div>
+</footer>
 
 <script>
-document.addEventListener("keydown", e => {
-  if (e.key === "Escape") document.getElementById("lb").classList.remove("open");
-});
-// TOC scroll spy
-const sections = document.querySelectorAll(".section-block[id]");
-const tocLinks = document.querySelectorAll(".toc-list a");
-const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) tocLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+// Reveal on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      const delay = entry.target.dataset.delay || 0;
+      setTimeout(() => entry.target.classList.add('visible'), delay);
+      observer.unobserve(entry.target);
+    }
   });
-}, { rootMargin: "-20% 0px -70% 0px" });
-sections.forEach(s => obs.observe(s));
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal').forEach((el, i) => {
+  el.dataset.delay = (i % 4) * 80;
+  observer.observe(el);
+});
 </script>
 </body>
 </html>
