@@ -43,7 +43,7 @@
   p { text-align: justify; }
   #node-canvas { touch-action: none; }
 
-  /* ── NOISE TEXTURE ── */
+  /*  NOISE TEXTURE  */
   body::before {
     content: '';
     position: fixed;
@@ -54,7 +54,7 @@
     opacity: 0.4;
   }
 
-  /* ── NODE CANVAS ── */
+  /*  NODE CANVAS  */
   #node-canvas {
     position: fixed;
     inset: 0;
@@ -64,13 +64,13 @@
     z-index: 0;
   }
 
-  /* ── PAGE WRAP ── */
+  /*  PAGE WRAP  */
   #page-wrap {
     position: relative;
     z-index: 2;
   }
 
-  /* ── NAV ── */
+  /*  NAV  */
   nav {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -161,11 +161,11 @@
   .nav-drawer a:hover,
   .nav-drawer a.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
 
-  /* ── HERO BAT ── */
+  /*  HERO BAT  */
   #bat-canvas { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); }
   @media (max-width: 900px) { #bat-canvas { display: none; } }
 
-  /* ── HERO ── */
+  /*  HERO  */
   #hero {
     min-height: 100vh;
     display: flex;
@@ -266,7 +266,7 @@
     pointer-events: none;
   }
 
-  /* ── SECTIONS ── */
+  /*  SECTIONS  */
   section {
     position: relative;
     z-index: 1;
@@ -299,7 +299,7 @@
     z-index: 1;
   }
 
-  /* ── ABOUT ── */
+  /*  ABOUT  */
   .about-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -321,22 +321,15 @@
     padding: 1.2rem 1.4rem;
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0;
     transition: border-color 0.2s;
   }
   .stat-card:hover { border-color: var(--border2); }
-  .stat-icon {
-    width: 38px; height: 38px;
-    border-radius: 8px;
-    background: var(--accent-dim);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.1rem;
-    flex-shrink: 0;
-  }
+  .stat-icon { display: none; }
   .stat-label { font-size: 0.75rem; color: var(--text3); margin-bottom: 0.15rem; font-family: var(--mono); }
   .stat-value { font-size: 0.95rem; font-weight: 500; color: var(--text); }
 
-  /* ── EDUCATION ── */
+  /*  EDUCATION  */
   .edu-timeline { display: flex; flex-direction: column; gap: 1px; }
   .edu-row {
     display: grid;
@@ -419,7 +412,7 @@
     line-height: 1.6;
   }
 
-  /* ── SKILLS ── */
+  /*  SKILLS  */
   .skills-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -447,7 +440,7 @@
   .skill-dot.blue { background: var(--accent2); }
   .skill-dot.dim { background: var(--text3); }
 
-  /* ── PROJECT PREVIEW IMAGE ── */
+  /*  PROJECT PREVIEW IMAGE  */
   .project-preview-img {
     position: relative;
     width: calc(100% + 2px);
@@ -478,7 +471,7 @@
   }
   .project-card:hover .project-preview-overlay { opacity: 1; }
 
-  /* ── PROJECTS ── */
+  /*  PROJECTS  */
   .projects-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -544,7 +537,7 @@
   .tag.green { background: var(--accent-dim); color: var(--accent); }
   .tag.blue { background: var(--accent-dim2); color: var(--accent2); }
 
-  /* ── CERTS ── */
+  /*  CERTS  */
   .certs-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -628,7 +621,7 @@
     pointer-events: none;
   }
 
-  /* ── PROGRESS ── */
+  /*  PROGRESS  */
   .progress-cards {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -660,7 +653,7 @@
     text-align: right;
   }
 
-  /* ── CONNECT ── */
+  /*  CONNECT  */
   .connect-inner {
     text-align: center;
     padding: 2rem 0 1rem;
@@ -691,7 +684,7 @@
   .connect-icon-link svg { width: 36px; height: 36px; }
   .connect-icon-link i { font-size: 36px; }
 
-  /* ── FOOTER ── */
+  /*  FOOTER  */
   footer {
     position: relative;
     z-index: 1;
@@ -704,7 +697,7 @@
   }
   footer span { color: var(--accent); }
 
-  /* ── FEATURED LINKS ── */
+  /*  FEATURED LINKS  */
   .featured-row {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -806,8 +799,8 @@
   }
   .blog-sub-soon svg { flex-shrink: 0; }
 
-  /* ── RESPONSIVE ── */
-  /* ── TABLET (≤900px) ── */
+  /*  RESPONSIVE  */
+  /*  TABLET (≤900px)  */
   @media (max-width: 900px) {
     nav { padding: 0 1.5rem; }
     .nav-links { display: none; }
@@ -823,7 +816,7 @@
     .cert-preview { display: none !important; }
   }
 
-  /* ── MOBILE (≤600px) ── */
+  /*  MOBILE (≤600px)  */
   @media (max-width: 600px) {
     nav { padding: 0 1rem; }
     section { padding: 2.5rem 1rem; }
@@ -869,7 +862,7 @@
     .nav-drawer a { padding: 0.65rem 1.5rem; font-size: 0.85rem; }
   }
 
-  /* ── SMALL MOBILE (≤380px) ── */
+  /*  SMALL MOBILE (≤380px)  */
   @media (max-width: 380px) {
     .hero-name { font-size: 2.2rem; }
     .skills-grid { grid-template-columns: 1fr; }
@@ -944,28 +937,28 @@
     </div>
     <div class="about-sidebar">
       <div class="stat-card">
-        <div class="stat-icon">🎓</div>
+        <div class="stat-icon"></div>
         <div>
           <div class="stat-label">Education</div>
           <div class="stat-value">MSc Information Security</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">🏛️</div>
+        <div class="stat-icon"></div>
         <div>
           <div class="stat-label">Internship</div>
           <div class="stat-value">Cybercrime Dept, Govt of India</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">🛡️</div>
+        <div class="stat-icon"></div>
         <div>
           <div class="stat-label">Certifications</div>
           <div class="stat-value">CompTIA Security+ &amp; CySA+</div>
         </div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon">⚙️</div>
+        <div class="stat-icon"></div>
         <div>
           <div class="stat-label">Focus</div>
           <div class="stat-value">Blue Team · Threat Detection · DFIR</div>
@@ -1116,7 +1109,7 @@
         <a href="malware-analysis.html" class="blog-sub-link">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Malware Analysis
-        </a> 
+        </a>
         <div class="blog-sub-soon">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
           More coming soon
@@ -1133,8 +1126,8 @@
           Phishing Email Analyzer
         </a>
         <a href="soc-log-analyzer-writeup.html" class="blog-sub-link">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-          Soc Log Analyzer
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          SOC Log Analyzer
         </a>
         <div class="blog-sub-soon">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1165,7 +1158,7 @@
         </div>
       </div>
       <div class="project-header">
-        <div class="project-icon">📧</div>
+        <div class="project-icon"><svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
@@ -1188,7 +1181,7 @@
         </div>
       </div>
       <div class="project-header">
-        <div class="project-icon blue">🔍</div>
+        <div class="project-icon blue"><svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
         <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
@@ -1204,7 +1197,7 @@
 
     <a href="https://github.com/AlexPhilip01/threat-intelligence-ip-checker" target="_blank" class="project-card">
       <div class="project-header">
-        <div class="project-icon">🌐</div>
+        <div class="project-icon"><svg width="18" height="18" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
         <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
@@ -1219,12 +1212,13 @@
     </a>
 
 
-    <div class="project-card" style="cursor:default; opacity:0.65;">
+    <a href="fraud-detection-thesis.html" class="project-card">
       <div class="project-header">
-        <div class="project-icon blue">🤖</div>
+        <div class="project-icon blue"><svg width="18" height="18" fill="none" stroke="var(--accent2)" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><line x1="12" y1="15" x2="12" y2="17"/></svg></div>
+        <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
-        <div class="project-name">Financial Fraud Detection</div>
+        <div class="project-name">Financial Fraud Detection <span style="font-family:var(--mono);font-size:0.62rem;color:var(--accent2);background:var(--accent-dim);border:1px solid var(--border2);padding:0.1rem 0.45rem;border-radius:3px;letter-spacing:0.05em;vertical-align:middle;">MSc THESIS</span></div>
         <div class="project-desc">Hybrid ML system using Neural Networks, Random Forest, and XGBoost to detect fraudulent financial transactions at scale.</div>
       </div>
       <div class="project-tags">
@@ -1232,11 +1226,11 @@
         <span class="tag">XGBoost</span>
         <span class="tag">Python</span>
       </div>
-    </div>
+    </a>
 
     <div class="project-card" style="cursor:default; opacity:0.65;">
       <div class="project-header">
-        <div class="project-icon">🖥️</div>
+        <div class="project-icon"><svg width="18" height="18" fill="none" stroke="var(--accent2)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
       </div>
       <div>
         <div class="project-name">Cybersecurity Monitoring Lab</div>
@@ -1313,7 +1307,7 @@
         <div class="cert-preview-label">6 appreciation letters · Click to view</div>
       </div>
       <div class="cert-badge" style="background:transparent;padding:0;width:44px;height:44px;overflow:hidden;border-radius:8px;flex-shrink:0;">
-        <img src="logo.jpg" alt="Cybersecurity Awareness" style="width:44px;height:44px;object-fit:cover;object-position:center;border-radius:8px;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='📢';this.parentElement.style.background='var(--accent-dim)';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';this.parentElement.style.fontSize='1.3rem';">
+        <img src="logo.jpg" alt="Cybersecurity Awareness" style="width:44px;height:44px;object-fit:cover;object-position:center;border-radius:8px;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='';this.parentElement.style.background='var(--accent-dim)';this.parentElement.style.display='flex';this.parentElement.style.alignItems='center';this.parentElement.style.justifyContent='center';this.parentElement.style.fontSize='1.3rem';">
       </div>
       <div>
         <div class="cert-name">Cybersecurity Awareness Programs</div>
@@ -1393,7 +1387,7 @@
 </div><!-- end #page-wrap -->
 
 <script>
-// ── HAMBURGER ──
+//  HAMBURGER 
 const hamburger = document.getElementById('hamburger');
 const drawer = document.getElementById('nav-drawer');
 hamburger.addEventListener('click', () => {
@@ -1408,7 +1402,7 @@ drawer.querySelectorAll('a').forEach(a => {
   });
 });
 
-// ── SCROLL SPY ──
+//  SCROLL SPY 
 const sections = document.querySelectorAll('section[id]');
 const navLinks = document.querySelectorAll('.nav-links a, .nav-drawer a');
 
@@ -1427,7 +1421,7 @@ const observer = new IntersectionObserver((entries) => {
 
 sections.forEach(s => observer.observe(s));
 
-// ── MOBILE DROPDOWN TAP SUPPORT ──
+//  MOBILE DROPDOWN TAP SUPPORT 
 // On touch devices, hover doesn't work — so we toggle dropdowns on tap
 document.querySelectorAll('.featured-blogs').forEach(item => {
   item.addEventListener('click', function(e) {
@@ -1454,7 +1448,7 @@ document.addEventListener('click', () => {
 
 <script>
 (function() {
-  // ── NODE CANVAS ──
+  //  NODE CANVAS 
   const canvas = document.getElementById('node-canvas');
   const ctx = canvas.getContext('2d');
   const ACCENT = '#a855f7';
@@ -1548,7 +1542,7 @@ document.addEventListener('click', () => {
 
   resize(); initNodes(); draw();
 
-  // ── BAT CANVAS ──
+  //  BAT CANVAS 
   const batCanvas = document.getElementById('bat-canvas');
   if (batCanvas) {
     const bctx = batCanvas.getContext('2d');
