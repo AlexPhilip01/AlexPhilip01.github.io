@@ -40,6 +40,7 @@
     overflow-x: hidden;
     -webkit-tap-highlight-color: transparent;
   }
+  p { text-align: justify; }
   #node-canvas { touch-action: none; }
 
   /* ── NOISE TEXTURE ── */
@@ -1174,13 +1175,20 @@
       </div>
     </a>
 
-    <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank" class="project-card">
+    <a href="https://soc-log-analyzer-ejpx.onrender.com" target="_blank" class="project-card">
+      <div class="project-preview-img">
+        <img src="soc-preview.png" alt="SOC Log Analyzer Preview">
+        <div class="project-preview-overlay">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Live Output
+        </div>
+      </div>
       <div class="project-header">
         <div class="project-icon blue">🔍</div>
         <span class="project-arrow"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
       </div>
       <div>
-        <div class="project-name">SOC Log Analyzer</div>
+        <div class="project-name">SOC Log Analyzer <span style="font-family:var(--mono);font-size:0.62rem;color:#4ade80;background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);padding:0.1rem 0.45rem;border-radius:3px;letter-spacing:0.05em;vertical-align:middle;">LIVE</span></div>
         <div class="project-desc">Security log analysis tool that detects suspicious authentication activity and identifies brute-force attacks through automated log parsing.</div>
       </div>
       <div class="project-tags">
