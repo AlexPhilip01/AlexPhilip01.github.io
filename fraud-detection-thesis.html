@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financial Fraud Detection Thesis – Alex Philip</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#07050a;--surface:#140d1a;--surface2:#1a1025;
+    --border:rgba(255,255,255,0.07);--border2:rgba(168,85,247,0.25);
+    --accent:#a855f7;--accent2:#c084fc;--accent-dim:rgba(168,85,247,0.1);
+    --text:#f0eaff;--text2:#8a7a9a;--text3:#5a4a6a;
+    --mono:"DM Mono",monospace;--serif:"DM Serif Display",Georgia,serif;--sans:"Outfit",sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7}
+  p{text-align:justify}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(7,5,10,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
+  .back-link{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.04em;transition:color 0.2s}
+  .back-link:hover{color:var(--accent)}
+  .topbar-tag{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(168,85,247,0.2);padding:0.25rem 0.75rem;border-radius:100px;letter-spacing:0.06em}
+
+  .hero{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:4rem 2rem 3rem;border-bottom:1px solid var(--border)}
+  .hero-label{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:0.7rem}
+  .hero-title{font-family:var(--serif);font-size:clamp(2rem,5vw,3.2rem);line-height:1.1;color:var(--text);margin-bottom:0.7rem}
+  .hero-title em{font-style:italic;color:var(--accent)}
+  .hero-sub{font-size:0.9rem;color:var(--text2);line-height:1.75;max-width:620px;margin-bottom:1.5rem}
+  .hero-meta{display:flex;gap:0.75rem;flex-wrap:wrap}
+  .meta-pill{display:flex;align-items:center;gap:0.45rem;font-family:var(--mono);font-size:0.7rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:0.35rem 0.85rem;color:var(--text2);letter-spacing:0.04em}
+  .meta-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  .content-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3rem 2rem 6rem;display:grid;grid-template-columns:190px 1fr;gap:0 3.5rem;align-items:start}
+  .toc{position:sticky;top:70px;grid-column:1}
+  .toc-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.75rem}
+  .toc-list{list-style:none;display:flex;flex-direction:column}
+  .toc-list li a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-decoration:none;padding:0.38rem 0.65rem;border-left:2px solid var(--border);letter-spacing:0.03em;line-height:1.4;transition:color 0.2s,border-color 0.2s}
+  .toc-list li a:hover,.toc-list li a.active{color:var(--accent);border-left-color:var(--accent)}
+
+  .article{grid-column:2}
+  .section-block{margin-bottom:3.5rem}
+  .section-heading{font-family:var(--serif);font-size:1.55rem;color:var(--text);line-height:1.2;margin-bottom:1.2rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem}
+  .sub-heading{font-size:1rem;font-weight:600;color:var(--accent2);margin:1.4rem 0 0.6rem;font-family:var(--sans)}
+  .h-num{font-family:var(--mono);font-size:0.7rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.55rem;border-radius:3px;letter-spacing:0.06em;flex-shrink:0}
+
+  .article p{font-size:0.92rem;color:var(--text2);line-height:1.85;margin-bottom:1rem}
+  .article p strong{color:var(--text);font-weight:600}
+  .article ul,.article ol{margin:0.5rem 0 1.1rem 0;display:flex;flex-direction:column;gap:0.4rem}
+  .article ul li,.article ol li{font-size:0.9rem;color:var(--text2);padding-left:1.2rem;position:relative;line-height:1.7}
+  .article ul li::before{content:"›";position:absolute;left:0;color:var(--accent);font-weight:700}
+
+  .callout{background:var(--accent-dim);border:1px solid rgba(168,85,247,0.25);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
+  .callout strong{color:var(--accent)}
+
+  /* algorithm cards */
+  .algo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.85rem;margin:1rem 0}
+  .algo-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;transition:border-color 0.2s}
+  .algo-card:hover{border-color:var(--border2)}
+  .algo-icon{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.55rem;border-radius:3px;display:inline-block;margin-bottom:0.6rem;letter-spacing:0.05em}
+  .algo-name{font-size:0.92rem;font-weight:600;color:var(--text);margin-bottom:0.4rem}
+  .algo-desc{font-size:0.8rem;color:var(--text2);line-height:1.65}
+
+  /* chapter cards */
+  .chapter-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin:1rem 0}
+  .chapter-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;transition:border-color 0.2s;cursor:pointer;text-decoration:none;display:block}
+  .chapter-card:hover{border-color:var(--border2)}
+  .ch-num{font-family:var(--mono);font-size:0.65rem;color:var(--accent);margin-bottom:0.3rem;letter-spacing:0.08em}
+  .ch-title{font-size:0.88rem;font-weight:600;color:var(--text);margin-bottom:0.25rem}
+  .ch-desc{font-size:0.78rem;color:var(--text2);line-height:1.6}
+
+  /* abbrev table */
+  .abbrev-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.84rem}
+  .abbrev-table td{padding:0.5rem 0.85rem;border:1px solid var(--border);color:var(--text2);vertical-align:top}
+  .abbrev-table td:first-child{font-family:var(--mono);color:var(--accent2);font-size:0.8rem;white-space:nowrap;background:rgba(168,85,247,0.04);border-right:1px solid var(--border2)}
+  .abbrev-table tr:hover td{background:rgba(168,85,247,0.03)}
+
+  /* adv/dis cards */
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem;margin:1rem 0}
+  .pro-card{background:var(--surface);border:1px solid rgba(74,222,128,0.2);border-radius:10px;padding:1rem}
+  .con-card{background:var(--surface);border:1px solid rgba(248,113,113,0.2);border-radius:10px;padding:1rem}
+  .pro-card .card-label{font-family:var(--mono);font-size:0.65rem;color:#4ade80;letter-spacing:0.08em;margin-bottom:0.5rem}
+  .con-card .card-label{font-family:var(--mono);font-size:0.65rem;color:#f87171;letter-spacing:0.08em;margin-bottom:0.5rem}
+  .card-item{font-size:0.82rem;color:var(--text2);padding-left:1rem;position:relative;line-height:1.65;margin-bottom:0.35rem}
+  .card-item::before{content:"›";position:absolute;left:0;font-weight:700}
+  .pro-card .card-item::before{color:#4ade80}
+  .con-card .card-item::before{color:#f87171}
+
+  /* pipeline */
+  .pipeline{display:flex;flex-direction:column;gap:0}
+  .pipe-step{display:grid;grid-template-columns:28px 1fr;gap:0 1rem;padding-bottom:1.4rem}
+  .pipe-step:last-child{padding-bottom:0}
+  .pipe-dot-col{display:flex;flex-direction:column;align-items:center}
+  .pipe-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;box-shadow:0 0 0 3px var(--accent-dim)}
+  .pipe-line{flex:1;width:1px;background:linear-gradient(180deg,var(--border2),var(--border));margin-top:6px}
+  .pipe-step:last-child .pipe-line{display:none}
+  .pipe-title{font-size:0.92rem;font-weight:600;color:var(--text);margin-bottom:0.3rem}
+  .pipe-desc{font-size:0.84rem;color:var(--text2);line-height:1.75}
+
+  /* ethics */
+  .ethics-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.85rem}
+  .ethics-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem;transition:border-color 0.2s}
+  .ethics-card:hover{border-color:var(--border2)}
+  .ethics-icon{font-family:var(--mono);font-size:0.65rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.5rem;border-radius:3px;display:inline-block;margin-bottom:0.5rem;letter-spacing:0.05em}
+  .ethics-title{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.35rem}
+  .ethics-desc{font-size:0.81rem;color:var(--text2);line-height:1.7}
+
+  /* ref list */
+  .ref-list{display:flex;flex-direction:column;gap:0.5rem}
+  .ref-item{display:flex;gap:0.75rem;font-size:0.8rem;color:var(--text2);line-height:1.65}
+  .ref-num{font-family:var(--mono);font-size:0.7rem;color:var(--accent);flex-shrink:0;margin-top:2px}
+
+  /* institution badge */
+  .inst-badge{display:inline-flex;align-items:center;gap:0.6rem;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:0.6rem 1rem;margin:0.75rem 0;font-size:0.85rem;color:var(--text2)}
+  .inst-badge strong{color:var(--text)}
+
+  @media(max-width:720px){
+    .content-wrap{grid-template-columns:1fr;padding:2rem 1rem 4rem}
+    .toc{display:none}
+    .article{grid-column:1}
+    .algo-grid,.chapter-grid,.two-col,.ethics-grid{grid-template-columns:1fr}
+    .hero{padding:3rem 1rem 2rem}
+    .topbar{padding:0.7rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <span class="topbar-tag">MSc Thesis · Royal Holloway</span>
+</div>
+
+<div class="hero">
+  <div class="hero-label">// academic research · MSc Information Security</div>
+  <h1 class="hero-title">Intelligent Financial Fraud Detection<br><em>Using a Hybrid Approach</em></h1>
+  <p class="hero-sub">MSc thesis exploring a hybrid machine learning model combining Neural Networks, Random Forest, and XGBoost for detecting fraudulent financial transactions — submitted as part of the MSc in Information Security at Royal Holloway, University of London.</p>
+  <div class="inst-badge">
+    <svg width="14" height="14" fill="none" stroke="var(--accent)" stroke-width="2" viewBox="0 0 24 24"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3.33 1.33 8.67 1.33 12 0v-5"/></svg>
+    <span><strong>Royal Holloway, University of London</strong> &nbsp;·&nbsp; MSc Information Security &nbsp;·&nbsp; August 2023</span>
+  </div>
+  <div class="hero-meta">
+    <div class="meta-pill"><div class="meta-dot"></div>Neural Networks</div>
+    <div class="meta-pill"><div class="meta-dot"></div>XGBoost</div>
+    <div class="meta-pill"><div class="meta-dot"></div>Random Forest</div>
+    <div class="meta-pill"><div class="meta-dot"></div>Fraud Detection</div>
+    <div class="meta-pill"><div class="meta-dot"></div>Machine Learning</div>
+  </div>
+</div>
+
+<div class="content-wrap">
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#abstract">Executive Summary</a></li>
+      <li><a href="#intro">Introduction</a></li>
+      <li><a href="#lit">Literature Review</a></li>
+      <li><a href="#theory">Theoretical Exploration</a></li>
+      <li><a href="#design">Design &amp; Methodology</a></li>
+      <li><a href="#benefits">Benefits &amp; Challenges</a></li>
+      <li><a href="#ethics">Ethical Considerations</a></li>
+      <li><a href="#future">Future Research</a></li>
+      <li><a href="#conclusion">Conclusion</a></li>
+      <li><a href="#abbrev">Abbreviations</a></li>
+      <li><a href="#refs">Bibliography</a></li>
+    </ul>
+  </nav>
+
+  <article class="article">
+
+    <!-- EXECUTIVE SUMMARY -->
+    <div class="section-block" id="abstract">
+      <h2 class="section-heading"><span class="h-num">00</span> Executive Summary</h2>
+      <p>This research introduces a <strong>hybrid machine learning model</strong> that integrates three distinct algorithms — Neural Networks, Random Forest, and XGBoost — to address the growing challenge of financial fraud detection in digital transactions.</p>
+      <p>Neural Networks excel at identifying complex patterns in high-dimensional data. Random Forest provides robustness and stability through ensemble averaging. XGBoost contributes predictive accuracy and efficient handling of imbalanced datasets — a frequent challenge in fraud scenarios where fraudulent transactions are rare.</p>
+      <div class="algo-grid">
+        <div class="algo-card">
+          <div class="algo-icon">NN</div>
+          <div class="algo-name">Neural Networks</div>
+          <div class="algo-desc">Captures complex non-linear patterns and high-dimensional relationships in transaction data.</div>
+        </div>
+        <div class="algo-card">
+          <div class="algo-icon">RF</div>
+          <div class="algo-name">Random Forest</div>
+          <div class="algo-desc">Ensemble of decision trees reducing overfitting and providing stable, consistent predictions.</div>
+        </div>
+        <div class="algo-card">
+          <div class="algo-icon">XGB</div>
+          <div class="algo-name">XGBoost</div>
+          <div class="algo-desc">Gradient boosting with exceptional accuracy on imbalanced datasets and efficient sparse data handling.</div>
+        </div>
+      </div>
+      <div class="callout"><strong>Key outcome:</strong> The hybrid approach promises a detection system that is unparalleled in accuracy, adaptable to evolving fraud tactics, and capable of real-time transaction screening — delivering continuous learning to remain effective as fraud patterns evolve.</div>
+    </div>
+
+    <!-- INTRODUCTION -->
+    <div class="section-block" id="intro">
+      <h2 class="section-heading"><span class="h-num">01</span> Introduction</h2>
+      <p>The digital revolution has transformed transactions into an integral part of daily life. While online commerce and digital banking offer unprecedented convenience, they have simultaneously created new vectors for financial fraud. As fraudsters deploy increasingly sophisticated techniques, traditional rule-based detection systems are proving inadequate.</p>
+
+      <div class="sub-heading">Background &amp; Context</div>
+      <p>The surge in online transactions globally — driven by e-commerce growth, digital banking adoption, and the globalization of services — has been paralleled by an escalating sophistication in fraudulent schemes. Criminals exploit vulnerabilities in detection systems, leading to significant financial losses and undermining consumer confidence.</p>
+
+      <div class="sub-heading">Problem Statement</div>
+      <p>Traditional rule-based fraud detection systems frequently falter when faced with novel, sophisticated fraud patterns. The challenge is twofold: detecting fraudulent transactions with <strong>high accuracy</strong> while doing so <strong>in real-time</strong> to ensure seamless user experience. Machine learning offers a solution — particularly a hybrid model that combines the strengths of Neural Networks, Random Forest, and XGBoost.</p>
+
+      <div class="sub-heading">Significance of the Study</div>
+      <p>Financial institutions, e-commerce platforms, and payment processors stand to benefit enormously from an effective hybrid fraud detection system. The research also demonstrates the broader potential of combining multiple machine learning algorithms to address complex, real-world challenges.</p>
+
+      <div class="sub-heading">Motivation &amp; Objectives</div>
+      <p>The project aims to design, develop and evaluate a hybrid fraud detection model that leverages the complementary strengths of three powerful ML algorithms. The system is designed for real-time deployment with continuous learning capabilities to adapt to emerging fraud patterns.</p>
+    </div>
+
+    <!-- LITERATURE REVIEW -->
+    <div class="section-block" id="lit">
+      <h2 class="section-heading"><span class="h-num">02</span> Literature Review</h2>
+      <p>A comprehensive review of existing research establishes the theoretical foundation and identifies gaps in current fraud detection methodologies:</p>
+
+      <div class="sub-heading">2.1 Financial Fraud Detection</div>
+      <p>Delamaire, Abdou &amp; Pointon (2009) examine multiple categories of credit card fraud — bankruptcy, counterfeit, theft, application, and behavioural fraud — and evaluate pair-wise matching, decision trees, clustering, neural networks, and evolutionary algorithms. The study highlights the ethical dilemmas in cases where fraud identification costs exceed the financial benefit.</p>
+
+      <div class="sub-heading">2.2 Neural Network Approaches (GANN)</div>
+      <p>Research into Genetic Algorithm Neural Networks (GANN) demonstrates the potential of combining neural networks with genetic algorithms for parameter optimization in fraud detection. The work highlights the challenge of real-time detection given the vast volume of credit card transactions and the relative rarity of fraud events.</p>
+
+      <div class="sub-heading">2.3 XGBoost for Financial Fraud</div>
+      <p>Lei, Xu, Huang &amp; Sha propose a distinctive system for e-commerce merchants combining manual and automatic classification with XGBoost. Their hybrid methodology minimizes false positives through human oversight while leveraging XGBoost's capability to handle imbalanced datasets — genuine transactions vastly outnumber fraudulent ones.</p>
+
+      <div class="sub-heading">2.4 Random Forest for Fraud Detection</div>
+      <p>Research utilizing two variants of Random Forest on e-commerce transaction data from China demonstrates the algorithm's robustness in handling large datasets and its inherent ability to manage class imbalance. Comparative analysis evaluates base classifier variations for optimal fraud detection.</p>
+
+      <div class="sub-heading">2.5 Resampling Techniques</div>
+      <p>Udeze, Eteng &amp; Ibor evaluate four sampling techniques (baseline split, class-weighted hyperparameter, undersampling, oversampling) combined with Random Forest, XGBoost, and TensorFlow DNN. Results show DNN outperforms others on undersampled data, while all three excel on oversampled datasets.</p>
+
+      <div class="sub-heading">2.6 Comparative ML Review</div>
+      <p>A rigorous comparative analysis of logistic regression, decision trees, KNN, and XGBoost across accuracy, precision, recall, and F1-score establishes XGBoost as the top performer for computational speed and overall metrics. The study suggests that fine-tuning or combining algorithms could yield more robust systems.</p>
+    </div>
+
+    <!-- THEORETICAL EXPLORATION -->
+    <div class="section-block" id="theory">
+      <h2 class="section-heading"><span class="h-num">03</span> Theoretical Exploration</h2>
+
+      <div class="sub-heading">3.1 Neural Networks</div>
+      <p>A neural network is a machine learning method inspired by the human brain's structure. It consists of three layers — input, hidden, and output — connected by weighted nodes that process and transform data iteratively through backpropagation.</p>
+      <p>Key architectures include <strong>FNNs</strong> (general classification), <strong>CNNs</strong> (image/spatial data), <strong>RNNs</strong> (sequential data), <strong>LSTMs</strong> (long-term dependencies), <strong>GRUs</strong> (efficient sequential processing), <strong>GANs</strong> (data generation), and <strong>Autoencoders</strong> (anomaly detection).</p>
+      <div class="two-col">
+        <div class="pro-card">
+          <div class="card-label">ADVANTAGES</div>
+          <div class="card-item">Models complex non-linear relationships</div>
+          <div class="card-item">End-to-end learning without manual feature engineering</div>
+          <div class="card-item">Scalable to large high-dimensional datasets</div>
+          <div class="card-item">Adaptable across diverse problem domains</div>
+        </div>
+        <div class="con-card">
+          <div class="card-label">DISADVANTAGES</div>
+          <div class="card-item">Black-box — limited interpretability</div>
+          <div class="card-item">Requires large amounts of labelled training data</div>
+          <div class="card-item">Computationally expensive to train</div>
+          <div class="card-item">Long development and iteration cycles</div>
+        </div>
+      </div>
+
+      <div class="sub-heading">3.2 Gradient Boosting Machines (GBM)</div>
+      <p>GBMs sequentially build prediction models where each new model corrects the errors of its predecessor. Introduced by Jerome Friedman (1999) at Stanford, GBMs use gradient descent to iteratively minimize a loss function — enabling flexible, powerful predictive models from weak learners (decision trees).</p>
+      <div class="two-col">
+        <div class="pro-card">
+          <div class="card-label">ADVANTAGES</div>
+          <div class="card-item">Flexible for both regression and classification</div>
+          <div class="card-item">Robust to missing data and irrelevant features</div>
+          <div class="card-item">High accuracy on large datasets</div>
+          <div class="card-item">Feature importance quantification</div>
+        </div>
+        <div class="con-card">
+          <div class="card-label">DISADVANTAGES</div>
+          <div class="card-item">Sequential training — computationally expensive</div>
+          <div class="card-item">Prone to overfitting without careful tuning</div>
+          <div class="card-item">Sensitive to hyperparameter selection</div>
+          <div class="card-item">High memory consumption for large tree counts</div>
+        </div>
+      </div>
+
+      <div class="sub-heading">3.3 XGBoost (eXtreme Gradient Boosting)</div>
+      <p>XGBoost extends GBMs with a sparsity-aware split-finding algorithm, approximate tree learning via sketching, and hardware-level optimizations for cache access, data compression, and sharding. It scales to billions of examples while maintaining resource efficiency.</p>
+      <p>Its design prioritizes adaptability — supporting regression, classification, ranking, and custom prediction tasks — while combining algorithmic advances with system optimization to deliver state-of-the-art results on diverse machine learning challenges.</p>
+
+      <div class="sub-heading">3.4 Random Forest</div>
+      <p>Random Forest constructs an ensemble of decision trees, each trained on a bootstrapped subset of data with a random subset of features at each split. This ensures tree diversity, mitigating overfitting. Classification uses majority voting; regression uses averaging across all trees.</p>
+      <p>Key strengths include handling noise/outliers effectively, working with numerical and categorical data without preprocessing, providing built-in feature importance analysis, and parallelizing training across CPUs for scalable large-dataset performance.</p>
+    </div>
+
+    <!-- DESIGN -->
+    <div class="section-block" id="design">
+      <h2 class="section-heading"><span class="h-num">04</span> Design &amp; Methodology</h2>
+      <p>The hybrid approach is a multifaceted end-to-end pipeline combining data engineering, individual model training, and ensemble combination:</p>
+
+      <div class="pipeline">
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.1 Data Collection</div>
+            <div class="pipe-desc">Financial transaction data gathered from internal databases, third-party providers, and public datasets. The target variable (fraud/legitimate) is defined, and compliance with legal and ethical guidelines (GDPR) is ensured. Comprehensive mix of both legitimate and fraudulent transactions to represent real-world distributions.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.2 Data Processing</div>
+            <div class="pipe-desc">Missing values imputed, outliers treated, and data inconsistencies resolved. Feature engineering creates new attributes (polynomial features, interaction terms, domain-specific calculations) to expose fraud patterns. Numerical features normalized; categorical variables encoded. Class imbalance addressed via SMOTE or undersampling. Data split into training, validation, and test sets.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.3 Neural Network Design &amp; Training</div>
+            <div class="pipe-desc">Architecture selected based on input features, hidden layers, neurons, and fraud detection requirements. Cross-entropy loss function with stochastic gradient descent optimization. Hyperparameter tuning via grid/random search. Iterative training with backpropagation; early stopping and L1/L2 regularization to prevent overfitting.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.4 XGBoost Training</div>
+            <div class="pipe-desc">Data prepared and split (67% train / 33% test). XGBoost model initialized with hyperparameter experimentation. Training via the fit method; performance evaluated using accuracy, precision, recall, F1-score. Categorical variables handled via embedding layers in the Neural Network component, complementing XGBoost's preprocessing requirements.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.5 Random Forest Training</div>
+            <div class="pipe-desc">Data split 70/30 (train/test). Random Forest classifier initialized and trained via the fit method. Hyperparameters tuned experimentally. Feature importance analysis performed. Out-of-bag error monitored. Metrics evaluated: accuracy, precision, recall, F1-score.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.6 Model Combination (Stacking)</div>
+            <div class="pipe-desc">Individual model predictions used as features for a meta-model (logistic regression) trained on the validation set. Stacking allows the meta-model to learn optimal combination strategies — capturing interactions between base model predictions. Offers flexibility to explore different stacking architectures.</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <div class="pipe-dot-col"><div class="pipe-dot"></div><div class="pipe-line"></div></div>
+          <div>
+            <div class="pipe-title">4.7 Synergy of All Three Models</div>
+            <div class="pipe-desc">Neural Networks uncover complex non-linear patterns; Random Forest provides robustness against overfitting; XGBoost handles imbalanced data with computational efficiency. Together, stacking achieves enhanced predictive accuracy, robustness to individual model weaknesses, and improved generalization to unseen fraud patterns.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENEFITS & CHALLENGES -->
+    <div class="section-block" id="benefits">
+      <h2 class="section-heading"><span class="h-num">05</span> Benefits &amp; Challenges</h2>
+      <div class="two-col">
+        <div class="pro-card">
+          <div class="card-label">POTENTIAL BENEFITS</div>
+          <div class="card-item"><strong style="color:var(--text)">Adaptability</strong> — adapts to evolving fraud patterns by combining diverse algorithmic strengths</div>
+          <div class="card-item"><strong style="color:var(--text)">Imbalanced Data Handling</strong> — XGBoost integration directly addresses the class imbalance challenge</div>
+          <div class="card-item"><strong style="color:var(--text)">High Predictive Accuracy</strong> — three potent algorithms reduce false negatives and financial losses</div>
+          <div class="card-item"><strong style="color:var(--text)">Continuous Learning</strong> — embedded mechanism remains updated with emerging fraud patterns</div>
+        </div>
+        <div class="con-card">
+          <div class="card-label">CHALLENGES &amp; LIMITATIONS</div>
+          <div class="card-item"><strong style="color:var(--text)">Complexity</strong> — three-algorithm integration is difficult to interpret and deploy</div>
+          <div class="card-item"><strong style="color:var(--text)">Computational Overhead</strong> — significant resources required for real-time processing</div>
+          <div class="card-item"><strong style="color:var(--text)">Data Privacy</strong> — transactional data must be anonymized and GDPR-compliant</div>
+          <div class="card-item"><strong style="color:var(--text)">Overfitting Risk</strong> — ensemble stacking requires careful validation and monitoring</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ETHICS -->
+    <div class="section-block" id="ethics">
+      <h2 class="section-heading"><span class="h-num">06</span> Ethical Considerations</h2>
+      <div class="ethics-grid">
+        <div class="ethics-card">
+          <div class="ethics-icon">DATA PRIVACY</div>
+          <div class="ethics-title">Data Privacy</div>
+          <div class="ethics-desc">Financial fraud detection involves analysing sensitive personal and transaction data. Robust security measures, GDPR compliance, and data minimization principles are essential to prevent unauthorized access and maintain customer trust.</div>
+        </div>
+        <div class="ethics-card">
+          <div class="ethics-icon">TRANSPARENCY</div>
+          <div class="ethics-title">Transparency &amp; Accountability</div>
+          <div class="ethics-desc">Stakeholders — customers, regulators, internal teams — must understand how transactions are flagged. Mechanisms for review, appeal, and redress are required. Transparency builds trust and enables continuous improvement through scrutiny and feedback.</div>
+        </div>
+        <div class="ethics-card">
+          <div class="ethics-icon">FAIRNESS</div>
+          <div class="ethics-title">Bias &amp; Fairness</div>
+          <div class="ethics-desc">Biased training data or feature selection can lead to systematic errors that disproportionately flag transactions from certain demographics. Active bias identification, careful data preparation, and ongoing monitoring ensure impartial, fair treatment of all transactions.</div>
+        </div>
+        <div class="ethics-card">
+          <div class="ethics-icon">ACCURACY</div>
+          <div class="ethics-title">False Positives &amp; Negatives</div>
+          <div class="ethics-desc">False positives erode customer trust and increase operational costs. False negatives expose institutions to financial risk and regulatory penalties. Balancing sensitivity and specificity requires continuous tuning, considering each institution's unique risk profile and customer base.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FUTURE RESEARCH -->
+    <div class="section-block" id="future">
+      <h2 class="section-heading"><span class="h-num">07</span> Future Research Directions</h2>
+      <ul>
+        <li><strong>Expanding Algorithmic Diversity</strong> — integrate CNNs and RNNs for sequential transaction patterns; explore unsupervised algorithms for anomaly detection without labelled data</li>
+        <li><strong>Enhancing Real-Time Capabilities</strong> — develop lightweight models optimized for speed; explore edge computing for device-level preliminary fraud screening to reduce latency</li>
+        <li><strong>Deeper Feature Engineering</strong> — investigate automated feature engineering via deep feature synthesis; explore domain-specific features emerging from new transactional patterns</li>
+        <li><strong>Model Explainability</strong> — develop hybrid architectures where interpretable components (decision trees) coexist with black-box algorithms; apply SHAP or LIME for feature attribution</li>
+      </ul>
+    </div>
+
+    <!-- CONCLUSION -->
+    <div class="section-block" id="conclusion">
+      <h2 class="section-heading"><span class="h-num">08</span> Conclusion</h2>
+
+      <div class="sub-heading">Overview</div>
+      <p>This research presents a novel hybrid machine learning model that fuses Neural Networks, Random Forest, and XGBoost for financial fraud detection. Each algorithm contributes distinct strengths — deep pattern recognition, robustness against overfitting, and imbalanced data handling — forming a comprehensive detection system.</p>
+
+      <div class="sub-heading">Methodological Rigor</div>
+      <p>The project emphasizes thorough data collection, robust preprocessing and balancing techniques, meaningful feature engineering, individual algorithm training, and ensemble combination through stacking. This systematic approach ensures the highest levels of accuracy and precision.</p>
+
+      <div class="sub-heading">Implications</div>
+      <p>With real-time processing capability, the model significantly reduces the window of vulnerability in digital transactions. The research demonstrates the broader potential of multi-algorithm hybrid approaches for complex, real-world cybersecurity and fraud challenges.</p>
+
+      <div class="callout"><strong>Closing thought:</strong> As digital transactions become the norm, this research underscores the importance of proactive, adaptive fraud detection. The hybrid model stands as a testament to what can be achieved when innovation meets determination — guiding future endeavours toward a safer transactional landscape.</div>
+    </div>
+
+    <!-- ABBREVIATIONS -->
+    <div class="section-block" id="abbrev">
+      <h2 class="section-heading"><span class="h-num">A</span> List of Abbreviations</h2>
+      <table class="abbrev-table">
+        <tbody>
+          <tr><td>GBM</td><td>Gradient Boosting Machine</td></tr>
+          <tr><td>XGBoost</td><td>eXtreme Gradient Boosting</td></tr>
+          <tr><td>GANN</td><td>Genetic Algorithm Neural Network</td></tr>
+          <tr><td>DNN</td><td>Deep Neural Network</td></tr>
+          <tr><td>LSTM</td><td>Long Short-Term Memory</td></tr>
+          <tr><td>CNN</td><td>Convolutional Neural Network</td></tr>
+          <tr><td>GAN</td><td>Generative Adversarial Network</td></tr>
+          <tr><td>RNN</td><td>Recurrent Neural Network</td></tr>
+          <tr><td>GRU</td><td>Gated Recurrent Unit</td></tr>
+          <tr><td>AE</td><td>Autoencoder</td></tr>
+          <tr><td>SMOTE</td><td>Synthetic Minority Over-sampling Technique</td></tr>
+          <tr><td>KNN</td><td>K-Nearest Neighbours</td></tr>
+          <tr><td>GDPR</td><td>General Data Protection Regulation</td></tr>
+          <tr><td>FNN</td><td>Feedforward Neural Network</td></tr>
+          <tr><td>NAS</td><td>Neural Architecture Search</td></tr>
+          <tr><td>RELU</td><td>Rectified Linear Unit</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BIBLIOGRAPHY -->
+    <div class="section-block" id="refs">
+      <h2 class="section-heading"><span class="h-num">B</span> Bibliography</h2>
+      <div class="ref-list">
+        <div class="ref-item"><span class="ref-num">[1]</span><span>L. Delamaire, H. Abdou, and J. Pointon, "Credit card fraud and detection techniques: a review," 2009.</span></div>
+        <div class="ref-item"><span class="ref-num">[2]</span><span>D. P. Foster and R. A. Stine, "Variable Selection in Data Mining: Building a Predictive Model for Bankruptcy," 2004.</span></div>
+        <div class="ref-item"><span class="ref-num">[3]</span><span>R. Patidar and L. Sharma, "Credit card fraud detection using neural network," 2011.</span></div>
+        <div class="ref-item"><span class="ref-num">[4]</span><span>Y. Fang et al., "Credit Card Fraud Detection Based on Machine Learning," Neural Information Processing Conference, pp. 483–490, 2016.</span></div>
+        <div class="ref-item"><span class="ref-num">[5]</span><span>"Random forest for credit card fraud detection," IEEE Xplore, 2018.</span></div>
+        <div class="ref-item"><span class="ref-num">[6]</span><span>C. L. Udeze, I. E. Eteng, and A. E. Ibor, "Application of Machine Learning and Resampling Techniques to Credit Card Fraud Detection," Journal of the Nigerian Society of Physical Sciences.</span></div>
+        <div class="ref-item"><span class="ref-num">[7]</span><span>Z. Faraji, "A Review of Machine Learning Applications for Credit Card Fraud Detection," SEISENSE Journal of Management, vol. 5, no. 1, pp. 49–59, Feb. 2022.</span></div>
+        <div class="ref-item"><span class="ref-num">[8]</span><span>"What is a Neural Network?" AWS. aws.amazon.com/what-is/neural-network/</span></div>
+        <div class="ref-item"><span class="ref-num">[14]</span><span>"Gradient and Newton Boosting for Classification and Regression," arXiv:1808.03064.</span></div>
+        <div class="ref-item"><span class="ref-num">[18]</span><span>T. Chen and C. Guestrin, "XGBoost: A Scalable Tree Boosting System," arXiv:1603.02754.</span></div>
+        <div class="ref-item"><span class="ref-num">[20]</span><span>L. Breiman, "Random Forests," Machine Learning, vol. 45, pp. 5–32, Springer, 2001.</span></div>
+        <div class="ref-item"><span class="ref-num">[29]</span><span>European Parliament, "General Data Protection Regulation (GDPR)," EUR-Lex 32016R0679.</span></div>
+      </div>
+    </div>
+
+  </article>
+</div>
+
+<script>
+const sections = document.querySelectorAll(".section-block[id]");
+const tocLinks = document.querySelectorAll(".toc-list a");
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) tocLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+  });
+}, { rootMargin: "-20% 0px -70% 0px" });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
