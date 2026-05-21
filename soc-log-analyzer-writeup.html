@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="SOC Log Analyzer Security Writeup">
+<meta name="theme-color" content="#7c3aed">
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<title>Security Writeup — SOC Log Analyzer</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b14;--bg2:#120f1e;--bg3:#1a1628;--bg4:#231d35;--border:#2d2645;--text:#e8e0ff;--muted:#7b6fa0;--purple:#a855f7;--purple2:#7c3aed;--purple3:#c084fc;--pink:#ec4899;--critical:#f43f5e;--high:#f97316;--medium:#eab308;--low:#6366f1;--info:#64748b;--green:#22c55e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Outfit",sans-serif;min-height:100vh;line-height:1.7}
+body::after{content:"";position:fixed;top:-50%;left:-50%;width:200%;height:200%;background:radial-gradient(ellipse at 20% 20%,rgba(124,58,237,.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 80%,rgba(168,85,247,.06) 0%,transparent 50%);pointer-events:none;z-index:0}
+.hdr{background:rgba(18,15,30,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 1.5rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo-wrap{display:flex;align-items:center;gap:.75rem;text-decoration:none}
+.logo-svg{width:36px;height:36px;flex-shrink:0}
+.logo-name{font-weight:800;font-size:1rem;letter-spacing:-.02em;color:var(--text)}
+.logo-name span{color:var(--purple3)}
+.nav-link{padding:.3rem .75rem;border-radius:20px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);color:var(--purple3);font-size:.7rem;font-weight:600;letter-spacing:.05em;text-decoration:none;text-transform:uppercase;transition:all .2s}
+.nav-link:hover{background:rgba(168,85,247,.2)}
+.wrap{max-width:900px;margin:0 auto;padding:3rem 1.5rem;position:relative;z-index:1}
+.doc-hero{text-align:center;padding:2rem 0 3rem;border-bottom:1px solid var(--border);margin-bottom:3rem}
+.doc-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.35rem 1rem;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:20px;font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--purple3);margin-bottom:1rem}
+.doc-hero h1{font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:.75rem}
+.gr{background:linear-gradient(135deg,var(--purple3),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.doc-meta{display:flex;align-items:center;justify-content:center;gap:1.5rem;flex-wrap:wrap;font-size:.78rem;color:var(--muted);margin-top:1.25rem}
+.section{margin-bottom:3rem}
+.section-label{display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem}
+.section-num{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--purple2),var(--purple));display:flex;align-items:center;justify-content:center;font-family:"Space Mono",monospace;font-size:.8rem;font-weight:700;flex-shrink:0;color:#fff}
+.section-title{font-size:1.3rem;font-weight:700;letter-spacing:-.02em}
+h2{font-size:1.1rem;font-weight:700;color:var(--purple3);margin:2rem 0 .75rem;padding-left:.75rem;border-left:3px solid var(--purple)}
+h3{font-size:.95rem;font-weight:600;color:var(--text);margin:1.5rem 0 .5rem}
+p{font-size:.9rem;color:#c4b8e8;margin-bottom:1rem;line-height:1.75}
+ul,ol{padding-left:1.25rem;margin-bottom:1rem}
+li{font-size:.88rem;color:#c4b8e8;margin-bottom:.4rem;line-height:1.6}
+li strong{color:var(--text)}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;margin-bottom:1.25rem}
+.card h3{margin-top:0;color:var(--purple3);font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem}
+.ttbl{width:100%;border-collapse:collapse;font-size:.8rem;margin-bottom:1rem}
+.ttbl th{padding:.6rem .85rem;text-align:left;font-size:.65rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--bg3)}
+.ttbl td{padding:.6rem .85rem;border-bottom:1px solid rgba(45,38,69,.5);vertical-align:top}
+.ttbl tr:last-child td{border-bottom:none}
+.ttbl tr:hover td{background:rgba(168,85,247,.03)}
+.sev{display:inline-block;padding:.18rem .45rem;border-radius:4px;font-size:.62rem;font-weight:700;letter-spacing:.04em}
+.sev.cr{background:rgba(244,63,94,.15);color:var(--critical);border:1px solid rgba(244,63,94,.3)}
+.sev.hi{background:rgba(249,115,22,.15);color:var(--high);border:1px solid rgba(249,115,22,.3)}
+.sev.me{background:rgba(234,179,8,.15);color:var(--medium);border:1px solid rgba(234,179,8,.3)}
+.sev.lo{background:rgba(99,102,241,.15);color:var(--low);border:1px solid rgba(99,102,241,.3)}
+.code{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:1rem 1.25rem;font-family:"Space Mono",monospace;font-size:.75rem;color:#c4b8e8;overflow-x:auto;margin:1rem 0;line-height:1.6}
+.stat-row{display:flex;gap:.75rem;flex-wrap:wrap;margin:1rem 0}
+.pill{padding:.5rem 1rem;border-radius:8px;font-size:.8rem;font-weight:600;text-align:center}
+.pill.cr{background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.3);color:var(--critical)}
+.pill.hi{background:rgba(249,115,22,.12);border:1px solid rgba(249,115,22,.3);color:var(--high)}
+.pill.me{background:rgba(234,179,8,.12);border:1px solid rgba(234,179,8,.3);color:var(--medium)}
+.pill.lo{background:rgba(99,102,241,.12);border:1px solid rgba(99,102,241,.3);color:var(--low)}
+.pill.gr{background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.3);color:var(--green)}
+.timeline{position:relative;padding-left:2rem;margin:1.5rem 0}
+.timeline::before{content:"";position:absolute;left:.5rem;top:0;bottom:0;width:1px;background:var(--border)}
+.tl-item{position:relative;margin-bottom:1.5rem}
+.tl-item::before{content:"";position:absolute;left:-1.65rem;top:.4rem;width:10px;height:10px;border-radius:50%;background:var(--purple);border:2px solid var(--bg);box-shadow:0 0 6px var(--purple)}
+.tl-time{font-size:.68rem;font-family:"Space Mono",monospace;color:var(--purple3);margin-bottom:.2rem}
+.tl-title{font-size:.88rem;font-weight:600;color:var(--text);margin-bottom:.2rem}
+.tl-desc{font-size:.8rem;color:var(--muted)}
+.callout{padding:1rem 1.25rem;border-radius:8px;margin:1.25rem 0;font-size:.85rem;line-height:1.6}
+.callout.warn{background:rgba(244,63,94,.08);border:1px solid rgba(244,63,94,.25);border-left:3px solid var(--critical);color:#fda4af}
+.callout.info{background:rgba(168,85,247,.08);border:1px solid rgba(168,85,247,.25);border-left:3px solid var(--purple);color:#ddd6fe}
+.callout.ok{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-left:3px solid var(--green);color:#86efac}
+.callout strong{display:block;margin-bottom:.25rem;font-size:.78rem;text-transform:uppercase;letter-spacing:.06em}
+.rule-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:.75rem;margin:1rem 0}
+.rule-card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:.85rem 1rem}
+.rule-card .rid{font-family:"Space Mono",monospace;font-size:.65rem;color:var(--purple3);margin-bottom:.25rem}
+.rule-card .rdesc{font-size:.75rem;color:var(--muted);line-height:1.4}
+footer{text-align:center;padding:2rem;color:var(--muted);font-size:.72rem;border-top:1px solid var(--border);margin-top:3rem}
+footer a{color:var(--purple3);text-decoration:none}
+footer a:hover{text-decoration:underline}
+@media(max-width:640px){.wrap{padding:1.5rem 1rem}.rule-grid{grid-template-columns:1fr}.ttbl{font-size:.72rem}.stat-row{gap:.5rem}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a class="logo-wrap" href="/">
+    <svg class="logo-svg" viewBox="0 0 80 88" fill="none">
+      <path d="M40 2 L78 16 L78 52 Q78 76 40 86 Q2 76 2 52 L2 16 Z" fill="#7c3aed" stroke="#a855f7" stroke-width="1.5"/>
+      <ellipse cx="40" cy="52" rx="14" ry="9" fill="none" stroke="#ec4899" stroke-width="1.8"/>
+      <circle cx="40" cy="52" r="5" fill="#ec4899"/>
+      <circle cx="40" cy="52" r="2" fill="#fff"/>
+    </svg>
+    <span class="logo-name">SOC <span>Log Analyzer</span></span>
+  </a>
+  <a class="nav-link" href="/">Back to Dashboard</a>
+</header>
+
+<div class="wrap">
+  <div class="doc-hero">
+    <div class="doc-badge">Security Technical Writeup</div>
+    <h1>SOC Log Analyzer<br><span class="gr">Threat Detection Engine</span></h1>
+    <p style="color:var(--muted);max-width:600px;margin:.75rem auto 0;font-size:.9rem">A comprehensive security analysis tool built to detect, classify, and escalate threats across SSH authentication logs, Apache web server logs, and Windows Event logs in real time.</p>
+    <div class="doc-meta">
+      <span>Version 1.0.0</span><span>29 Detection Rules</span><span>3 Log Formats</span><span>89 Tests</span><span>Zero Dependencies</span>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">01</div><div class="section-title">Project Overview</div></div>
+    <p>SOC Log Analyzer is a pure Python security tool designed for Security Operations Center analysts to rapidly triage log files and surface active threats. The tool processes raw log data from multiple sources and applies a rule-based detection engine to identify attack patterns including brute-force attempts, injection attacks, privilege escalation, and post-exploitation activity.</p>
+    <div class="callout info"><strong>Design Philosophy</strong>Zero external dependencies. The entire tool runs on Python standard library, making it deployable on any system without package conflicts or installation issues.</div>
+    <div class="stat-row">
+      <div class="pill cr">CRITICAL Detection</div><div class="pill hi">HIGH Severity Rules</div><div class="pill me">MEDIUM Indicators</div><div class="pill gr">Zero Dependencies</div><div class="pill lo">CI/CD Ready</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">02</div><div class="section-title">System Architecture</div></div>
+    <p>The system is built as a pipeline with five stages. Each stage has a single responsibility and passes structured data to the next.</p>
+    <div class="code">Detection Pipeline
+Log File
+  parser.py      # Auto-detect format, parse to dicts
+  rules.py       # Apply 29 rules, produce SecurityEvents
+  geoip.py       # Enrich IPs with country/city (optional)
+  alerting.py    # POST to Slack/webhook (optional)
+  formatters.py  # pretty / JSON / CSV / Markdown output</div>
+    <div class="card"><h3>parser.py — Log Ingestion</h3><p>Handles three distinct log formats through auto-detection. Peeks at the first 20 lines to classify the format, then runs the appropriate parser. Each parser extracts structured fields while tolerating malformed lines.</p></div>
+    <div class="card"><h3>rules.py — Detection Engine</h3><p>Each of the 29 rule functions receives a record dictionary and returns either a SecurityEvent or None. Rules are pure functions with no side effects, making them independently testable. After all rules fire, a brute-force escalation pass promotes events from HIGH to CRITICAL when a source IP exceeds the hit threshold.</p></div>
+    <div class="card"><h3>watcher.py — Live Tail Engine</h3><p>Uses stdlib polling for cross-platform compatibility. Detects log rotation by monitoring file inodes — when the inode changes the watcher reopens the file automatically without losing any lines.</p></div>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">03</div><div class="section-title">Threat Detection Coverage</div></div>
+    <h2>SSH Authentication Threats</h2>
+    <table class="ttbl">
+      <thead><tr><th>Rule ID</th><th>Description</th><th>MITRE Tactic</th><th>Severity</th></tr></thead>
+      <tbody>
+        <tr><td>ssh_failed_login</td><td>Failed password authentication</td><td>Credential Access</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>ssh_invalid_user</td><td>Login attempt for non-existent user</td><td>Reconnaissance</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>ssh_root_login</td><td>Authentication attempt as root</td><td>Privilege Escalation</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>ssh_accepted_password</td><td>Successful password authentication</td><td>Initial Access</td><td><span class="sev lo">LOW</span></td></tr>
+        <tr><td>sudo_to_root</td><td>Sudo privilege escalation to root</td><td>Privilege Escalation</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>ssh_repeated_failures</td><td>Syslog repeated failure pattern</td><td>Brute Force</td><td><span class="sev cr">CRITICAL</span></td></tr>
+      </tbody>
+    </table>
+    <h2>Web Application Threats</h2>
+    <table class="ttbl">
+      <thead><tr><th>Rule ID</th><th>Description</th><th>MITRE Tactic</th><th>Severity</th></tr></thead>
+      <tbody>
+        <tr><td>web_lfi_passwd</td><td>/etc/passwd in request path</td><td>Credential Access</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_path_traversal</td><td>Directory traversal pattern</td><td>Discovery</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_sqli</td><td>SQL injection payload in URL</td><td>Collection</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_xss</td><td>Cross-site scripting payload</td><td>Execution</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_scanner</td><td>Known scanner User-Agent (nikto, sqlmap)</td><td>Reconnaissance</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>web_shell_cmd</td><td>Webshell command execution parameter</td><td>Execution</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_log4j</td><td>Log4Shell CVE-2021-44228 exploit</td><td>Initial Access</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>web_admin_scan</td><td>Admin panel probing (401/403/404)</td><td>Reconnaissance</td><td><span class="sev me">MEDIUM</span></td></tr>
+      </tbody>
+    </table>
+    <h2>Windows Event Log Threats</h2>
+    <table class="ttbl">
+      <thead><tr><th>Rule ID</th><th>Event ID</th><th>Description</th><th>Severity</th></tr></thead>
+      <tbody>
+        <tr><td>win_failed_logon</td><td>4625</td><td>Failed Windows logon attempt</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>win_account_lockout</td><td>4740</td><td>Account locked out after failures</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>win_net_user_add</td><td>4688</td><td>New local user via net user /add</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>win_add_to_admins</td><td>4688</td><td>User added to Administrators group</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>win_ps_encoded</td><td>4688</td><td>Encoded PowerShell (-EncodedCommand)</td><td><span class="sev hi">HIGH</span></td></tr>
+        <tr><td>win_registry_change</td><td>4657</td><td>Registry Run key modified (persistence)</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>win_log_cleared</td><td>1102</td><td>Security event log cleared</td><td><span class="sev cr">CRITICAL</span></td></tr>
+        <tr><td>win_wmi_exec</td><td>4688</td><td>WMI remote process execution</td><td><span class="sev hi">HIGH</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">04</div><div class="section-title">Real-World Attack Scenarios</div></div>
+    <h2>Scenario 1 — SSH Brute Force to Root Access</h2>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-time">02:14:01</div><div class="tl-title">Brute force begins</div><div class="tl-desc">185.220.101.45 sends rapid failed password attempts against root. Rule: ssh_failed_login at HIGH.</div></div>
+      <div class="tl-item"><div class="tl-time">02:14:07</div><div class="tl-title">Escalation triggered</div><div class="tl-desc">After 8 failures from same IP, brute-force escalation promotes all events to CRITICAL.</div></div>
+      <div class="tl-item"><div class="tl-time">05:30:00</div><div class="tl-title">Successful root login</div><div class="tl-desc">203.0.113.99 achieves successful password login as root.</div></div>
+    </div>
+    <div class="callout warn"><strong>Analyst Action Required</strong>Block 185.220.101.45 at firewall immediately. Audit all commands run by root after 05:30. Check for new cron jobs, SSH authorized_keys modifications, and new user accounts.</div>
+    <h2>Scenario 2 — Windows Privilege Escalation and Persistence</h2>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-time">01:05:00</div><div class="tl-title">Credential brute force</div><div class="tl-desc">185.220.101.45 attempts 6 rapid failed logons against administrator (Event 4625).</div></div>
+      <div class="tl-item"><div class="tl-time">01:10:00</div><div class="tl-title">Account lockout</div><div class="tl-desc">Administrator locked out (Event 4740). Brute force escalated to CRITICAL.</div></div>
+      <div class="tl-item"><div class="tl-time">01:15:00</div><div class="tl-title">Backdoor account created</div><div class="tl-desc">net user hacker /add and net localgroup administrators hacker /add executed.</div></div>
+      <div class="tl-item"><div class="tl-time">01:16:00</div><div class="tl-title">Registry persistence</div><div class="tl-desc">HKCU Run key modified to execute svchost32.exe on every login (Event 4657).</div></div>
+      <div class="tl-item"><div class="tl-time">01:18:00</div><div class="tl-title">Log cleared — cover-up</div><div class="tl-desc">Security event log cleared by CORP\hacker (Event 1102).</div></div>
+    </div>
+    <div class="callout warn"><strong>Incident Response Required</strong>Isolate CORP-PC-01 immediately. Attacker has SYSTEM-level persistence via registry Run key, a backdoor admin account, and has cleared the security log.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">05</div><div class="section-title">Test Coverage</div></div>
+    <p>89 tests across 12 test classes, all passing on Python 3.10, 3.11, and 3.12 in CI.</p>
+    <div class="rule-grid">
+      <div class="rule-card"><div class="rid">TestDetectLogType</div><div class="rdesc">Auto-detection of SSH, Apache, Windows formats</div></div>
+      <div class="rule-card"><div class="rid">TestSSHParser</div><div class="rdesc">Field extraction, IP parsing, timestamp parsing</div></div>
+      <div class="rule-card"><div class="rid">TestApacheParser</div><div class="rdesc">Combined log format, status codes, User-Agent</div></div>
+      <div class="rule-card"><div class="rid">TestWindowsParser</div><div class="rdesc">CSV parsing, Event ID extraction, timestamps</div></div>
+      <div class="rule-card"><div class="rid">TestSSHRules</div><div class="rdesc">All 7 SSH detection rules with escalation</div></div>
+      <div class="rule-card"><div class="rid">TestApacheRules</div><div class="rdesc">All 11 web attack rules including Log4Shell</div></div>
+      <div class="rule-card"><div class="rid">TestWindowsRules</div><div class="rdesc">All 9 Windows Event rules</div></div>
+      <div class="rule-card"><div class="rid">TestBruteForce</div><div class="rdesc">Threshold escalation at 5 and 100 hits</div></div>
+      <div class="rule-card"><div class="rid">TestFormatters</div><div class="rdesc">Pretty, JSON, CSV, Markdown validation</div></div>
+      <div class="rule-card"><div class="rid">TestWatcher</div><div class="rdesc">File tailing, rotation detection</div></div>
+      <div class="rule-card"><div class="rid">TestGeoIP</div><div class="rdesc">Private IP detection, caching, public lookup</div></div>
+      <div class="rule-card"><div class="rid">TestAlerting</div><div class="rdesc">Slack payload, webhook, failure handling</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label"><div class="section-num">06</div><div class="section-title">Usage Guide</div></div>
+    <h2>Command Line</h2>
+    <div class="code">soc-analyzer auth.log
+soc-analyzer auth.log apache.log windows.csv
+soc-analyzer auth.log -s CRITICAL
+soc-analyzer auth.log -f json -o report.json
+soc-analyzer /var/log/auth.log --watch --alert-webhook https://hooks.slack.com/...
+soc-analyzer apache.log --geo</div>
+    <div class="callout ok"><strong>Live Application</strong>The web dashboard is live at https://soc-log-analyzer-ejpx.onrender.com</div>
+    <h2>Supported Formats</h2>
+    <ul>
+      <li><strong>SSH auth logs</strong> — /var/log/auth.log, /var/log/secure</li>
+      <li><strong>Apache / Nginx</strong> — Combined Log Format access.log</li>
+      <li><strong>Windows Event Log</strong> — CSV export from Event Viewer</li>
+    </ul>
+  </div>
+</div>
+
+<footer>
+  Built by <a href="https://github.com/AlexPhilip01" target="_blank">AlexPhilip01</a> &nbsp;&middot;&nbsp;
+  <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank">View on GitHub</a> &nbsp;&middot;&nbsp;
+  <a href="/">Back to Dashboard</a>
+</footer>
+</body>
+</html>
