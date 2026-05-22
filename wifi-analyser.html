@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WiFi Analyser — Security Write-up | Alex Philip</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234a3fa0'/><text y='72' x='50' text-anchor='middle' font-size='58'>📡</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=JetBrains+Mono:wght@300;400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:    #0a0612;
+  --deep:   #110d22;
+  --void:   #1a1535;
+  --mid:    #2d2660;
+  --core:   #4a3fa0;
+  --vivid:  #7b6fd4;
+  --soft:   #b0a8e8;
+  --mist:   #dbd8f8;
+  --cream:  #f0eeff;
+  --gold:   #d4a853;
+  --goldm:  #f0c87a;
+  --serif:  'Playfair Display', Georgia, serif;
+  --mono:   'JetBrains Mono', monospace;
+  --sans:   'Outfit', sans-serif;
+}
+
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html { scroll-behavior:smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--soft);
+  font-family: var(--sans);
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* Animated background constellation */
+body::after {
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(1px 1px at 15% 25%, rgba(180,160,255,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 45% 60%, rgba(180,160,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 70% 15%, rgba(180,160,255,0.35) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 75%, rgba(180,160,255,0.25) 0%, transparent 100%),
+    radial-gradient(1px 1px at 30% 80%, rgba(180,160,255,0.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 90% 40%, rgba(212,168,83,0.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 55% 90%, rgba(180,160,255,0.2) 0%, transparent 100%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ═══════════════════════════════
+   NAVIGATION
+═══════════════════════════════ */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:999;
+  padding:20px 60px;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter: blur(20px);
+  background: rgba(10,6,18,0.7);
+  border-bottom: 1px solid rgba(123,111,212,0.1);
+}
+.nav-logo {
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--gold);
+  letter-spacing:2px;
+  text-transform:uppercase;
+}
+.nav-links { display:flex; gap:32px; }
+.nav-links a {
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--vivid);
+  text-decoration:none;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  opacity:0.7;
+  transition:opacity 0.2s, color 0.2s;
+}
+.nav-links a:hover { opacity:1; color:var(--soft); }
+
+/* ═══════════════════════════════
+   HERO
+═══════════════════════════════ */
+.hero {
+  position:relative;
+  min-height:100vh;
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  align-items:center;
+  padding:120px 60px 80px;
+  overflow:hidden;
+  z-index:1;
+}
+
+.hero-orb {
+  position:absolute;
+  border-radius:50%;
+  filter:blur(100px);
+  pointer-events:none;
+}
+.orb-a { width:600px;height:600px;background:rgba(74,63,160,0.3);top:-200px;right:-100px;animation:drift 12s ease-in-out infinite; }
+.orb-b { width:350px;height:350px;background:rgba(123,111,212,0.15);bottom:-100px;left:200px;animation:drift 9s ease-in-out infinite reverse; }
+.orb-c { width:200px;height:200px;background:rgba(212,168,83,0.1);top:40%;left:40%;animation:drift 15s ease-in-out infinite 3s; }
+@keyframes drift {
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(30px,-40px) scale(1.05);}
+  66%{transform:translate(-20px,20px) scale(0.97);}
+}
+
+/* Grid lines on hero */
+.hero::before {
+  content:'';
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(123,111,212,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(123,111,212,0.04) 1px, transparent 1px);
+  background-size:80px 80px;
+  pointer-events:none;
+}
+
+.hero-left { position:relative; z-index:2; }
+
+.hero-badge {
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:28px;
+  animation:slideIn 0.9s ease both;
+}
+.badge-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:var(--gold);
+  box-shadow:0 0 8px var(--gold);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+.hero h1 {
+  font-family:var(--serif);
+  font-size:clamp(56px,7vw,100px);
+  font-weight:900;
+  line-height:0.92;
+  color:var(--cream);
+  margin-bottom:6px;
+  animation:slideIn 0.9s 0.1s ease both;
+}
+.hero h1 span {
+  font-weight:400;
+  font-style:italic;
+  color:var(--vivid);
+  display:block;
+}
+
+.hero-sub {
+  font-family:var(--serif);
+  font-size:18px;
+  font-style:italic;
+  color:var(--vivid);
+  margin-bottom:28px;
+  animation:slideIn 0.9s 0.2s ease both;
+}
+
+.hero-desc {
+  font-size:15px;
+  line-height:1.9;
+  color:var(--soft);
+  max-width:500px;
+  margin-bottom:40px;
+  opacity:0.85;
+  animation:slideIn 0.9s 0.3s ease both;
+}
+
+.hero-pills {
+  display:flex;flex-wrap:wrap;gap:8px;
+  animation:slideIn 0.9s 0.4s ease both;
+}
+.pill {
+  font-family:var(--mono);
+  font-size:10px;
+  padding:5px 14px;
+  border:1px solid rgba(123,111,212,0.4);
+  border-radius:100px;
+  color:var(--vivid);
+  letter-spacing:0.5px;
+  background:rgba(74,63,160,0.1);
+  transition:all 0.25s;
+}
+.pill:hover{background:rgba(74,63,160,0.25);border-color:var(--vivid);color:var(--soft);}
+
+.hero-right {
+  position:relative;z-index:2;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* Circular diagram on hero */
+.hero-diagram {
+  position:relative;
+  width:360px;height:360px;
+  animation:slideIn 1s 0.5s ease both;
+}
+.diagram-ring {
+  position:absolute;
+  border-radius:50%;
+  border:1px solid rgba(123,111,212,0.15);
+}
+.ring-1{inset:0;animation:spin 40s linear infinite;}
+.ring-2{inset:30px;animation:spin 28s linear infinite reverse;}
+.ring-3{inset:60px;border-color:rgba(123,111,212,0.25);}
+.ring-4{inset:90px;border-color:rgba(212,168,83,0.2);}
+@keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+
+.diagram-center {
+  position:absolute;
+  top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  text-align:center;
+  z-index:2;
+}
+.diagram-center-icon {
+  font-size:40px;
+  display:block;
+  margin-bottom:8px;
+  filter:drop-shadow(0 0 20px rgba(123,111,212,0.5));
+}
+.diagram-center-label {
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--gold);
+  text-transform:uppercase;
+}
+
+/* Module dots on ring */
+.ring-node {
+  position:absolute;
+  width:80px;
+  text-align:center;
+  transform:translate(-50%,-50%);
+}
+.ring-node-dot {
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--vivid);
+  box-shadow:0 0 10px rgba(123,111,212,0.6);
+  margin:0 auto 5px;
+}
+.ring-node-label {
+  font-family:var(--mono);
+  font-size:9px;
+  color:var(--soft);
+  letter-spacing:0.5px;
+  line-height:1.3;
+}
+
+@keyframes slideIn{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+
+/* ═══════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════ */
+.section {
+  position:relative;z-index:1;
+  padding:100px 60px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.section-label {
+  display:flex;align-items:center;gap:16px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:3px;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:20px;
+}
+.section-label::after {
+  content:'';flex:1;height:1px;
+  background:linear-gradient(to right,rgba(212,168,83,0.3),transparent);
+}
+
+.section-title {
+  font-family:var(--serif);
+  font-size:clamp(36px,5vw,62px);
+  font-weight:700;
+  color:var(--cream);
+  line-height:1.05;
+  margin-bottom:16px;
+}
+.section-title em{font-style:italic;color:var(--vivid);}
+
+.section-intro {
+  font-size:16px;line-height:1.9;
+  color:var(--soft);opacity:0.8;
+  max-width:680px;
+  margin-bottom:60px;
+}
+
+/* Flow steps */
+.flow-steps {
+  display:grid;
+  grid-template-columns: repeat(3,1fr);
+  gap:1px;
+  background:rgba(123,111,212,0.1);
+  border:1px solid rgba(123,111,212,0.15);
+  border-radius:4px;
+  overflow:hidden;
+  margin-bottom:60px;
+}
+.flow-step {
+  background:var(--ink);
+  padding:36px 28px;
+  position:relative;
+  transition:background 0.3s;
+  overflow:hidden;
+}
+.flow-step::after {
+  content:'';
+  position:absolute;
+  bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(to right,var(--core),var(--vivid));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 0.4s ease;
+}
+.flow-step:hover{background:rgba(74,63,160,0.08);}
+.flow-step:hover::after{transform:scaleX(1);}
+
+.step-num {
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--core);
+  letter-spacing:2px;
+  margin-bottom:16px;
+  display:block;
+}
+.step-title {
+  font-family:var(--serif);
+  font-size:22px;
+  font-weight:700;
+  color:var(--mist);
+  margin-bottom:12px;
+}
+.step-body {
+  font-size:13px;line-height:1.8;
+  color:var(--vivid);
+  opacity:0.85;
+}
+.step-tech {
+  margin-top:18px;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--core);
+  background:rgba(74,63,160,0.15);
+  display:inline-block;
+  padding:4px 12px;
+  border-radius:2px;
+  border:1px solid rgba(74,63,160,0.3);
+}
+
+/* ═══════════════════════════════
+   ARCHITECTURE SECTION
+═══════════════════════════════ */
+.arch-section {
+  position:relative;z-index:1;
+  padding:0 60px 100px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+.arch-flow {
+  display:grid;
+  grid-template-columns:1fr 60px 1fr 60px 1fr;
+  align-items:center;
+  gap:0;
+  margin:40px 0;
+}
+.arch-box {
+  background:rgba(26,21,53,0.8);
+  border:1px solid rgba(123,111,212,0.2);
+  border-radius:4px;
+  padding:28px 24px;
+  text-align:center;
+  transition:border-color 0.3s,background 0.3s;
+}
+.arch-box:hover{
+  border-color:rgba(123,111,212,0.5);
+  background:rgba(74,63,160,0.1);
+}
+.arch-icon{font-size:28px;margin-bottom:10px;display:block;}
+.arch-name{
+  font-family:var(--sans);font-size:14px;font-weight:600;
+  color:var(--mist);margin-bottom:6px;
+}
+.arch-sub{
+  font-family:var(--mono);font-size:10px;
+  color:var(--core);line-height:1.6;
+}
+.arch-arrow{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:var(--mono);font-size:9px;color:var(--core);
+  letter-spacing:1px;text-transform:uppercase;
+}
+.arrow-line{
+  width:1px;height:40px;
+  background:linear-gradient(to bottom,transparent,var(--vivid),transparent);
+}
+.arrow-tip{color:var(--vivid);font-size:16px;line-height:1;}
+
+/* ═══════════════════════════════
+   SECURITY WRITE-UP
+═══════════════════════════════ */
+.writeup-section {
+  position:relative;z-index:1;
+  background:linear-gradient(180deg,var(--ink) 0%,var(--deep) 50%,var(--ink) 100%);
+  padding:100px 60px;
+}
+.writeup-inner{max-width:1200px;margin:0 auto;}
+
+.writeup-grid {
+  display:grid;
+  grid-template-columns:340px 1fr;
+  gap:60px;
+  margin-top:60px;
+}
+.writeup-sidebar {
+  position:sticky;
+  top:100px;
+  align-self:start;
+}
+.ws-chapter {
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:2px;color:var(--gold);
+  text-transform:uppercase;margin-bottom:8px;
+}
+.ws-heading {
+  font-family:var(--serif);font-size:32px;font-weight:700;
+  color:var(--cream);line-height:1.15;margin-bottom:20px;
+}
+.ws-heading em{font-style:italic;color:var(--vivid);}
+
+.ws-meta {
+  border-top:1px solid rgba(123,111,212,0.2);
+  padding-top:20px;
+  margin-top:20px;
+}
+.ws-meta-row{
+  display:flex;justify-content:space-between;
+  font-family:var(--mono);font-size:11px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(123,111,212,0.08);
+}
+.ws-meta-key{color:var(--core);}
+.ws-meta-val{color:var(--soft);}
+
+.writeup-body { }
+.wb-block {
+  margin-bottom:40px;
+  padding-bottom:40px;
+  border-bottom:1px solid rgba(123,111,212,0.1);
+}
+.wb-block:last-child{border-bottom:none;}
+
+.wb-title {
+  font-family:var(--serif);font-size:24px;font-weight:700;
+  color:var(--mist);margin-bottom:14px;
+  display:flex;align-items:center;gap:12px;
+}
+.wb-title-num{
+  font-family:var(--mono);font-size:11px;
+  color:var(--gold);letter-spacing:1px;
+  background:rgba(212,168,83,0.08);
+  border:1px solid rgba(212,168,83,0.2);
+  padding:3px 10px;border-radius:2px;
+}
+.wb-text {
+  font-size:14px;line-height:1.95;
+  color:var(--soft);opacity:0.85;
+  margin-bottom:16px;
+}
+
+/* Code snippet */
+.code-snippet {
+  background:#070411;
+  border:1px solid rgba(123,111,212,0.2);
+  border-left:3px solid var(--vivid);
+  border-radius:4px;
+  padding:20px 24px;
+  margin:16px 0;
+  overflow-x:auto;
+}
+.code-snippet pre {
+  font-family:var(--mono);font-size:12px;
+  line-height:1.8;color:var(--soft);
+}
+.ck{color:var(--vivid);}
+.cs{color:var(--goldm);}
+.cc{color:rgba(123,111,212,0.5);font-style:italic;}
+.cf{color:var(--mist);}
+.cn{color:var(--gold);}
+
+/* Findings grid */
+.findings-grid {
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:12px;margin:20px 0;
+}
+.finding-card{
+  border:1px solid rgba(123,111,212,0.15);
+  border-radius:4px;padding:18px;
+  position:relative;overflow:hidden;
+  transition:transform 0.2s;
+}
+.finding-card:hover{transform:translateY(-2px);}
+.finding-card.critical{border-left:3px solid #e24b4a;background:rgba(226,75,74,0.04);}
+.finding-card.high{border-left:3px solid var(--gold);background:rgba(212,168,83,0.04);}
+.finding-card.medium{border-left:3px solid var(--vivid);background:rgba(123,111,212,0.05);}
+.finding-card.low{border-left:3px solid #639922;background:rgba(99,153,34,0.04);}
+
+.finding-sev{
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:1.5px;text-transform:uppercase;
+  margin-bottom:8px;display:flex;align-items:center;gap:8px;
+}
+.finding-card.critical .finding-sev{color:#e24b4a;}
+.finding-card.high .finding-sev{color:var(--gold);}
+.finding-card.medium .finding-sev{color:var(--vivid);}
+.finding-card.low .finding-sev{color:#639922;}
+
+.sev-dot{
+  width:7px;height:7px;border-radius:50%;display:inline-block;
+}
+.finding-card.critical .sev-dot{background:#e24b4a;box-shadow:0 0 6px rgba(226,75,74,0.6);}
+.finding-card.high .sev-dot{background:var(--gold);box-shadow:0 0 6px rgba(212,168,83,0.5);}
+.finding-card.medium .sev-dot{background:var(--vivid);box-shadow:0 0 6px rgba(123,111,212,0.5);}
+.finding-card.low .sev-dot{background:#639922;box-shadow:0 0 6px rgba(99,153,34,0.4);}
+
+.finding-name{
+  font-family:var(--sans);font-size:14px;font-weight:600;
+  color:var(--mist);margin-bottom:8px;
+}
+.finding-desc{
+  font-size:12px;line-height:1.7;
+  color:var(--vivid);opacity:0.85;
+}
+
+/* Pull quote */
+.pull-quote {
+  margin:32px 0;
+  padding:24px 32px;
+  border-left:2px solid var(--vivid);
+  background:rgba(74,63,160,0.06);
+  border-radius:0 4px 4px 0;
+}
+.pull-quote p {
+  font-family:var(--serif);
+  font-size:20px;font-style:italic;
+  color:var(--mist);line-height:1.5;
+}
+.pull-quote cite{
+  display:block;margin-top:10px;
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:1.5px;color:var(--core);
+  text-transform:uppercase;
+}
+
+/* SOC table */
+.soc-table{
+  width:100%;border-collapse:collapse;margin:16px 0;
+  font-size:13px;
+}
+.soc-table th{
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--core);padding:10px 16px;
+  text-align:left;
+  border-bottom:1px solid rgba(123,111,212,0.2);
+}
+.soc-table td{
+  padding:12px 16px;
+  border-bottom:1px solid rgba(123,111,212,0.07);
+  color:var(--soft);vertical-align:top;
+}
+.soc-table tr:last-child td{border-bottom:none;}
+.soc-table tr:hover td{background:rgba(74,63,160,0.05);}
+.soc-table td:first-child{
+  font-family:var(--mono);font-size:11px;
+  color:var(--vivid);white-space:nowrap;width:220px;
+}
+
+/* ═══════════════════════════════
+   STATS BAND
+═══════════════════════════════ */
+.stats-band {
+  position:relative;z-index:1;
+  padding:0 60px;
+  max-width:1200px;margin:0 auto;
+  margin-bottom:80px;
+}
+.stats-inner {
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;
+  background:rgba(123,111,212,0.15);
+  border:1px solid rgba(123,111,212,0.2);
+  border-radius:4px;overflow:hidden;
+}
+.stat-box{
+  background:var(--ink);
+  padding:36px 28px;text-align:center;
+  transition:background 0.3s;
+}
+.stat-box:hover{background:rgba(74,63,160,0.08);}
+.stat-n{
+  font-family:var(--serif);
+  font-size:56px;font-weight:900;
+  color:var(--vivid);line-height:1;
+  margin-bottom:8px;
+}
+.stat-l{
+  font-family:var(--mono);font-size:10px;
+  letter-spacing:2px;text-transform:uppercase;
+  color:var(--core);
+}
+
+/* ═══════════════════════════════
+   FOOTER
+═══════════════════════════════ */
+footer {
+  position:relative;z-index:1;
+  border-top:1px solid rgba(123,111,212,0.15);
+  padding:60px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+  align-items:center;
+  max-width:1200px;margin:0 auto;
+}
+.footer-author{display:flex;align-items:center;gap:20px;}
+.fa-avatar{
+  width:56px;height:56px;border-radius:50%;
+  background:linear-gradient(135deg,var(--core),var(--void));
+  border:1px solid rgba(123,111,212,0.4);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:20px;font-weight:700;
+  color:var(--mist);flex-shrink:0;
+}
+.fa-name{
+  font-family:var(--sans);font-size:16px;font-weight:600;
+  color:var(--cream);margin-bottom:4px;
+}
+.fa-creds{
+  font-family:var(--mono);font-size:10px;
+  color:var(--core);line-height:1.7;letter-spacing:0.5px;
+}
+.footer-links{
+  display:flex;flex-direction:column;gap:6px;align-items:flex-end;
+}
+.footer-links a{
+  font-family:var(--mono);font-size:11px;
+  color:var(--core);text-decoration:none;letter-spacing:1px;
+  transition:color 0.2s;
+}
+.footer-links a:hover{color:var(--soft);}
+
+/* ═══════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════ */
+.reveal{
+  opacity:0;transform:translateY(28px);
+  transition:opacity 0.8s ease,transform 0.8s ease;
+}
+.reveal.on{opacity:1;transform:translateY(0);}
+
+@media(max-width:900px){
+  nav{padding:16px 24px;}
+  .hero{grid-template-columns:1fr;padding:100px 24px 60px;}
+  .hero-right{display:none;}
+  .section,.arch-section,.stats-band{padding-left:24px;padding-right:24px;}
+  .writeup-section{padding:60px 24px;}
+  .flow-steps{grid-template-columns:1fr;}
+  .arch-flow{grid-template-columns:1fr;gap:12px;}
+  .arch-arrow{display:none;}
+  .writeup-grid{grid-template-columns:1fr;gap:40px;}
+  .writeup-sidebar{position:static;}
+  .findings-grid{grid-template-columns:1fr;}
+  .stats-inner{grid-template-columns:1fr 1fr;}
+  footer{grid-template-columns:1fr;padding:40px 24px;}
+  .footer-links{align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">AP / WiFi Analyser</div>
+  <div class="nav-links">
+    <a href="#how">How it works</a>
+    <a href="#writeup">Write-up</a>
+    <a href="#findings">Findings</a>
+    <a href="https://github.com/AlexPhilip01/wifi-analyser" target="_blank">GitHub</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb orb-a"></div>
+  <div class="hero-orb orb-b"></div>
+  <div class="hero-orb orb-c"></div>
+
+  <div class="hero-left">
+    <div class="hero-badge"><div class="badge-dot"></div>Security Project — Portfolio Write-up</div>
+    <h1>WiFi<span>Analyser</span></h1>
+    <p class="hero-sub">Network Intelligence &amp; Security Assessment Tool</p>
+    <p class="hero-desc">
+      A locally-hosted web application that discovers every device on your subnet, analyses nearby WiFi networks, tests latency, scans ports, and automatically flags security vulnerabilities — all from a single browser dashboard.
+    </p>
+    <div class="hero-pills">
+      <span class="pill">Python 3</span>
+      <span class="pill">Flask REST API</span>
+      <span class="pill">Scapy ARP</span>
+      <span class="pill">TCP Port Scan</span>
+      <span class="pill">macOS App</span>
+      <span class="pill">Render Hosted</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-diagram">
+      <div class="diagram-ring ring-1"></div>
+      <div class="diagram-ring ring-2"></div>
+      <div class="diagram-ring ring-3"></div>
+      <div class="diagram-ring ring-4"></div>
+
+      <div class="diagram-center">
+        <span class="diagram-center-icon">📡</span>
+        <span class="diagram-center-label">Analyser</span>
+      </div>
+
+      <!-- Ring nodes positioned by JS -->
+      <div class="ring-node" style="top:5%;left:50%;">
+        <div class="ring-node-dot"></div>
+        <div class="ring-node-label">ARP Scan</div>
+      </div>
+      <div class="ring-node" style="top:28%;left:96%;">
+        <div class="ring-node-dot"></div>
+        <div class="ring-node-label">WiFi<br>Networks</div>
+      </div>
+      <div class="ring-node" style="top:75%;left:88%;">
+        <div class="ring-node-dot" style="background:var(--gold);box-shadow:0 0 10px rgba(212,168,83,0.5);"></div>
+        <div class="ring-node-label">Port<br>Scan</div>
+      </div>
+      <div class="ring-node" style="top:90%;left:30%;">
+        <div class="ring-node-dot"></div>
+        <div class="ring-node-label">Ping<br>Test</div>
+      </div>
+      <div class="ring-node" style="top:50%;left:0%;">
+        <div class="ring-node-dot" style="background:var(--gold);box-shadow:0 0 10px rgba(212,168,83,0.5);"></div>
+        <div class="ring-node-label">Security<br>Flags</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAND -->
+<div class="stats-band reveal">
+  <div class="stats-inner">
+    <div class="stat-box"><div class="stat-n">6</div><div class="stat-l">Scan modules</div></div>
+    <div class="stat-box"><div class="stat-n">10</div><div class="stat-l">Ports checked</div></div>
+    <div class="stat-box"><div class="stat-n">/24</div><div class="stat-l">Default range</div></div>
+    <div class="stat-box"><div class="stat-n">1</div><div class="stat-l">Click deploy</div></div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="section" id="how">
+  <div class="section-label reveal">01 — How it works</div>
+  <h2 class="section-title reveal">From one click to<br><em>full network visibility</em></h2>
+  <p class="section-intro reveal">
+    You set a CIDR range, click Full Scan, and the tool runs all six modules in sequence — device discovery, WiFi enumeration, latency testing, port scanning, security analysis, and export — updating the live dashboard as results arrive.
+  </p>
+
+  <div class="flow-steps reveal">
+    <div class="flow-step">
+      <span class="step-num">STEP 01 —</span>
+      <div class="step-title">Set your target range</div>
+      <div class="step-body">Enter a CIDR notation subnet (e.g. 192.168.1.0/24). The tool validates the range, calculates the number of usable host addresses, and confirms it is ready to scan. You can target a /24 home network or a larger /20 enterprise subnet.</div>
+      <span class="step-tech">ipaddress.IPv4Network</span>
+    </div>
+    <div class="flow-step">
+      <span class="step-num">STEP 02 —</span>
+      <div class="step-title">ARP broadcast — find every device</div>
+      <div class="step-body">Scapy crafts raw Ethernet frames with ARP payloads and broadcasts them across the subnet. Every live device must reply with its MAC address to maintain network connectivity — meaning even firewalled devices are discovered. Results include IP, MAC, and hostname.</div>
+      <span class="step-tech">scapy srp() / ARP</span>
+    </div>
+    <div class="flow-step">
+      <span class="step-num">STEP 03 —</span>
+      <div class="step-title">WiFi enumeration and signal strength</div>
+      <div class="step-body">The tool calls OS-native WiFi scanning commands — nmcli on Linux, the airport utility on macOS — and parses the output. Every visible SSID is listed with signal strength as a percentage, encryption type (WPA2, WPA3, Open), and channel number.</div>
+      <span class="step-tech">subprocess / nmcli / airport</span>
+    </div>
+    <div class="flow-step">
+      <span class="step-num">STEP 04 —</span>
+      <div class="step-title">Parallel ping latency test</div>
+      <div class="step-body">Each discovered device is pinged using Python's threading module — all hosts are tested simultaneously, not sequentially. This reduces total scan time from minutes to seconds. Average RTT is reported in milliseconds, along with online/offline status per device.</div>
+      <span class="step-tech">threading + subprocess ping</span>
+    </div>
+    <div class="flow-step">
+      <span class="step-num">STEP 05 —</span>
+      <div class="step-title">TCP connect port scan</div>
+      <div class="step-body">For each discovered device, the tool attempts a TCP three-way handshake on ten common service ports using Python's socket library. A successful connection means the port is open. No nmap is required — this is portable across any Python environment without root for the scan itself.</div>
+      <span class="step-tech">socket.connect_ex()</span>
+    </div>
+    <div class="flow-step">
+      <span class="step-num">STEP 06 —</span>
+      <div class="step-title">Auto-flag and export</div>
+      <div class="step-body">Results are cross-referenced against a set of security rules — insecure ports, open WiFi, exposed databases. Findings appear in a dedicated panel. The full dataset — devices, ping, ports — is merged and available as a downloadable CSV spreadsheet for further analysis or SIEM ingestion.</div>
+      <span class="step-tech">rule engine + csv export</span>
+    </div>
+  </div>
+</section>
+
+<!-- ARCHITECTURE -->
+<section class="arch-section" id="arch">
+  <div class="section-label reveal">02 — Architecture</div>
+  <h2 class="section-title reveal">Flask REST API +<br><em>vanilla JS dashboard</em></h2>
+  <p class="section-intro reveal">
+    Clean client-server separation. All computation runs on the Python backend. The JavaScript layer is purely presentational — it calls the API, renders results, and handles downloads.
+  </p>
+
+  <div class="arch-flow reveal">
+    <div class="arch-box">
+      <span class="arch-icon">🌐</span>
+      <div class="arch-name">Browser</div>
+      <div class="arch-sub">Dashboard UI<br>Vanilla JS<br>fetch() API calls<br>CSV blob download</div>
+    </div>
+    <div class="arch-arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-tip">↕</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--core);letter-spacing:1px;text-align:center;">HTTP<br>REST</div>
+    </div>
+    <div class="arch-box">
+      <span class="arch-icon">⚙️</span>
+      <div class="arch-name">Flask App</div>
+      <div class="arch-sub">6 REST endpoints<br>Threading<br>Result merging<br>CSV generation</div>
+    </div>
+    <div class="arch-arrow">
+      <div class="arrow-line"></div>
+      <div class="arrow-tip">↕</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--core);letter-spacing:1px;text-align:center;">RAW<br>PACKETS</div>
+    </div>
+    <div class="arch-box">
+      <span class="arch-icon">📶</span>
+      <div class="arch-name">Network Layer</div>
+      <div class="arch-sub">ARP / Scapy<br>ICMP ping<br>TCP sockets<br>nmcli / iwlist</div>
+    </div>
+  </div>
+</section>
+
+<!-- SECURITY WRITE-UP -->
+<div class="writeup-section" id="writeup">
+  <div class="writeup-inner">
+    <div class="section-label reveal">03 — Security write-up</div>
+    <h2 class="section-title reveal">Technical <em>security analysis</em></h2>
+
+    <div class="writeup-grid">
+      <div class="writeup-sidebar reveal">
+        <div class="ws-chapter">Project details</div>
+        <div class="ws-heading">WiFi <em>Analyser</em><br>v1.0</div>
+        <div class="ws-meta">
+          <div class="ws-meta-row"><span class="ws-meta-key">Author</span><span class="ws-meta-val">Alex Philip</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Credential</span><span class="ws-meta-val">MSc InfoSec, RHUL</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Certs</span><span class="ws-meta-val">Security+ / CySA+</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Platform</span><span class="ws-meta-val">macOS / Linux</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Backend</span><span class="ws-meta-val">Python 3, Flask</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Hosted</span><span class="ws-meta-val">Render.com</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Source</span><span class="ws-meta-val">GitHub / AlexPhilip01</span></div>
+          <div class="ws-meta-row"><span class="ws-meta-key">Licence</span><span class="ws-meta-val">MIT — Authorised use only</span></div>
+        </div>
+      </div>
+
+      <div class="writeup-body reveal">
+
+        <div class="wb-block">
+          <div class="wb-title"><span class="wb-title-num">01</span> What this tool does and why</div>
+          <p class="wb-text">WiFi Analyser is a network reconnaissance and visibility tool built for authorised network assessment. In a SOC context, maintaining an accurate inventory of devices on your subnet, knowing which ports are exposed, and identifying insecure protocols are baseline requirements that precede any meaningful threat detection work.</p>
+          <p class="wb-text">The tool fills the gap between heavyweight enterprise scanners and raw command-line utilities — it provides structured, exportable output through a browser interface without requiring a commercial licence or cloud dependency.</p>
+        </div>
+
+        <div class="wb-block">
+          <div class="wb-title"><span class="wb-title-num">02</span> ARP scanning — why not ping sweep</div>
+          <p class="wb-text">The tool uses ARP scanning rather than ICMP ping sweeps for device discovery. Many devices — particularly IoT hardware, mobile phones, and printers — block ICMP at the host firewall level. ARP operates at Layer 2 and cannot be blocked by a host-level firewall: any device that has communicated on the subnet must respond to ARP requests to maintain IP-to-MAC binding.</p>
+          <div class="code-snippet">
+<pre><span class="cc"># Layer 2 ARP broadcast — finds firewalled devices</span>
+<span class="ck">arp_request</span> = <span class="cf">ARP</span>(pdst=<span class="cs">"192.168.1.0/24"</span>)
+<span class="ck">broadcast</span>   = <span class="cf">Ether</span>(dst=<span class="cs">"ff:ff:ff:ff:ff:ff"</span>)
+<span class="ck">answered</span>, _ = <span class="cf">srp</span>(broadcast / arp_request, timeout=<span class="cn">2</span>)
+
+<span class="ck">for</span> sent, received <span class="ck">in</span> answered:
+    ip  = received.psrc   <span class="cc"># IP from ARP reply</span>
+    mac = received.hwsrc  <span class="cc"># MAC from Ethernet frame</span></pre>
+          </div>
+          <p class="wb-text">Sudo/root privileges are required because raw Ethernet frame crafting operates below the OS networking stack. This is expected and documented — the tool clearly states this requirement.</p>
+        </div>
+
+        <div class="wb-block">
+          <div class="wb-title"><span class="wb-title-num">03</span> TCP connect scan — design rationale</div>
+          <p class="wb-text">The port scanner uses TCP connect scanning — a full three-way handshake — rather than SYN stealth scanning. This is a deliberate ethical choice: SYN scanning is designed to evade detection and is inappropriate for an authorised audit tool. TCP connect scanning is noisier but more honest, and it accurately represents what an attacker with a standard foothold would find.</p>
+          <p class="wb-text">All hosts are scanned in parallel using Python's threading module, reducing total scan time from O(hosts × ports × timeout) to O(ports × timeout). A threading lock protects the shared results list from race conditions.</p>
+          <div class="code-snippet">
+<pre><span class="cc"># Parallel scan — one thread per host</span>
+<span class="ck">def</span> <span class="cf">scan_ports</span>(ip, ports):
+    <span class="ck">for</span> port <span class="ck">in</span> ports:
+        sock = <span class="cf">socket</span>(<span class="cf">AF_INET</span>, <span class="cf">SOCK_STREAM</span>)
+        sock.<span class="cf">settimeout</span>(<span class="cn">0.5</span>)
+        <span class="ck">if</span> sock.<span class="cf">connect_ex</span>((ip, port)) == <span class="cn">0</span>:
+            open_ports.<span class="cf">append</span>(port)  <span class="cc"># port is open</span></pre>
+          </div>
+        </div>
+
+        <div class="wb-block" id="findings">
+          <div class="wb-title"><span class="wb-title-num">04</span> Security findings and severity classification</div>
+          <p class="wb-text">The tool auto-classifies findings by severity and surfaces them in a dedicated panel. The rules mirror the logic used in enterprise SIEM alerting systems like Splunk and Microsoft Sentinel.</p>
+
+          <div class="findings-grid">
+            <div class="finding-card critical">
+              <div class="finding-sev"><span class="sev-dot"></span>Critical — Port 23</div>
+              <div class="finding-name">Telnet service exposed</div>
+              <div class="finding-desc">Transmits all data including credentials in plaintext over the network. Any device on the same subnet can passively intercept sessions. No legitimate use case on a modern network.</div>
+            </div>
+            <div class="finding-card high">
+              <div class="finding-sev"><span class="sev-dot"></span>High — Port 21</div>
+              <div class="finding-name">FTP service exposed</div>
+              <div class="finding-desc">Like Telnet, FTP sends credentials unencrypted. Vulnerable to both passive sniffing and active MITM. Should be replaced with SFTP (port 22) or FTPS.</div>
+            </div>
+            <div class="finding-card high">
+              <div class="finding-sev"><span class="sev-dot"></span>High — Open WiFi</div>
+              <div class="finding-name">Unencrypted SSID detected</div>
+              <div class="finding-desc">An SSID with no WPA2/WPA3 encryption allows any nearby device to join the network and intercept all unencrypted traffic. Should require at minimum WPA2-PSK.</div>
+            </div>
+            <div class="finding-card medium">
+              <div class="finding-sev"><span class="sev-dot"></span>Medium — Port 3306</div>
+              <div class="finding-name">MySQL exposed on network</div>
+              <div class="finding-desc">A MySQL port visible to the subnet means the database accepts connections from all hosts, not just the application server. Should be bound to localhost or tunnelled via SSH.</div>
+            </div>
+            <div class="finding-card low">
+              <div class="finding-sev"><span class="sev-dot"></span>Info — Port 22</div>
+              <div class="finding-name">SSH service (expected)</div>
+              <div class="finding-desc">SSH is encrypted and its presence is expected on servers and network devices. No flag is raised, but fail2ban and key-based authentication are recommended.</div>
+            </div>
+            <div class="finding-card low">
+              <div class="finding-sev"><span class="sev-dot"></span>Info — Unknown hostname</div>
+              <div class="finding-name">Unidentified device on subnet</div>
+              <div class="finding-desc">Devices where reverse-DNS returns "Unknown" may be unregistered, IoT, or rogue. Cross-referencing MAC vendor OUI prefixes helps classify them.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="wb-block">
+          <div class="wb-title"><span class="wb-title-num">05</span> Relevance to SOC analyst work</div>
+          <p class="wb-text">The skills demonstrated here map directly to day-one SOC analyst tasks. Network asset inventory — knowing exactly which devices exist and what services they expose — is a prerequisite for anomaly detection in any SIEM environment.</p>
+
+          <table class="soc-table">
+            <thead><tr><th>Tool feature</th><th>SOC / industry equivalent</th></tr></thead>
+            <tbody>
+              <tr><td>ARP device discovery</td><td>Asset inventory, CMDB update, NAC baseline</td></tr>
+              <tr><td>Port scan + service detection</td><td>Vulnerability scanning (Nessus, Qualys, Rapid7)</td></tr>
+              <tr><td>Security flag rule engine</td><td>SIEM detection rule authoring (SPL, KQL, Sigma)</td></tr>
+              <tr><td>CSV export</td><td>Log ingestion, SIEM correlation, evidence packaging</td></tr>
+              <tr><td>Latency monitoring</td><td>Network performance baselining, NPM tools</td></tr>
+              <tr><td>WiFi SSID enumeration</td><td>Rogue AP detection, wireless IDS</td></tr>
+            </tbody>
+          </table>
+
+          <div class="pull-quote">
+            <p>"Visibility is the foundation of security. You cannot protect what you cannot see — and this tool exists to make the invisible visible."</p>
+            <cite>— Alex Philip, MSc Information Security, Royal Holloway</cite>
+          </div>
+        </div>
+
+        <div class="wb-block">
+          <div class="wb-title"><span class="wb-title-num">06</span> Ethical and legal boundaries</div>
+          <p class="wb-text">This tool is designed exclusively for use on networks the operator owns or has explicit written authorisation to test. Unauthorised network scanning is a criminal offence under the Computer Misuse Act 1990 (UK), the Computer Fraud and Abuse Act (USA), and the Information Technology Act 2000 (India).</p>
+          <p class="wb-text">The tool deliberately omits features that would lower the bar for misuse: there is no SYN stealth scanning, no OS fingerprinting, no vulnerability exploitation, and no credential harvesting. Every scan it performs leaves clear traces in network logs — it is a visibility tool, not an attack framework.</p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-author">
+    <div class="fa-avatar">AP</div>
+    <div>
+      <div class="fa-name">Alex Philip</div>
+      <div class="fa-creds">
+        MSc Information Security — Royal Holloway, NCSC/GCHQ accredited<br>
+        CompTIA Security+ &nbsp;|&nbsp; CompTIA CySA+<br>
+        Cyber Crime Forensics Intern &nbsp;|&nbsp; SOC Analyst candidate
+      </div>
+    </div>
+  </div>
+  <div class="footer-links">
+    <a href="https://github.com/AlexPhilip01" target="_blank">github.com/AlexPhilip01</a>
+    <a href="https://linkedin.com/in/alexphilip170803" target="_blank">linkedin.com/in/alexphilip170803</a>
+    <a href="https://github.com/AlexPhilip01/wifi-analyser" target="_blank">View source code</a>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting){ e.target.classList.add('on'); io.unobserve(e.target); }});
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+// Staggered flow steps
+document.querySelectorAll('.flow-step').forEach((el,i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  el.style.transition = `opacity 0.6s ${i*0.08}s ease, transform 0.6s ${i*0.08}s ease`;
+});
+const stepObs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      e.target.querySelectorAll('.flow-step').forEach(s => {
+        s.style.opacity='1'; s.style.transform='translateY(0)';
+      });
+      stepObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.1});
+document.querySelectorAll('.flow-steps').forEach(el => stepObs.observe(el));
+</script>
+</body>
+</html>
