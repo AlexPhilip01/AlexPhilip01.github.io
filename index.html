@@ -162,8 +162,8 @@
   .nav-drawer a.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
 
   /* DINO GAME */
-  #dino-game { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); image-rendering: pixelated; background: transparent; }
-  @media (max-width: 900px) { #dino-game { display: none; } }
+  #dino-game { filter: drop-shadow(0 0 28px rgba(168,85,247,0.35)); image-rendering: pixelated; background: transparent; }
+  @media (max-width: 1100px) { #dino-game { display: none; } }
 
   /*  HERO  */
   #hero {
@@ -920,7 +920,7 @@
       <a href="CV.pdf" target="_blank" class="btn-ghost">Download CV</a>
     </div>
   </div>
-  <canvas id="dino-game" width="320" height="160" aria-label="Dino game — press space or tap to jump" style="position:absolute;right:0;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.95;border:1px solid rgba(168,85,247,0.2);border-radius:8px;"></canvas>
+  <canvas id="dino-game" width="560" height="280" aria-label="Dino game — press space or tap to jump" style="position:absolute;right:0;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.95;border:1px solid rgba(168,85,247,0.25);border-radius:10px;"></canvas>
 </section>
 
 <div class="divider"></div>
@@ -1589,8 +1589,8 @@ document.addEventListener('click', () => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
-    const SCALE = 2;
-    const GROUND_Y = H - 24;
+    const SCALE = 3;
+    const GROUND_Y = H - 28;
     const ACC = 0.5 * SCALE;
     const JUMP_VEL = -10.5 * SCALE;
     const C1 = '#a855f7';
