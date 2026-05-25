@@ -1584,256 +1584,236 @@ document.addEventListener('click', () => {
   resize(); initNodes(); draw();
 
   // DINO GAME
-  (function(){
-    const c = document.getElementById('dino-game');
-    if(!c) return;
-    const ctx = c.getContext('2d');
-    const W = c.width, H = c.height;
-    const GY = H - 20; // ground y
-    const S = 3; // pixel scale
-    const AC = '#a855f7', BC = '#c084fc', DIM = 'rgba(168,85,247,0.15)';
+  (function() {
+    const canvas = document.getElementById('dino-game');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const SCALE = 2;
+    const GROUND_Y = H - 24;
+    const ACC = 0.5 * SCALE;
+    const JUMP_VEL = -10.5 * SCALE;
+    const C1 = '#a855f7';
+    const C2 = '#c084fc';
+    const DARK = '#07050a';
 
-    // --- PIXEL ART ---
-    // Dino body (relative pixels, S=3px each)
-    // Format: [col, row] from top-left of bounding box
-    const DINO_BODY = [
-      [4,0],[5,0],[6,0],[7,0],[8,0],
-      [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],
-      [2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
-      [2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
-      [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
-      [3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
-      [2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
-      [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
-      [2,8],[3,8],[4,8],[5,8],[6,8],
+    // ── T-REX pixel art (12×13 grid, each cell = SCALE px) ──
+    // 1 = body, 2 = eye
+    const TREX_BODY = [
+      [0,0,0,0,0,1,1,1,1,1,0,0],
+      [0,0,0,0,0,1,1,1,1,1,1,0],
+      [0,0,0,0,0,1,1,2,1,1,1,0],
+      [0,0,0,0,0,1,1,1,0,0,0,0],
+      [0,0,0,0,1,1,1,1,0,0,0,0],
+      [1,1,0,0,1,1,1,1,1,1,0,0],
+      [1,1,1,1,1,1,1,1,1,1,0,0],
+      [1,1,1,1,1,1,1,1,1,0,0,0],
+      [0,1,1,1,1,1,1,1,0,0,0,0],
+      [0,0,1,1,1,1,0,0,0,0,0,0],
+      [0,0,1,1,0,1,0,0,0,0,0,0],
+      [0,0,1,1,0,0,0,0,0,0,0,0],
+      [0,0,1,0,0,0,0,0,0,0,0,0],
     ];
-    const EYE = [[7,1]]; // white eye pixel
-    // Legs (alternating frames)
-    const LEGS_A = [[3,9],[4,9],[6,10],[7,10],[3,10],[4,10]];
-    const LEGS_B = [[3,9],[7,9],[6,9],[3,10],[4,10],[6,10]];
 
-    // Cactus shapes - small, medium, large
-    const CACTUS_S = [
-      [1,0],[1,1],[0,2],[1,2],[2,2],[1,3],[1,4],[1,5],[1,6]
+    // Leg frames: [left leg, right leg] positions (row offsets from bottom of body)
+    const LEGS = [
+      // frame 0: left forward, right back
+      [[2,10],[2,11],[2,12],[3,12],  [5,10],[5,11]],
+      // frame 1: right forward, left back
+      [[2,10],[2,11],                [5,10],[5,11],[5,12],[4,12]],
     ];
-    const CACTUS_M = [
-      [1,0],[1,1],[0,2],[1,2],[2,2],[3,2],[1,3],[2,3],[1,4],[1,5],[1,6],[1,7],[1,8]
+
+    // Cactus pixel art variants
+    const CACTUS_A = [
+      [0,1,0],
+      [1,1,0],
+      [1,1,1],
+      [0,1,1],
+      [0,1,0],
+      [0,1,0],
+      [0,1,0],
+      [0,1,0],
+      [0,1,0],
     ];
-    const CACTUS_L = [
-      [2,0],[2,1],[1,2],[2,2],[3,2],[4,2],[2,3],[3,3],[2,4],[2,5],[2,6],[2,7],[2,8],[1,4],[0,4],[0,5],[0,6]
+    const CACTUS_B = [
+      [0,1,0,0,0],
+      [0,1,0,1,0],
+      [1,1,1,1,0],
+      [0,1,1,1,1],
+      [0,0,1,0,1],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
     ];
-    const CACTI = [CACTUS_S, CACTUS_M, CACTUS_L];
 
-    // Pterodactyl (2 frames)
-    const PTERO_A = [[2,0],[3,0],[1,1],[2,1],[3,1],[4,1],[5,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[2,3],[3,3]];
-    const PTERO_B = [[2,2],[3,2],[1,1],[2,1],[3,1],[4,1],[5,1],[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[2,3],[3,3]];
+    // Small cloud
+    const CLOUD = [
+      [0,1,1,0,0],
+      [1,1,1,1,0],
+      [1,1,1,1,1],
+      [0,1,1,1,0],
+    ];
 
-    // Cloud pixels
-    const CLOUD_PX = [[2,0],[3,0],[1,1],[2,1],[3,1],[4,1],[5,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3]];
-
-    function drawPx(pixels, ox, oy, ps, color) {
-      ctx.fillStyle = color;
-      for(const [x,y] of pixels) ctx.fillRect(ox+x*ps, oy+y*ps, ps, ps);
+    function drawGrid(grid, ox, oy, scale, c1, c2) {
+      for (let r = 0; r < grid.length; r++) {
+        for (let cc = 0; cc < grid[r].length; cc++) {
+          const v = grid[r][cc];
+          if (!v) continue;
+          ctx.fillStyle = v === 2 ? (c2 || c1) : c1;
+          ctx.fillRect(ox + cc * scale, oy + r * scale, scale, scale);
+        }
+      }
     }
 
-    // --- STATE ---
-    let state = 'idle'; // idle, running, dead
-    let dino, obs, clouds, pteros, score, hiScore, speed, nextObs, nextPtero, frame, frameTick, tick;
-
-    function init() {
-      dino = { y: GY - 12*S, vy: 0, grounded: true };
-      obs = [];
-      clouds = [
-        {x: 220, y: 25, w: 7},
-        {x: 100, y: 40, w: 5},
-      ];
-      pteros = [];
-      score = 0;
-      speed = 3;
-      nextObs = 50 + Math.random()*40|0;
-      nextPtero = 200 + Math.random()*300|0;
-      frame = 0; frameTick = 0; tick = 0;
-    }
-    init();
+    // State
+    let dino, obstacles, clouds, score, speed, gameOver, started, tick, nextObs, hiScore;
     hiScore = 0;
 
+    function init() {
+      dino = { x: 24, y: GROUND_Y - 13 * SCALE, vy: 0, jumping: false, frame: 0, ftick: 0 };
+      obstacles = [];
+      clouds = [{ x: 300, y: 20 }, { x: 180, y: 35 }, { x: 80, y: 15 }];
+      score = 0; speed = 3; gameOver = false; started = false; tick = 0; nextObs = 100;
+    }
+
     function jump() {
-      if(state === 'idle') { state = 'running'; return; }
-      if(state === 'dead') { state = 'running'; init(); return; }
-      if(dino.grounded) {
-        dino.vy = -8.5;
-        dino.grounded = false;
+      if (!started) { started = true; return; }
+      if (gameOver) { if (score > hiScore) hiScore = score; init(); started = true; return; }
+      if (!dino.jumping && dino.y >= GROUND_Y - 13 * SCALE - 2) {
+        dino.vy = JUMP_VEL;
+        dino.jumping = true;
       }
     }
 
     // Input
-    c.addEventListener('click', jump);
-    c.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, {passive:false});
-    document.addEventListener('keydown', e => {
-      if(e.code === 'Space' || e.code === 'ArrowUp') {
-        const r = c.getBoundingClientRect();
-        if(r.top < window.innerHeight && r.bottom > 0) { e.preventDefault(); jump(); }
+    canvas.addEventListener('click', jump);
+    canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, { passive: false });
+    window.addEventListener('keydown', e => {
+      if (e.code === 'Space' || e.code === 'ArrowUp') {
+        const r = canvas.getBoundingClientRect();
+        if (r.top < window.innerHeight + 200 && r.bottom > -200) {
+          e.preventDefault(); jump();
+        }
       }
     });
 
     function update() {
-      if(state !== 'running') return;
+      if (!started || gameOver) return;
       tick++;
       score++;
-      speed = Math.min(10, 3 + score/600);
-      if(score > hiScore) hiScore = score;
+      speed = Math.min(9, 3 + score / 500);
+
+      // gravity
+      dino.vy += ACC;
+      dino.y += dino.vy;
+      const floor = GROUND_Y - 13 * SCALE;
+      if (dino.y >= floor) { dino.y = floor; dino.vy = 0; dino.jumping = false; }
 
       // leg animation
-      frameTick++;
-      if(frameTick > 6) { frame = 1-frame; frameTick = 0; }
-
-      // dino gravity
-      if(!dino.grounded) {
-        dino.vy += 0.5;
-        dino.y += dino.vy;
-        if(dino.y >= GY - 12*S) {
-          dino.y = GY - 12*S;
-          dino.vy = 0;
-          dino.grounded = true;
-        }
+      if (!dino.jumping) {
+        dino.ftick++;
+        if (dino.ftick > Math.max(4, 9 - speed)) { dino.frame ^= 1; dino.ftick = 0; }
       }
 
-      // spawn cactus
-      if(--nextObs <= 0) {
-        const shape = CACTI[Math.floor(Math.random()*CACTI.length)];
-        obs.push({ x: W+10, shape, type:'cactus' });
-        nextObs = (50 + Math.random()*70 + score/300)|0;
+      // spawn obstacles
+      if (--nextObs <= 0) {
+        const type = Math.random() < 0.5 ? 'A' : 'B';
+        obstacles.push({ x: W + 8, type });
+        nextObs = 55 + Math.random() * 60 - speed * 4;
+        if (nextObs < 35) nextObs = 35;
       }
-
-      // spawn ptero (after score 200)
-      if(score > 200 && --nextPtero <= 0) {
-        pteros.push({ x: W+10, y: GY - (40 + Math.random()*40|0), f:0, ft:0 });
-        nextPtero = (150 + Math.random()*200)|0;
-      }
-
-      // move obstacles
-      for(const o of obs) o.x -= speed;
-      obs = obs.filter(o => o.x > -30);
-
-      for(const p of pteros) {
-        p.x -= speed * 0.85;
-        p.ft++;
-        if(p.ft > 8) { p.f = 1-p.f; p.ft = 0; }
-      }
-      pteros = pteros.filter(p => p.x > -40);
-
-      // clouds parallax
-      for(const cl of clouds) { cl.x -= 0.5; if(cl.x < -60) cl.x = W + 20; }
-
-      // collision
-      const dx = 20, dw = 9*S, dh = 12*S;
-      const dinoLeft = 20+dx, dinoRight = 20+dx+dw-4, dinoTop = dino.y+4, dinoBot = dino.y+dh;
-
-      for(const o of obs) {
-        const cols = o.shape.map(([x,y])=>x), rows = o.shape.map(([x,y])=>y);
-        const ow = (Math.max(...cols)+1)*S, oh = (Math.max(...rows)+1)*S;
-        const oLeft = o.x+2, oRight = o.x+ow-2, oTop = GY-oh+4, oBot = GY;
-        if(dinoRight > oLeft && dinoLeft < oRight && dinoBot > oTop && dinoTop < oBot) {
-          state = 'dead';
-        }
-      }
-      for(const p of pteros) {
-        const pRight = p.x+7*S, pLeft = p.x+1*S, pTop = p.y+1*S, pBot = p.y+4*S;
-        if(dinoRight > pLeft && dinoLeft < pRight && dinoBot > pTop && dinoTop < pBot) {
-          state = 'dead';
-        }
-      }
-    }
-
-    function drawScore() {
-      ctx.fillStyle = AC;
-      ctx.font = `${S*4}px "DM Mono",monospace`;
-      ctx.textAlign = 'right';
-      const sc = String(Math.floor(score/3)).padStart(5,'0');
-      if(hiScore > 0) {
-        ctx.fillStyle = DIM.replace('0.15','0.5');
-        ctx.fillText('HI ' + String(Math.floor(hiScore/3)).padStart(5,'0'), W-80, 16);
-      }
-      ctx.fillStyle = AC;
-      ctx.fillText(sc, W-8, 16);
-      ctx.textAlign = 'left';
-    }
-
-    function drawGround() {
-      ctx.fillStyle = AC;
-      ctx.fillRect(0, GY, W, 2);
-      // pebbles
-      ctx.fillStyle = DIM.replace('0.15','0.25');
-      for(let x=(tick*speed%20)|0; x<W; x+=20) ctx.fillRect(x, GY+3, 3+Math.random()*2|0, 1);
-      for(let x=(tick*speed%37+8)|0; x<W; x+=37) ctx.fillRect(x, GY+6, 2, 1);
-    }
-
-    function render() {
-      ctx.clearRect(0,0,W,H);
+      for (const o of obstacles) o.x -= speed;
+      obstacles = obstacles.filter(o => o.x > -30);
 
       // clouds
-      for(const cl of clouds) drawPx(CLOUD_PX, cl.x|0, cl.y, S*0.7|0, DIM);
+      for (const cl of clouds) { cl.x -= 0.5; if (cl.x < -40) { cl.x = W + 20; cl.y = 10 + Math.random() * 35; } }
 
-      drawGround();
-      drawScore();
-
-      // dino
-      const DX = 20, DY = dino.y|0;
-      drawPx(DINO_BODY, DX, DY, S, AC);
-      drawPx(EYE, DX, DY, S, '#07050a');
-      if(state !== 'dead') {
-        drawPx(dino.grounded ? (frame===0 ? LEGS_A : LEGS_B) : [[3,9],[4,9]], DX, DY, S, AC);
-      } else {
-        // dead dino - X eyes
-        ctx.fillStyle = '#07050a';
-        ctx.fillRect(DX+7*S, DY+1*S, S, S);
-        ctx.fillStyle = AC;
-        // draw X
-        ctx.fillRect(DX+6*S, DY, S, S);
-        ctx.fillRect(DX+8*S, DY, S, S);
-        ctx.fillRect(DX+7*S, DY+S, S, S);
-        ctx.fillRect(DX+6*S, DY+2*S, S, S);
-        ctx.fillRect(DX+8*S, DY+2*S, S, S);
-        drawPx(LEGS_A, DX, DY, S, AC);
+      // collision — dino bounding box
+      const dx = dino.x + SCALE * 1, dy = dino.y + SCALE * 1;
+      const dw = SCALE * 9, dh = SCALE * 11;
+      for (const o of obstacles) {
+        const og = o.type === 'A' ? CACTUS_A : CACTUS_B;
+        const ow = og[0].length * SCALE * 1.5, oh = og.length * SCALE * 1.5;
+        const ox2 = o.x + SCALE, oy2 = GROUND_Y - oh;
+        if (dx + dw > ox2 + 2 && dx < ox2 + ow - 2 && dy + dh > oy2 + 2 && dy < oy2 + oh - 2) {
+          gameOver = true;
+        }
       }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // ground line
+      ctx.fillStyle = C1;
+      ctx.fillRect(0, GROUND_Y, W, 1);
+      // ground dots scrolling
+      ctx.fillStyle = 'rgba(168,85,247,0.2)';
+      for (let x = W - (tick * speed % 12 | 0); x < W; x += 12) ctx.fillRect(x % W, GROUND_Y + 2, 3, 1);
+      for (let x = W - (tick * speed % 20 | 0); x < W; x += 20) ctx.fillRect(x % W, GROUND_Y + 5, 2, 1);
+
+      // clouds
+      for (const cl of clouds) drawGrid(CLOUD, cl.x, cl.y, SCALE * 1.5, 'rgba(168,85,247,0.15)');
 
       // obstacles
-      for(const o of obs) {
-        const rows = o.shape.map(([x,y])=>y);
-        const oh = (Math.max(...rows)+1)*S;
-        drawPx(o.shape, o.x|0, GY-oh, S, BC);
+      for (const o of obstacles) {
+        const og = o.type === 'A' ? CACTUS_A : CACTUS_B;
+        const oh = og.length * SCALE * 1.5;
+        drawGrid(og, o.x, GROUND_Y - oh, SCALE * 1.5, C2);
       }
 
-      // pterodactyls
-      for(const p of pteros) {
-        drawPx(p.f===0 ? PTERO_A : PTERO_B, p.x|0, p.y|0, S, BC);
+      // dino body
+      drawGrid(TREX_BODY, dino.x, dino.y, SCALE, C1, DARK);
+
+      // legs
+      if (!dino.jumping) {
+        const legPixels = LEGS[dino.frame];
+        ctx.fillStyle = C1;
+        for (const [lc, lr] of legPixels) {
+          ctx.fillRect(dino.x + lc * SCALE, dino.y + lr * SCALE, SCALE, SCALE);
+        }
+      } else {
+        // both legs tucked in jump
+        ctx.fillStyle = C1;
+        for (const [lc, lr] of [[2,10],[2,11],[5,10],[5,11]]) {
+          ctx.fillRect(dino.x + lc * SCALE, dino.y + lr * SCALE, SCALE, SCALE);
+        }
       }
 
-      // messages
-      if(state === 'idle') {
-        ctx.fillStyle = AC;
-        ctx.font = `${S*3.5}px "DM Mono",monospace`;
+      // score
+      ctx.fillStyle = C2;
+      ctx.font = `${SCALE * 5}px "DM Mono", monospace`;
+      ctx.textAlign = 'right';
+      if (hiScore > 0) {
+        ctx.fillStyle = 'rgba(192,132,252,0.4)';
+        ctx.fillText('HI ' + String(Math.floor(hiScore / 5)).padStart(5, '0'), W - 70, 18);
+      }
+      ctx.fillStyle = C2;
+      ctx.fillText(String(Math.floor(score / 5)).padStart(5, '0'), W - 10, 18);
+      ctx.textAlign = 'left';
+
+      // prompts
+      if (!started) {
+        ctx.fillStyle = C1;
+        ctx.font = `${SCALE * 5}px "DM Mono", monospace`;
         ctx.textAlign = 'center';
-        ctx.fillText('press space / click to start', W/2, H/2+10);
+        ctx.fillText('press space / click to play', W / 2, H / 2 + 4);
         ctx.textAlign = 'left';
       }
-      if(state === 'dead') {
-        ctx.fillStyle = AC;
-        ctx.font = `${S*4}px "DM Mono",monospace`;
+      if (gameOver) {
+        ctx.fillStyle = C1;
+        ctx.font = `${SCALE * 6}px "DM Mono", monospace`;
         ctx.textAlign = 'center';
-        ctx.fillText('G A M E  O V E R', W/2, H/2);
-        ctx.font = `${S*3}px "DM Mono",monospace`;
-        ctx.fillStyle = BC;
-        ctx.fillText('click or space to restart', W/2, H/2 + 18);
+        ctx.fillText('GAME OVER', W / 2, H / 2 - 6);
+        ctx.fillStyle = C2;
+        ctx.font = `${SCALE * 4.5}px "DM Mono", monospace`;
+        ctx.fillText('click or space to restart', W / 2, H / 2 + 14);
         ctx.textAlign = 'left';
       }
     }
 
-    function loop() {
-      update();
-      render();
-      requestAnimationFrame(loop);
-    }
+    init();
+    function loop() { update(); draw(); requestAnimationFrame(loop); }
     loop();
   })();
 })();
