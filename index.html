@@ -162,7 +162,7 @@
   .nav-drawer a.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
 
   /* DINO GAME */
-  #dino-game { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); image-rendering: pixelated; }
+  #dino-game { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); image-rendering: pixelated; background: transparent; }
   @media (max-width: 900px) { #dino-game { display: none; } }
 
   /*  HERO  */
@@ -920,7 +920,7 @@
       <a href="CV.pdf" target="_blank" class="btn-ghost">Download CV</a>
     </div>
   </div>
-  <canvas id="dino-game" width="300" height="180" aria-label="Dino game — press space or tap to jump" style="position:absolute;right:0;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.95;border:1px solid rgba(168,85,247,0.2);border-radius:8px;"></canvas>
+  <canvas id="dino-game" width="320" height="160" aria-label="Dino game — press space or tap to jump" style="position:absolute;right:0;top:50%;transform:translateY(-50%);cursor:pointer;opacity:0.95;border:1px solid rgba(168,85,247,0.2);border-radius:8px;"></canvas>
 </section>
 
 <div class="divider"></div>
@@ -1584,183 +1584,256 @@ document.addEventListener('click', () => {
   resize(); initNodes(); draw();
 
   // DINO GAME
-  (function() {
-    const canvas = document.getElementById('dino-game');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    const GROUND = H - 30;
-    const PX = 1; // pixel size
-    const C1 = '#a855f7'; // purple
-    const C2 = '#c084fc'; // lighter purple
-    const BG = 'rgba(7,5,10,0)';
+  (function(){
+    const c = document.getElementById('dino-game');
+    if(!c) return;
+    const ctx = c.getContext('2d');
+    const W = c.width, H = c.height;
+    const GY = H - 20; // ground y
+    const S = 3; // pixel scale
+    const AC = '#a855f7', BC = '#c084fc', DIM = 'rgba(168,85,247,0.15)';
 
-    // Dino pixel art (running frames)
-    const DINO = [
-      // frame 0 - right leg forward
-      [          [4,0],[5,0],[6,0],[7,0],[8,0],
-        [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],
-        [3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
-        [3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
-        [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
-        [2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],
-        [1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
-        [1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
-        [1,8],[2,8],[3,8],[4,8],[5,8],[6,8],
-        [2,9],[3,9],[4,9],[5,9],
-        [3,10],[4,10],[5,10],[6,10],[7,10],
-        [3,11],[6,11],[7,11],
-        [3,12],[6,12],[7,12],
-      ],
-      // frame 1 - left leg forward
-      [          [4,0],[5,0],[6,0],[7,0],[8,0],
-        [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],
-        [3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
-        [3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
-        [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
-        [2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],
-        [1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
-        [1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
-        [1,8],[2,8],[3,8],[4,8],[5,8],[6,8],
-        [2,9],[3,9],[4,9],[5,9],
-        [3,10],[4,10],[5,10],[6,10],[7,10],
-        [3,11],[4,11],[7,12],
-        [3,12],[4,12],
-      ],
+    // --- PIXEL ART ---
+    // Dino body (relative pixels, S=3px each)
+    // Format: [col, row] from top-left of bounding box
+    const DINO_BODY = [
+      [4,0],[5,0],[6,0],[7,0],[8,0],
+      [3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],
+      [2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
+      [2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
+      [3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
+      [3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
+      [2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
+      [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
+      [2,8],[3,8],[4,8],[5,8],[6,8],
     ];
+    const EYE = [[7,1]]; // white eye pixel
+    // Legs (alternating frames)
+    const LEGS_A = [[3,9],[4,9],[6,10],[7,10],[3,10],[4,10]];
+    const LEGS_B = [[3,9],[7,9],[6,9],[3,10],[4,10],[6,10]];
 
-    // Cactus shapes
-    const CACTI = [
-      [[1,0],[1,1],[0,2],[1,2],[2,2],[1,3],[1,4],[0,5],[1,5],[2,5],[1,6],[1,7],[1,8]],
-      [[1,0],[1,1],[2,1],[0,2],[1,2],[2,2],[3,2],[1,3],[2,3],[1,4],[1,5],[1,6],[1,7]],
+    // Cactus shapes - small, medium, large
+    const CACTUS_S = [
+      [1,0],[1,1],[0,2],[1,2],[2,2],[1,3],[1,4],[1,5],[1,6]
     ];
+    const CACTUS_M = [
+      [1,0],[1,1],[0,2],[1,2],[2,2],[3,2],[1,3],[2,3],[1,4],[1,5],[1,6],[1,7],[1,8]
+    ];
+    const CACTUS_L = [
+      [2,0],[2,1],[1,2],[2,2],[3,2],[4,2],[2,3],[3,3],[2,4],[2,5],[2,6],[2,7],[2,8],[1,4],[0,4],[0,5],[0,6]
+    ];
+    const CACTI = [CACTUS_S, CACTUS_M, CACTUS_L];
+
+    // Pterodactyl (2 frames)
+    const PTERO_A = [[2,0],[3,0],[1,1],[2,1],[3,1],[4,1],[5,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[2,3],[3,3]];
+    const PTERO_B = [[2,2],[3,2],[1,1],[2,1],[3,1],[4,1],[5,1],[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[2,3],[3,3]];
 
     // Cloud pixels
-    const CLOUD = [[2,0],[3,0],[1,1],[2,1],[3,1],[4,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3]];
+    const CLOUD_PX = [[2,0],[3,0],[1,1],[2,1],[3,1],[4,1],[5,1],[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3]];
 
-    let dino = { x:20, y:GROUND-52, vy:0, jumping:false, frame:0, frameTimer:0 };
-    let obstacles = [];
-    let clouds = [{x:220,y:30},{x:140,y:50}];
-    let speed = 2.5;
-    let score = 0;
-    let gameOver = false;
-    let started = false;
-    let tick = 0;
-    let nextObs = 80;
-
-    function drawPixels(pixels, ox, oy, size, color) {
+    function drawPx(pixels, ox, oy, ps, color) {
       ctx.fillStyle = color;
-      for (const [px,py] of pixels) {
-        ctx.fillRect(ox + px*size, oy + py*size, size, size);
-      }
+      for(const [x,y] of pixels) ctx.fillRect(ox+x*ps, oy+y*ps, ps, ps);
     }
+
+    // --- STATE ---
+    let state = 'idle'; // idle, running, dead
+    let dino, obs, clouds, pteros, score, hiScore, speed, nextObs, nextPtero, frame, frameTick, tick;
+
+    function init() {
+      dino = { y: GY - 12*S, vy: 0, grounded: true };
+      obs = [];
+      clouds = [
+        {x: 220, y: 25, w: 7},
+        {x: 100, y: 40, w: 5},
+      ];
+      pteros = [];
+      score = 0;
+      speed = 3;
+      nextObs = 50 + Math.random()*40|0;
+      nextPtero = 200 + Math.random()*300|0;
+      frame = 0; frameTick = 0; tick = 0;
+    }
+    init();
+    hiScore = 0;
 
     function jump() {
-      if (!started) { started = true; return; }
-      if (gameOver) { reset(); return; }
-      if (!dino.jumping) { dino.vy = -7; dino.jumping = true; }
+      if(state === 'idle') { state = 'running'; return; }
+      if(state === 'dead') { state = 'running'; init(); return; }
+      if(dino.grounded) {
+        dino.vy = -8.5;
+        dino.grounded = false;
+      }
     }
 
-    function reset() {
-      dino = { x:20, y:GROUND-52, vy:0, jumping:false, frame:0, frameTimer:0 };
-      obstacles = []; speed = 2.5; score = 0; gameOver = false; started = true; tick = 0; nextObs = 80;
-    }
-
-    canvas.addEventListener('click', jump);
-    canvas.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, {passive:false});
-    document.addEventListener('keydown', e => { if (e.code === 'Space' && document.activeElement !== document.body || e.code === 'Space') { const rect = canvas.getBoundingClientRect(); if (rect.top < window.innerHeight && rect.bottom > 0) { e.preventDefault(); jump(); } } });
-
-    function drawGround() {
-      ctx.fillStyle = C1;
-      ctx.fillRect(0, GROUND, W, 2);
-      // ground texture dots
-      ctx.fillStyle = 'rgba(168,85,247,0.3)';
-      for (let x = (tick*speed%8|0); x < W; x += 8) ctx.fillRect(x, GROUND+2, 2, 1);
-    }
+    // Input
+    c.addEventListener('click', jump);
+    c.addEventListener('touchstart', e => { e.preventDefault(); jump(); }, {passive:false});
+    document.addEventListener('keydown', e => {
+      if(e.code === 'Space' || e.code === 'ArrowUp') {
+        const r = c.getBoundingClientRect();
+        if(r.top < window.innerHeight && r.bottom > 0) { e.preventDefault(); jump(); }
+      }
+    });
 
     function update() {
-      if (!started || gameOver) return;
+      if(state !== 'running') return;
       tick++;
       score++;
-      speed = 2.5 + score/800;
+      speed = Math.min(10, 3 + score/600);
+      if(score > hiScore) hiScore = score;
 
-      // dino physics
-      if (dino.jumping) {
-        dino.vy += 0.4;
+      // leg animation
+      frameTick++;
+      if(frameTick > 6) { frame = 1-frame; frameTick = 0; }
+
+      // dino gravity
+      if(!dino.grounded) {
+        dino.vy += 0.5;
         dino.y += dino.vy;
-        if (dino.y >= GROUND-52) { dino.y = GROUND-52; dino.jumping = false; dino.vy = 0; }
+        if(dino.y >= GY - 12*S) {
+          dino.y = GY - 12*S;
+          dino.vy = 0;
+          dino.grounded = true;
+        }
       }
 
-      // animate legs
-      dino.frameTimer++;
-      if (dino.frameTimer > 8) { dino.frame = 1 - dino.frame; dino.frameTimer = 0; }
-
-      // obstacles
-      nextObs--;
-      if (nextObs <= 0) {
-        obstacles.push({ x: W+10, shape: CACTI[Math.random()<0.5?0:1] });
-        nextObs = 60 + Math.random()*50;
+      // spawn cactus
+      if(--nextObs <= 0) {
+        const shape = CACTI[Math.floor(Math.random()*CACTI.length)];
+        obs.push({ x: W+10, shape, type:'cactus' });
+        nextObs = (50 + Math.random()*70 + score/300)|0;
       }
-      for (const ob of obstacles) ob.x -= speed;
-      obstacles = obstacles.filter(o => o.x > -20);
 
-      // clouds
-      for (const cl of clouds) { cl.x -= 0.4; if (cl.x < -50) cl.x = W+10; }
+      // spawn ptero (after score 200)
+      if(score > 200 && --nextPtero <= 0) {
+        pteros.push({ x: W+10, y: GY - (40 + Math.random()*40|0), f:0, ft:0 });
+        nextPtero = (150 + Math.random()*200)|0;
+      }
 
-      // collision (simple box)
-      for (const ob of obstacles) {
-        if (dino.x+8 > ob.x+2 && dino.x+2 < ob.x+14 && dino.y+8 > GROUND-60 && dino.y+40 > GROUND-40) {
-          gameOver = true;
+      // move obstacles
+      for(const o of obs) o.x -= speed;
+      obs = obs.filter(o => o.x > -30);
+
+      for(const p of pteros) {
+        p.x -= speed * 0.85;
+        p.ft++;
+        if(p.ft > 8) { p.f = 1-p.f; p.ft = 0; }
+      }
+      pteros = pteros.filter(p => p.x > -40);
+
+      // clouds parallax
+      for(const cl of clouds) { cl.x -= 0.5; if(cl.x < -60) cl.x = W + 20; }
+
+      // collision
+      const dx = 20, dw = 9*S, dh = 12*S;
+      const dinoLeft = 20+dx, dinoRight = 20+dx+dw-4, dinoTop = dino.y+4, dinoBot = dino.y+dh;
+
+      for(const o of obs) {
+        const cols = o.shape.map(([x,y])=>x), rows = o.shape.map(([x,y])=>y);
+        const ow = (Math.max(...cols)+1)*S, oh = (Math.max(...rows)+1)*S;
+        const oLeft = o.x+2, oRight = o.x+ow-2, oTop = GY-oh+4, oBot = GY;
+        if(dinoRight > oLeft && dinoLeft < oRight && dinoBot > oTop && dinoTop < oBot) {
+          state = 'dead';
+        }
+      }
+      for(const p of pteros) {
+        const pRight = p.x+7*S, pLeft = p.x+1*S, pTop = p.y+1*S, pBot = p.y+4*S;
+        if(dinoRight > pLeft && dinoLeft < pRight && dinoBot > pTop && dinoTop < pBot) {
+          state = 'dead';
         }
       }
     }
 
-    function draw() {
-      ctx.clearRect(0, 0, W, H);
+    function drawScore() {
+      ctx.fillStyle = AC;
+      ctx.font = `${S*4}px "DM Mono",monospace`;
+      ctx.textAlign = 'right';
+      const sc = String(Math.floor(score/3)).padStart(5,'0');
+      if(hiScore > 0) {
+        ctx.fillStyle = DIM.replace('0.15','0.5');
+        ctx.fillText('HI ' + String(Math.floor(hiScore/3)).padStart(5,'0'), W-80, 16);
+      }
+      ctx.fillStyle = AC;
+      ctx.fillText(sc, W-8, 16);
+      ctx.textAlign = 'left';
+    }
+
+    function drawGround() {
+      ctx.fillStyle = AC;
+      ctx.fillRect(0, GY, W, 2);
+      // pebbles
+      ctx.fillStyle = DIM.replace('0.15','0.25');
+      for(let x=(tick*speed%20)|0; x<W; x+=20) ctx.fillRect(x, GY+3, 3+Math.random()*2|0, 1);
+      for(let x=(tick*speed%37+8)|0; x<W; x+=37) ctx.fillRect(x, GY+6, 2, 1);
+    }
+
+    function render() {
+      ctx.clearRect(0,0,W,H);
 
       // clouds
-      ctx.fillStyle = 'rgba(168,85,247,0.15)';
-      for (const cl of clouds) drawPixels(CLOUD, cl.x, cl.y, PX*1.5, 'rgba(168,85,247,0.18)');
+      for(const cl of clouds) drawPx(CLOUD_PX, cl.x|0, cl.y, S*0.7|0, DIM);
 
       drawGround();
-
-      // score
-      ctx.fillStyle = C2;
-      ctx.font = '10px "DM Mono", monospace';
-      ctx.textAlign = 'right';
-      ctx.fillText(String(Math.floor(score/5)).padStart(5,'0'), W-8, 16);
-      ctx.textAlign = 'left';
+      drawScore();
 
       // dino
-      const frame = dino.jumping ? 0 : DINO[dino.frame];
-      drawPixels(frame, dino.x, dino.y, PX*2.5, C1);
-      // eye
-      ctx.fillStyle = '#07050a';
-      ctx.fillRect(dino.x + 8*2.5, dino.y + 1*2.5, 2, 2);
-
-      // obstacles
-      for (const ob of obstacles) drawPixels(ob.shape, ob.x, GROUND-ob.shape.reduce((m,p)=>Math.max(m,p[1]),0)*PX*3-10, PX*3, C2);
-
-      if (!started) {
-        ctx.fillStyle = C1;
-        ctx.font = '11px "DM Mono", monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText('press space or click to play', W/2, H/2);
-        ctx.textAlign = 'left';
+      const DX = 20, DY = dino.y|0;
+      drawPx(DINO_BODY, DX, DY, S, AC);
+      drawPx(EYE, DX, DY, S, '#07050a');
+      if(state !== 'dead') {
+        drawPx(dino.grounded ? (frame===0 ? LEGS_A : LEGS_B) : [[3,9],[4,9]], DX, DY, S, AC);
+      } else {
+        // dead dino - X eyes
+        ctx.fillStyle = '#07050a';
+        ctx.fillRect(DX+7*S, DY+1*S, S, S);
+        ctx.fillStyle = AC;
+        // draw X
+        ctx.fillRect(DX+6*S, DY, S, S);
+        ctx.fillRect(DX+8*S, DY, S, S);
+        ctx.fillRect(DX+7*S, DY+S, S, S);
+        ctx.fillRect(DX+6*S, DY+2*S, S, S);
+        ctx.fillRect(DX+8*S, DY+2*S, S, S);
+        drawPx(LEGS_A, DX, DY, S, AC);
       }
 
-      if (gameOver) {
-        ctx.fillStyle = C1;
-        ctx.font = '11px "DM Mono", monospace';
+      // obstacles
+      for(const o of obs) {
+        const rows = o.shape.map(([x,y])=>y);
+        const oh = (Math.max(...rows)+1)*S;
+        drawPx(o.shape, o.x|0, GY-oh, S, BC);
+      }
+
+      // pterodactyls
+      for(const p of pteros) {
+        drawPx(p.f===0 ? PTERO_A : PTERO_B, p.x|0, p.y|0, S, BC);
+      }
+
+      // messages
+      if(state === 'idle') {
+        ctx.fillStyle = AC;
+        ctx.font = `${S*3.5}px "DM Mono",monospace`;
         ctx.textAlign = 'center';
-        ctx.fillText('game over — click to restart', W/2, H/2-8);
-        ctx.fillStyle = C2;
-        ctx.fillText('score: ' + Math.floor(score/5), W/2, H/2+8);
+        ctx.fillText('press space / click to start', W/2, H/2+10);
+        ctx.textAlign = 'left';
+      }
+      if(state === 'dead') {
+        ctx.fillStyle = AC;
+        ctx.font = `${S*4}px "DM Mono",monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText('G A M E  O V E R', W/2, H/2);
+        ctx.font = `${S*3}px "DM Mono",monospace`;
+        ctx.fillStyle = BC;
+        ctx.fillText('click or space to restart', W/2, H/2 + 18);
         ctx.textAlign = 'left';
       }
     }
 
-    function loop() { update(); draw(); requestAnimationFrame(loop); }
+    function loop() {
+      update();
+      render();
+      requestAnimationFrame(loop);
+    }
     loop();
   })();
 })();
