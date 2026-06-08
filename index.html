@@ -162,7 +162,7 @@
   .nav-drawer a.active { color: var(--accent); background: var(--accent-dim); border-left-color: var(--accent); }
 
   /*  HERO BAT  */
-  #bat-canvas { filter: drop-shadow(0 0 20px rgba(168,85,247,0.3)); }
+  #bat-canvas { filter: sepia(1) saturate(6) hue-rotate(220deg) brightness(0.9) drop-shadow(0 0 20px rgba(168,85,247,0.5)); }
   @media (max-width: 900px) { #bat-canvas { display: none; } }
 
   /*  HERO  */
@@ -874,23 +874,24 @@
   #dino-section {
     position: relative; z-index: 1;
     padding: 4rem 2rem;
-    max-width: 1100px;
-    margin: 0 auto;
   }
   .dino-section-label {
     font-family: var(--mono); font-size: 0.72rem;
     letter-spacing: 0.14em; text-transform: uppercase;
     color: var(--accent); margin-bottom: 0.5rem;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
   }
   .dino-section-title {
     font-family: var(--serif);
     font-size: clamp(1.8rem, 3vw, 2.4rem);
     color: var(--text); margin-bottom: 0.5rem;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
   }
   .dino-section-title em { font-style: italic; color: var(--accent); }
   .dino-section-sub {
     font-family: var(--mono); font-size: 0.72rem;
     color: var(--text3); letter-spacing: 0.06em; margin-bottom: 1.5rem;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
   }
 
 </style>
@@ -1427,10 +1428,19 @@
 <!-- DINO GAME SECTION -->
 <div id="dino-section">
   <div class="dino-section-label">// mini game</div>
-  <h2 class="dino-section-title">Take a <em>Break</em></h2>
-  <div class="dino-section-sub">press space or tap to jump &nbsp;·&nbsp; down arrow to duck &nbsp;·&nbsp; avoid the cacti</div>
-  <div style="width:100%;max-width:900px;height:300px;border-radius:12px;overflow:hidden;border:1px solid rgba(168,85,247,0.25);box-shadow:0 0 32px rgba(168,85,247,0.12);">
-    <iframe src="https://chromedino.com/" frameborder="0" scrolling="no" width="100%" height="100%" loading="lazy" style="border:none;display:block;"></iframe>
+  <h2 class="dino-section-title"><em>Dino Game</em></h2>
+  <div class="dino-section-sub">space / click to jump &nbsp;·&nbsp; ↓ to duck</div>
+  <div style="width:100%;height:320px;border-radius:14px;overflow:hidden;border:1px solid rgba(168,85,247,0.3);box-shadow:0 0 48px rgba(168,85,247,0.15);">
+    <iframe
+      src="https://chromedino.com/"
+      frameborder="0"
+      scrolling="no"
+      width="100%"
+      height="420"
+      loading="lazy"
+      style="border:none;display:block;margin-top:-8px;
+             filter:sepia(1) saturate(9) hue-rotate(220deg) brightness(0.8) contrast(1.2);">
+    </iframe>
   </div>
 </div>
 
