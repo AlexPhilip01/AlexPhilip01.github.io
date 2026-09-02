@@ -884,13 +884,20 @@
     color: var(--text3); letter-spacing: 0.06em; margin-bottom: 1.5rem;
   }
   .dino-game-wrap {
-    width: 100%; height: 320px;
+    width: 100%; height: 340px;
+    overflow: hidden;
     border-top: 1px solid rgba(168,85,247,0.2);
     border-bottom: 1px solid rgba(168,85,247,0.2);
     background: #07050a;
     box-shadow: 0 0 60px rgba(168,85,247,0.08) inset;
   }
-  #dino-canvas { width: 100%; height: 100%; display: block; }
+  #dino-frame{
+    width: 100%; height: 100%;
+    display: block; border: 0;
+    /* invert() turns the game's white background near-black;
+       sepia+saturate+hue-rotate then tints the sprites purple */
+    filter: invert(1) sepia(1) saturate(5) hue-rotate(228deg) brightness(0.95) contrast(1.05);
+  }
   @media (max-width: 600px) { .dino-game-wrap { height: 220px; } }
 
 
@@ -1257,8 +1264,12 @@
       Cover Letter
     </a>
     <div class="featured-item featured-blogs">
-      <div class="featured-preview featured-blog-menu">
+      <div class="featured-preview featured-blog-menu" style="width:215px;">
         <div class="featured-preview-title">Blogs</div>
+        <a href="cyberleek.html" class="blog-sub-link">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          CyberLeek
+        </a>
         <a href="malware-analysis.html" class="blog-sub-link">
           <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
           Malware Analysis
@@ -1559,303 +1570,17 @@
   <div class="dino-inner">
     <div class="dino-section-label">// mini game</div>
     <h2 class="dino-section-title"><em>Dino Game</em></h2>
-    <div class="dino-section-sub">space / click to jump &nbsp;·&nbsp; ↓ to duck &nbsp;·&nbsp; avoid the cacti</div>
+    <div class="dino-section-sub">space or tap to jump &nbsp;·&nbsp; ↓ to duck &nbsp;·&nbsp; click the game first to focus it</div>
   </div>
   <div class="dino-game-wrap">
-    <canvas id="dino-canvas"></canvas>
+    <iframe id="dino-frame"
+            src="https://chromedino.com/embed/"
+            title="Chrome Dino game"
+            frameborder="0" scrolling="no" loading="lazy"></iframe>
   </div>
 </div>
 
-<script>
-(function(){
-  const canvas = document.getElementById('dino-canvas');
-  if(!canvas) return;
-  const ctx = canvas.getContext('2d');
 
-  const BG   = '#07050a';
-  const COL  = '#a855f7';
-  const COL2 = '#c084fc';
-  const COL3 = 'rgba(168,85,247,0.18)';
-  const EYE  = '#07050a';
-
-  function resize(){
-    canvas.width  = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', ()=>{ resize(); if(!started) draw(); });
-
-  function W(){ return canvas.width; }
-  function H(){ return canvas.height; }
-  function GY(){ return H() - Math.round(H()*0.12); }
-  function SC(){ return Math.max(1.8, H()/80); }
-
-  // T-Rex body grid (11×13)
-  const BODY=[
-    [0,0,0,0,0,0,1,1,1,1,1],
-    [0,0,0,0,0,1,1,1,1,1,1],
-    [0,0,0,0,0,1,1,2,1,1,1],
-    [0,0,0,0,0,1,1,1,0,0,0],
-    [0,0,0,0,1,1,1,1,0,0,0],
-    [1,1,0,0,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,1,0,0],
-    [1,1,1,1,1,1,1,1,0,0,0],
-    [0,1,1,1,1,1,1,0,0,0,0],
-    [0,0,1,1,1,0,0,0,0,0,0],
-    [0,0,1,1,0,0,0,0,0,0,0],
-    [0,0,1,0,0,0,0,0,0,0,0],
-    [0,0,1,0,0,0,0,0,0,0,0],
-  ];
-  const RUN1=[[2,9],[2,10],[2,11],[3,11],[5,9],[5,10]];
-  const RUN2=[[2,9],[2,10],[5,9],[5,10],[5,11],[4,11]];
-  const DUCK_BODY=[
-    [0,0,0,0,0,0,1,1,1,1,1],
-    [1,1,0,0,0,1,1,2,1,1,1],
-    [1,1,1,1,1,1,1,1,0,0,0],
-    [1,1,1,1,1,1,1,0,0,0,0],
-    [0,1,1,1,1,1,0,0,0,0,0],
-    [0,0,1,1,0,1,0,0,0,0,0],
-  ];
-  const DUCK_R1=[[2,4],[3,4],[5,5],[6,5]];
-  const DUCK_R2=[[2,4],[3,5],[5,4],[6,4]];
-
-  const CA=[[0,1,0],[1,1,0],[1,1,1],[0,1,1],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0]];
-  const CB=[[0,1,0,0,0],[0,1,0,1,0],[1,1,1,1,0],[0,1,1,1,1],[0,0,1,0,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0]];
-  const CC=[[0,1,0],[0,1,0],[1,1,1],[1,1,1],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0],[0,1,0]];
-  const CL=[[0,1,1,0,0],[1,1,1,1,0],[1,1,1,1,1],[0,1,1,1,0]];
-
-  // Pterodactyl (for high scores)
-  const PTERO=[
-    [0,0,1,0,0,0,0,0,0],
-    [0,1,1,1,0,0,1,1,0],
-    [1,1,1,1,1,1,1,1,1],
-    [0,0,1,1,0,0,0,0,0],
-    [0,0,0,1,0,0,0,0,0],
-  ];
-
-  function drawGrid(grid,ox,oy,s,c1,c2){
-    for(let r=0;r<grid.length;r++)
-      for(let c=0;c<grid[r].length;c++){
-        const v=grid[r][c]; if(!v) continue;
-        ctx.fillStyle= v===2?(c2||EYE):c1;
-        ctx.fillRect(Math.round(ox+c*s),Math.round(oy+r*s),Math.ceil(s),Math.ceil(s));
-      }
-  }
-
-  let dino,obs,clouds,score,hi,speed,dead,started,tick,nextObs,ducking,nightMode,flashScore;
-  hi=0;
-
-  function init(keepHi){
-    const s=SC();
-    dino={x:Math.round(W()*0.07), y:GY()-13*s, vy:0, jumping:false, ducking:false, legF:0, legT:0};
-    obs=[]; clouds=[
-      {x:W()*0.6,y:GY()*0.15,s:1.6},
-      {x:W()*0.35,y:GY()*0.25,s:1.3},
-      {x:W()*0.82,y:GY()*0.1,s:2},
-    ];
-    score=0; speed=5; dead=false; started=false; tick=0; nextObs=100;
-    ducking=false; nightMode=false; flashScore=0;
-    if(!keepHi) hi=0;
-  }
-
-  function jump(){
-    if(!started){started=true;return;}
-    if(dead){hi=Math.max(hi,score);init(true);started=true;return;}
-    if(dino.ducking){dino.ducking=false;ducking=false;return;}
-    if(!dino.jumping && dino.y>=GY()-13*SC()-1){
-      dino.vy=-11.5*SC(); dino.jumping=true;
-    }
-  }
-  function duck(on){
-    if(!started||dead) return;
-    if(on && !dino.jumping){ dino.ducking=true; ducking=true; }
-    else{ dino.ducking=false; ducking=false; }
-  }
-
-  canvas.addEventListener('click',jump);
-  canvas.addEventListener('touchstart',e=>{e.preventDefault();jump();},{passive:false});
-  window.addEventListener('keydown',e=>{
-    if(e.code==='Space'||e.code==='ArrowUp'){
-      const r=canvas.getBoundingClientRect();
-      if(r.top<window.innerHeight+500&&r.bottom>-500){e.preventDefault();jump();}
-    }
-    if(e.code==='ArrowDown') duck(true);
-  });
-  window.addEventListener('keyup',e=>{ if(e.code==='ArrowDown') duck(false); });
-
-  const PEBS=Array.from({length:40},(_,i)=>({ox:i*29+Math.random()*10, sz:1+(i%3)}));
-
-  function update(){
-    if(!started||dead) return;
-    tick++; score++;
-    speed=Math.min(14,5+score/350);
-
-    // Night mode every 700 pts
-    if(score%700===0 && score>0) nightMode=!nightMode;
-
-    const s=SC(), gy=GY();
-
-    // Physics
-    if(!dino.ducking){
-      dino.vy+=0.55*s;
-      dino.y+=dino.vy;
-      const floor=gy-13*s;
-      if(dino.y>=floor){dino.y=floor;dino.vy=0;dino.jumping=false;}
-    } else {
-      dino.y=gy-6*s;
-    }
-
-    // Leg anim
-    dino.legT++;
-    const rate=Math.max(3,Math.round(10-speed));
-    if(dino.legT>=rate){dino.legF^=1;dino.legT=0;}
-
-    // Spawn obstacles
-    if(--nextObs<=0){
-      const r=Math.random();
-      const type = r<0.33?'A': r<0.66?'B':'C';
-      // Add pterodactyl at high speed
-      if(speed>9 && Math.random()<0.3){
-        obs.push({x:W()+10,type:'P',y:gy-Math.round((8+Math.random()*6)*s)});
-      } else {
-        obs.push({x:W()+10,type});
-      }
-      nextObs=Math.max(36,52+Math.random()*70-speed*5);
-    }
-    for(const o of obs) o.x-=speed;
-    obs=obs.filter(o=>o.x>-60);
-
-    // Clouds
-    for(const cl of clouds){cl.x-=0.6;if(cl.x<-80){cl.x=W()+40;cl.y=gy*(0.08+Math.random()*0.25);}}
-
-    // Score flash every 100
-    if(score%100===0&&score>0) flashScore=12;
-    if(flashScore>0) flashScore--;
-
-    // Collision
-    const isDuck=dino.ducking;
-    const dh=isDuck?6*s:11*s;
-    const dx=dino.x+s*2, dy=isDuck?gy-6*s+s:dino.y+s;
-    const dw=s*7;
-    for(const o of obs){
-      const og=o.type==='A'?CA:o.type==='B'?CB:o.type==='C'?CC:PTERO;
-      const os=o.type==='P'?s*2:s*2.2;
-      const ow=og[0].length*os, oh=og.length*os;
-      const ox2=o.x+os*0.4, oy2=o.type==='P'?o.y:gy-oh;
-      if(dx+dw>ox2+os*0.3&&dx+s<ox2+ow-os*0.3&&dy+dh>oy2+os*0.3&&dy<oy2+oh-os*0.3){
-        dead=true;
-      }
-    }
-  }
-
-  function draw(){
-    const s=SC(), gy=GY();
-    // Background
-    ctx.fillStyle=nightMode?'#0a0714':BG;
-    ctx.fillRect(0,0,W(),H());
-
-    // Stars in night mode
-    if(nightMode){
-      ctx.fillStyle='rgba(168,85,247,0.5)';
-      for(let i=0;i<30;i++){
-        const sx=((i*137+tick*0.3)%W());
-        const sy=((i*79)%(gy-10));
-        ctx.fillRect(sx,sy,1,1);
-      }
-    }
-
-    // Ground line
-    ctx.fillStyle=COL;
-    ctx.fillRect(0,gy,W(),Math.ceil(s*0.35));
-
-    // Scrolling pebbles
-    ctx.fillStyle='rgba(168,85,247,0.22)';
-    for(const p of PEBS){
-      const px=((p.ox-tick*speed*0.7)%W()+W())%W();
-      ctx.fillRect(Math.round(px),gy+3,p.sz+1,1);
-    }
-    ctx.fillStyle='rgba(168,85,247,0.12)';
-    for(const p of PEBS){
-      const px=((p.ox*1.6-tick*speed*0.35)%W()+W())%W();
-      ctx.fillRect(Math.round(px),gy+6,p.sz,1);
-    }
-
-    // Clouds
-    for(const cl of clouds) drawGrid(CL,cl.x,cl.y,s*cl.s,COL3);
-
-    // Obstacles
-    for(const o of obs){
-      const og=o.type==='A'?CA:o.type==='B'?CB:o.type==='C'?CC:PTERO;
-      const os=o.type==='P'?s*2:s*2.2;
-      const oh=og.length*os;
-      const oy2=o.type==='P'?o.y:gy-oh;
-      drawGrid(og,o.x,oy2,os,COL2);
-    }
-
-    // T-Rex
-    if(dino.ducking){
-      drawGrid(DUCK_BODY,dino.x,gy-6*s,s,COL,EYE);
-      ctx.fillStyle=COL;
-      for(const[lc,lr]of(dino.legF?DUCK_R2:DUCK_R1))
-        ctx.fillRect(Math.round(dino.x+lc*s),Math.round(gy-6*s+lr*s),Math.ceil(s),Math.ceil(s));
-    } else {
-      drawGrid(BODY,dino.x,dino.y,s,COL,EYE);
-      if(!dino.jumping){
-        ctx.fillStyle=COL;
-        for(const[lc,lr]of(dino.legF?RUN2:RUN1))
-          ctx.fillRect(Math.round(dino.x+lc*s),Math.round(dino.y+lr*s),Math.ceil(s),Math.ceil(s));
-      }
-    }
-
-    // Death blink
-    if(dead&&Math.floor(tick/5)%2===0){
-      drawGrid(dino.ducking?DUCK_BODY:BODY,dino.x,dino.ducking?gy-6*s:dino.y,s,'#f87171',EYE);
-    }
-
-    // Score display
-    const fs=Math.max(12,Math.round(s*5));
-    ctx.font=`${fs}px "DM Mono",monospace`;
-    ctx.textAlign='right';
-    if(hi>0){
-      ctx.fillStyle='rgba(192,132,252,0.35)';
-      ctx.fillText('HI '+String(Math.floor(hi/5)).padStart(5,'0'),W()-fs*7.5,fs+8);
-    }
-    ctx.fillStyle=flashScore>0&&flashScore%4<2?'#fff':COL2;
-    ctx.fillText(String(Math.floor(score/5)).padStart(5,'0'),W()-14,fs+8);
-    ctx.textAlign='left';
-
-    // Night indicator
-    if(nightMode){
-      ctx.fillStyle=COL2;
-      ctx.font=`${Math.round(fs*0.75)}px "DM Mono",monospace`;
-      ctx.fillText('NIGHT',12,fs+8);
-    }
-
-    // Prompts
-    if(!started){
-      ctx.fillStyle=COL;
-      ctx.font=`${fs}px "DM Mono",monospace`;
-      ctx.textAlign='center';
-      ctx.fillText('PRESS SPACE OR CLICK TO START',W()/2,H()/2);
-      ctx.textAlign='left';
-    }
-    if(dead){
-      ctx.fillStyle=COL;
-      ctx.font=`${Math.round(fs*1.4)}px "DM Mono",monospace`;
-      ctx.textAlign='center';
-      ctx.fillText('G A M E  O V E R',W()/2,H()/2-fs);
-      ctx.fillStyle=COL2;
-      ctx.font=`${fs}px "DM Mono",monospace`;
-      ctx.fillText('CLICK OR SPACE TO RESTART',W()/2,H()/2+fs*0.4);
-      ctx.textAlign='left';
-    }
-  }
-
-  init(false);
-  function loop(){update();draw();requestAnimationFrame(loop);}
-  loop();
-})();
-</script>
 
 
 
