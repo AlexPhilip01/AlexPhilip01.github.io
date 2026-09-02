@@ -895,8 +895,29 @@
 
 
   /* ── 3D ENHANCEMENTS ── */
-  #hero-globe { will-change: transform; }
-  @media (max-width: 860px){ #hero-globe { display:none; } }
+  /* ── HERO BAT ── */
+  #bat-hero{
+    position: absolute;
+    right: 4%;
+    top: 50%;
+    width: min(34vw, 300px);
+    height: auto;
+    pointer-events: none;
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 26px rgba(168,85,247,0.45));
+    transform-origin: center;
+    animation: batBob 3.6s ease-in-out infinite;
+    will-change: transform;
+    z-index: 2;
+  }
+  @keyframes batBob{
+    0%   { transform: translateY(-52%) translateX(0)    rotate(-1.5deg); }
+    25%  { transform: translateY(-58%) translateX(6px)  rotate(1.5deg); }
+    50%  { transform: translateY(-46%) translateX(0)    rotate(1.5deg); }
+    75%  { transform: translateY(-56%) translateX(-6px) rotate(-1.5deg); }
+    100% { transform: translateY(-52%) translateX(0)    rotate(-1.5deg); }
+  }
+  @media (max-width: 900px){ #bat-hero{ display:none; } }
 
   /* 3D tilt on project cards */
   .project-card{ transform-style: preserve-3d; transition: transform .35s cubic-bezier(.2,.8,.2,1), border-color .25s, box-shadow .35s; }
@@ -921,12 +942,58 @@
 
   @media (prefers-reduced-motion: reduce){
     .reveal-3d{ opacity:1 !important; transform:none !important; transition:none !important; }
-    #hero-globe{ display:none !important; }
+    #bat-hero{ animation:none !important; transform:translateY(-50%) !important; }
+  }
+
+  /* ═══ ANIMATION LAYER ═══ */
+
+  /* scroll progress bar */
+  #scroll-progress{
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    z-index: 999; pointer-events: none;
+    box-shadow: 0 0 10px rgba(168,85,247,0.6);
+    transition: width .1s linear;
+  }
+
+  /* hero staggered entrance */
+  .hero-anim{
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    animation: heroIn .85s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  @keyframes heroIn{ to{ opacity:1; transform:none; } }
+  .hero-anim.d1{ animation-delay:.10s } .hero-anim.d2{ animation-delay:.22s }
+  .hero-anim.d3{ animation-delay:.34s } .hero-anim.d4{ animation-delay:.46s }
+  .hero-anim.d5{ animation-delay:.58s }
+
+  /* skill chip cascade */
+  .skill-chip{
+    opacity: 0;
+    transform: translate3d(0,14px,0) scale(.96);
+    transition: opacity .5s cubic-bezier(.2,.8,.2,1), transform .5s cubic-bezier(.2,.8,.2,1);
+  }
+  .skill-chip.chip-in{ opacity:1; transform:none; }
+
+  /* progress bar fill */
+  .progress-bar-fill{ transition: width 1.4s cubic-bezier(.25,.8,.3,1); }
+
+  /* magnetic buttons */
+  .btn-primary, .btn-ghost{ will-change: transform; }
+
+  /* scramble text */
+  .scrambling{ color: var(--accent); }
+
+  @media (prefers-reduced-motion: reduce){
+    .hero-anim{ opacity:1 !important; transform:none !important; animation:none !important; }
+    .skill-chip{ opacity:1 !important; transform:none !important; transition:none !important; }
+    #scroll-progress{ display:none !important; }
   }
 </style>
 </head>
 <body>
 <canvas id="node-canvas"></canvas>
+<div id="scroll-progress"></div>
 <div id="page-wrap">
 
 <!-- NAV -->
@@ -965,18 +1032,18 @@
 <section id="hero" style="padding-top:0">
   <div class="hero-glow"></div>
   <div class="hero-inner">
-    <div class="hero-tag">Available for opportunities</div>
-    <h1 class="hero-name">Alex<br><em>Philip</em></h1>
-    <p class="hero-role">Cybersecurity Professional &nbsp;·&nbsp; <span>MSc Information Security</span></p>
-    <p class="hero-desc">
+    <div class="hero-tag hero-anim d1">Available for opportunities</div>
+    <h1 class="hero-name hero-anim d2">Alex<br><em>Philip</em></h1>
+    <p class="hero-role hero-anim d3">Cybersecurity Professional &nbsp;·&nbsp; <span>MSc Information Security</span></p>
+    <p class="hero-desc hero-anim d4">
       Specializing in application security, threat detection, and incident response. Passionate about analyzing security threats, investigating incidents, and building resilient defenses.
     </p>
-    <div class="hero-actions">
+    <div class="hero-actions hero-anim d5">
       <a href="#projects" class="btn-primary">View Projects</a>
       <a href="CV.pdf" target="_blank" class="btn-ghost">Download CV</a>
     </div>
   </div>
-  <div id="hero-globe" aria-hidden="true" style="position:absolute;right:0;top:50%;transform:translateY(-50%);width:min(46vw,560px);height:min(46vw,560px);pointer-events:none;"></div>
+  <img id="bat-hero" src="bat.gif" alt="" aria-hidden="true" width="328" height="320">
 </section>
 
 <div class="divider"></div>
@@ -1978,169 +2045,7 @@ document.addEventListener('click', () => {
 </script>
 
 <!-- ── 3D HERO GLOBE (lazy-loaded, lightweight) ── -->
-<script>
-/* ── 3D WIREFRAME GLOBE — vanilla canvas, no dependencies ── */
-(function(){
-  var mount = document.getElementById('hero-globe');
-  if(!mount) return;
-  if(window.matchMedia('(max-width:860px)').matches) return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-  var ACCENT  = '168,85,247';
-  var ACCENT2 = '192,132,252';
-  var R = 1.6, CAM = 4.2;
-
-  var cv = document.createElement('canvas');
-  cv.style.cssText = 'display:block;width:100%;height:100%';
-  mount.appendChild(cv);
-  var ctx = cv.getContext('2d');
-
-  var W=0, H=0, cx=0, cy=0, scale=0, dpr=1;
-  function resize(){
-    var w = mount.clientWidth, h = mount.clientHeight;
-    if(!w || !h) return;
-    dpr = Math.min(window.devicePixelRatio||1, 2);
-    W=w; H=h; cx=w/2; cy=h/2;
-    cv.width = w*dpr; cv.height = h*dpr;
-    ctx.setTransform(dpr,0,0,dpr,0,0);
-    scale = Math.min(w,h) * 0.62;
-  }
-
-  /* ---- geometry (built once) ---- */
-  var nodes = [], links = [], wire = [];
-
-  // network nodes on sphere surface
-  var N = 70;
-  for(var i=0;i<N;i++){
-    var phi = Math.acos(2*Math.random()-1);
-    var th  = 2*Math.PI*Math.random();
-    nodes.push({
-      x: R*Math.sin(phi)*Math.cos(th),
-      y: R*Math.sin(phi)*Math.sin(th),
-      z: R*Math.cos(phi)
-    });
-  }
-  // links between nearby nodes
-  for(var a=0;a<N;a++){
-    for(var b=a+1;b<N;b++){
-      var dx=nodes[a].x-nodes[b].x, dy=nodes[a].y-nodes[b].y, dz=nodes[a].z-nodes[b].z;
-      if(Math.sqrt(dx*dx+dy*dy+dz*dz) < 0.9) links.push([a,b]);
-    }
-  }
-  // latitude rings
-  var LAT=7, LON=14, SEG=44;
-  for(var la=1; la<LAT; la++){
-    var phi = Math.PI*la/LAT, r = R*Math.sin(phi), y = R*Math.cos(phi);
-    for(var s=0;s<SEG;s++){
-      var t1=2*Math.PI*s/SEG, t2=2*Math.PI*(s+1)/SEG;
-      wire.push([{x:r*Math.cos(t1),y:y,z:r*Math.sin(t1)},{x:r*Math.cos(t2),y:y,z:r*Math.sin(t2)}]);
-    }
-  }
-  // longitude rings
-  for(var lo=0; lo<LON; lo++){
-    var th2 = 2*Math.PI*lo/LON;
-    for(var s2=0;s2<SEG;s2++){
-      var p1=Math.PI*s2/SEG, p2=Math.PI*(s2+1)/SEG;
-      wire.push([
-        {x:R*Math.sin(p1)*Math.cos(th2), y:R*Math.cos(p1), z:R*Math.sin(p1)*Math.sin(th2)},
-        {x:R*Math.sin(p2)*Math.cos(th2), y:R*Math.cos(p2), z:R*Math.sin(p2)*Math.sin(th2)}
-      ]);
-    }
-  }
-
-  /* ---- 3D math ---- */
-  var rx=0.35, ry=0, sinX=0, cosX=1, sinY=0, cosY=1;
-  function rot(p){
-    var x = p.x*cosY - p.z*sinY;
-    var z = p.x*sinY + p.z*cosY;
-    var y = p.y*cosX - z*sinX;
-    z     = p.y*sinX + z*cosX;
-    return {x:x, y:y, z:z};
-  }
-  function proj(p){
-    var f = scale/(CAM + p.z);
-    return {x: cx + p.x*f, y: cy - p.y*f, z:p.z, f:f};
-  }
-  function fade(z){ return (z + R) / (2*R); }   // 0 back → 1 front
-
-  /* ---- interaction ---- */
-  var mx=0, my=0, tx=0, ty=0;
-  window.addEventListener('mousemove', function(e){
-    mx = e.clientX/window.innerWidth - 0.5;
-    my = e.clientY/window.innerHeight - 0.5;
-  }, {passive:true});
-
-  var running = true, visible = true;
-  document.addEventListener('visibilitychange', function(){ running = !document.hidden; });
-  if('IntersectionObserver' in window){
-    new IntersectionObserver(function(en){ visible = en[0].isIntersecting; },
-      {rootMargin:'120px'}).observe(mount);
-  }
-
-  /* ---- render ---- */
-  function draw(){
-    ctx.clearRect(0,0,W,H);
-
-    // halo
-    var g = ctx.createRadialGradient(cx,cy,scale*0.30,cx,cy,scale*0.78);
-    g.addColorStop(0,'rgba('+ACCENT+',0.10)');
-    g.addColorStop(1,'rgba('+ACCENT+',0)');
-    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
-
-    // wireframe
-    ctx.lineWidth = 1;
-    for(var i=0;i<wire.length;i++){
-      var A=rot(wire[i][0]), B=rot(wire[i][1]);
-      var d=(fade(A.z)+fade(B.z))/2;
-      var pa=proj(A), pb=proj(B);
-      ctx.strokeStyle='rgba('+ACCENT+','+(0.05+d*0.22).toFixed(3)+')';
-      ctx.beginPath(); ctx.moveTo(pa.x,pa.y); ctx.lineTo(pb.x,pb.y); ctx.stroke();
-    }
-
-    // rotate nodes once
-    var rn=[];
-    for(var n=0;n<nodes.length;n++){ var r0=rot(nodes[n]); rn.push({r:r0,p:proj(r0)}); }
-
-    // links
-    ctx.lineWidth = 1.1;
-    for(var l=0;l<links.length;l++){
-      var A2=rn[links[l][0]], B2=rn[links[l][1]];
-      var d2=(fade(A2.r.z)+fade(B2.r.z))/2;
-      ctx.strokeStyle='rgba('+ACCENT+','+(0.04+d2*0.40).toFixed(3)+')';
-      ctx.beginPath(); ctx.moveTo(A2.p.x,A2.p.y); ctx.lineTo(B2.p.x,B2.p.y); ctx.stroke();
-    }
-
-    // nodes (back to front)
-    rn.sort(function(a,b){ return a.r.z-b.r.z; });
-    for(var k=0;k<rn.length;k++){
-      var d3=fade(rn[k].r.z), pt=rn[k].p;
-      var rad = 1.1 + d3*2.3;
-      ctx.fillStyle='rgba('+ACCENT2+','+(0.20+d3*0.80).toFixed(3)+')';
-      ctx.beginPath(); ctx.arc(pt.x,pt.y,rad,0,6.2832); ctx.fill();
-      if(d3>0.72){
-        ctx.fillStyle='rgba('+ACCENT2+',0.10)';
-        ctx.beginPath(); ctx.arc(pt.x,pt.y,rad*2.6,0,6.2832); ctx.fill();
-      }
-    }
-  }
-
-  function loop(){
-    requestAnimationFrame(loop);
-    if(!running || !visible || !scale) return;
-    ry += 0.0025;
-    tx += (my*0.40 - tx)*0.05;
-    ty += (mx*0.40 - ty)*0.05;
-    rx = 0.35 + tx;
-    sinX=Math.sin(rx); cosX=Math.cos(rx);
-    sinY=Math.sin(ry+ty*0.6); cosY=Math.cos(ry+ty*0.6);
-    draw();
-  }
-
-  resize();
-  window.addEventListener('resize', resize);
-  loop();
-})();
-</script>
 
 
 <!-- ── 3D CARD TILT (hover only, no cost on mobile) ── -->
@@ -2187,7 +2092,7 @@ document.addEventListener('click', () => {
   if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if(!('IntersectionObserver' in window)) return;
 
-  var sel = '.project-card, .cert-card, .stat-card, .progress-card, .featured-item, .edu-row, .skills-grid, .section-title';
+  var sel = '.project-card, .cert-card, .stat-card, .progress-card, .featured-item, .edu-row, .section-title';
   var els = document.querySelectorAll(sel);
   if(!els.length) return;
 
@@ -2233,5 +2138,133 @@ document.addEventListener('click', () => {
 })();
 </script>
 
+<script>
+/* ═══ ANIMATION LAYER ═══ */
+(function(){
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine   = window.matchMedia('(hover:hover) and (pointer:fine)').matches;
+  var hasIO  = 'IntersectionObserver' in window;
+
+  /* ── 1. scroll progress bar ── */
+  (function(){
+    if(reduce) return;
+    var bar = document.getElementById('scroll-progress');
+    if(!bar) return;
+    var raf = null;
+    function upd(){
+      raf = null;
+      var h = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = h > 0 ? (window.scrollY / h) * 100 : 0;
+      bar.style.width = Math.min(100, Math.max(0, pct)).toFixed(2) + '%';
+    }
+    window.addEventListener('scroll', function(){ if(!raf) raf = requestAnimationFrame(upd); }, {passive:true});
+    upd();
+  })();
+
+  /* ── 2. progress bars fill on scroll ── */
+  (function(){
+    if(!hasIO) return;
+    var fills = document.querySelectorAll('.progress-bar-fill');
+    if(!fills.length) return;
+    Array.prototype.forEach.call(fills, function(f){
+      f.dataset.target = f.style.width || '0%';
+      if(!reduce) f.style.width = '0%';
+    });
+    var io = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        setTimeout(function(){ el.style.width = el.dataset.target; }, 120);
+        io.unobserve(el);
+      });
+    }, {threshold:0.3});
+    Array.prototype.forEach.call(fills, function(f){ io.observe(f); });
+  })();
+
+  /* ── 3. skill chip cascade ── */
+  (function(){
+    var chips = document.querySelectorAll('.skill-chip');
+    if(!chips.length) return;
+    if(reduce || !hasIO){
+      Array.prototype.forEach.call(chips, function(c){ c.classList.add('chip-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var grid = e.target;
+        var kids = grid.querySelectorAll('.skill-chip');
+        Array.prototype.forEach.call(kids, function(c,i){
+          setTimeout(function(){ c.classList.add('chip-in'); }, i*45);
+        });
+        io.unobserve(grid);
+      });
+    }, {threshold:0.15});
+    var grids = document.querySelectorAll('.skills-grid');
+    if(grids.length) Array.prototype.forEach.call(grids, function(g){ io.observe(g); });
+    else Array.prototype.forEach.call(chips, function(c){ c.classList.add('chip-in'); });
+  })();
+
+  /* ── 4. magnetic hero buttons ── */
+  (function(){
+    if(reduce || !fine) return;
+    var btns = document.querySelectorAll('.hero-actions .btn-primary, .hero-actions .btn-ghost');
+    Array.prototype.forEach.call(btns, function(b){
+      b.addEventListener('mousemove', function(e){
+        var r = b.getBoundingClientRect();
+        var x = (e.clientX - r.left - r.width/2) * 0.28;
+        var y = (e.clientY - r.top - r.height/2) * 0.38;
+        b.style.transition = 'transform .08s linear';
+        b.style.transform = 'translate3d('+x.toFixed(1)+'px,'+y.toFixed(1)+'px,0)';
+      });
+      b.addEventListener('mouseleave', function(){
+        b.style.transition = 'transform .45s cubic-bezier(.2,1.3,.4,1)';
+        b.style.transform = '';
+      });
+    });
+  })();
+
+  /* ── 5. section title decode/scramble ── */
+  (function(){
+    if(reduce || !hasIO) return;
+    var CH = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*<>/\\';
+    var titles = document.querySelectorAll('.section-title');
+    if(!titles.length) return;
+
+    function scramble(el){
+      if(el.children.length) return;          // skip if nested markup
+      var text = el.textContent;
+      if(!text || text.length > 60) return;
+      var frame = 0, total = text.length * 2 + 12;
+      el.classList.add('scrambling');
+      function step(){
+        var out = '';
+        for(var i=0;i<text.length;i++){
+          if(text[i] === ' '){ out += ' '; continue; }
+          var reveal = i * 2 + 8;
+          if(frame >= reveal) out += text[i];
+          else out += CH[(Math.random()*CH.length)|0];
+        }
+        el.textContent = out;
+        frame++;
+        if(frame <= total) requestAnimationFrame(step);
+        else { el.textContent = text; el.classList.remove('scrambling'); }
+      }
+      requestAnimationFrame(step);
+    }
+
+    var io = new IntersectionObserver(function(en){
+      en.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        setTimeout(function(){ scramble(el); }, 160);
+        io.unobserve(el);
+      });
+    }, {threshold:0.6});
+    Array.prototype.forEach.call(titles, function(t){ io.observe(t); });
+  })();
+
+})();
+</script>
 </body>
 </html>
