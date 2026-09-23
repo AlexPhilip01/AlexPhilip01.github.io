@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mastercard Cybersecurity Job Simulation &ndash; Alex Philip</title>
+<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--bg:#07050a;--surface:#140d1a;--border:rgba(255,255,255,0.07);--border2:rgba(168,85,247,0.25);--accent:#a855f7;--accent2:#c084fc;--accent-dim:rgba(168,85,247,0.1);--text:#f0eaff;--text2:#8a7a9a;--text3:#5a4a6a;--mono:"DM Mono",monospace;--serif:"DM Serif Display",Georgia,serif;--sans:"Outfit",sans-serif}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7}
+  p{text-align:justify}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(7,5,10,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
+  .back-link{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.04em;transition:color .2s}
+  .back-link:hover{color:var(--accent)}
+  .topbar-tag{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(168,85,247,0.2);padding:0.25rem 0.75rem;border-radius:100px;letter-spacing:0.06em}
+
+  .wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:3.5rem 2rem 5rem}
+  .hero-label{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:0.7rem}
+  .hero-title{font-family:var(--serif);font-size:clamp(2rem,4.4vw,2.9rem);line-height:1.15;color:var(--text);margin-bottom:0.8rem}
+  .hero-title em{font-style:italic;color:var(--accent)}
+  .hero-sub{font-size:0.95rem;color:var(--text2);line-height:1.8;max-width:600px;margin-bottom:1.5rem}
+
+  .issuer-bar{display:flex;align-items:center;gap:1rem;background:var(--surface);border:1px solid var(--border2);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1.6rem;flex-wrap:wrap}
+  .issuer-bar img{height:34px;width:auto;object-fit:contain;flex-shrink:0}
+  .issuer-txt{font-size:0.88rem;color:var(--text2)}
+  .issuer-txt strong{color:var(--text)}
+
+  .meta{display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:2rem}
+  .pill{display:flex;align-items:center;gap:0.45rem;font-family:var(--mono);font-size:0.7rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:0.35rem 0.85rem;color:var(--text2);letter-spacing:0.04em}
+  .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  .cert-img{width:100%;border-radius:12px;border:1px solid var(--border2);box-shadow:0 12px 48px rgba(0,0,0,.5);cursor:zoom-in;display:block;margin-bottom:2.5rem}
+
+  .sec{margin-bottom:2.5rem}
+  .sec-h{font-family:var(--serif);font-size:1.4rem;color:var(--text);margin-bottom:1rem;padding-bottom:.55rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.7rem}
+  .sec-n{font-family:var(--mono);font-size:.68rem;color:var(--accent);background:var(--accent-dim);padding:.2rem .5rem;border-radius:3px}
+  .sec p{font-size:.92rem;color:var(--text2);line-height:1.85;margin-bottom:.9rem}
+  .sec ul{display:flex;flex-direction:column;gap:.45rem;margin:.4rem 0 1rem}
+  .sec ul li{font-size:.9rem;color:var(--text2);padding-left:1.2rem;position:relative;line-height:1.75}
+  .sec ul li::before{content:"\203A";position:absolute;left:0;color:var(--accent);font-weight:700}
+
+  .tasks{display:grid;grid-template-columns:1fr 1fr;gap:.8rem}
+  .task{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:1.1rem;transition:border-color .2s}
+  .task:hover{border-color:var(--border2)}
+  .task-n{font-family:var(--mono);font-size:.65rem;color:var(--accent);margin-bottom:.4rem;letter-spacing:.07em}
+  .task-t{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.3rem}
+  .task-d{font-size:.82rem;color:var(--text2);line-height:1.7}
+
+  .chips{display:flex;flex-wrap:wrap;gap:.45rem}
+  .chip{font-family:var(--mono);font-size:.72rem;color:var(--accent2);background:rgba(168,85,247,.07);border:1px solid var(--border2);padding:.32rem .75rem;border-radius:100px;letter-spacing:.03em}
+
+  .verify{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.3rem;font-family:var(--mono);font-size:.75rem;color:var(--text2);line-height:2;word-break:break-all}
+  .verify span{color:var(--accent2)}
+
+  .lightbox{position:fixed;inset:0;z-index:900;background:rgba(4,3,4,.96);backdrop-filter:blur(14px);display:none;align-items:center;justify-content:center;padding:1.5rem;cursor:zoom-out}
+  .lightbox.open{display:flex}
+  .lightbox img{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:10px;border:1px solid var(--border2)}
+
+  @media(max-width:700px){.wrap{padding:2.5rem 1rem 4rem}.tasks{grid-template-columns:1fr}.topbar{padding:.7rem 1rem}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <span class="topbar-tag">Credential &middot; Job Simulation</span>
+</div>
+
+<div class="wrap">
+  <div class="hero-label">// achievements &amp; credentials</div>
+  <h1 class="hero-title">Mastercard<br><em>Cybersecurity Job Simulation</em></h1>
+  <p class="hero-sub">A practical job simulation completed through Forage, working as an analyst on Mastercard&rsquo;s Security Awareness Team &mdash; designing a phishing simulation, interpreting the results, and turning those findings into targeted security training.</p>
+
+  <div class="issuer-bar">
+    <img src="mastercard-logo.png" alt="Mastercard">
+    <div class="issuer-txt"><strong>Mastercard</strong> &middot; delivered via Forage &nbsp;&middot;&nbsp; Completed September 2026</div>
+  </div>
+
+  <div class="meta">
+    <div class="pill"><div class="dot"></div>Security Awareness</div>
+    <div class="pill"><div class="dot"></div>Phishing Simulation</div>
+    <div class="pill"><div class="dot"></div>Data Analysis</div>
+    <div class="pill"><div class="dot"></div>Security Training</div>
+  </div>
+
+  <img src="mastercard-cert.jpg" alt="Mastercard Cybersecurity Job Simulation certificate" class="cert-img" onclick="document.getElementById('lb').classList.add('open')">
+
+  <div class="sec">
+    <h2 class="sec-h"><span class="sec-n">01</span> Overview</h2>
+    <p>This simulation placed me in the role of an analyst on Mastercard&rsquo;s Security Awareness Team. Rather than a theoretical course, the work centred on the practical side of the awareness function &mdash; identifying where an organisation is exposed through its people, testing that exposure safely, and responding with targeted training rather than blanket policy.</p>
+    <p>What made it worthwhile from a blue-team perspective is that it sits on the <strong>human</strong> side of security. Most technical controls assume the user eventually becomes the last line of defence. This simulation was about measuring how well that line actually holds, and improving it with evidence rather than assumption.</p>
+  </div>
+
+  <div class="sec">
+    <h2 class="sec-h"><span class="sec-n">02</span> Practical Tasks</h2>
+    <div class="tasks">
+      <div class="task">
+        <div class="task-n">TASK 01</div>
+        <div class="task-t">Design a phishing email simulation</div>
+        <div class="task-d">Built a controlled phishing simulation to test employee susceptibility &mdash; constructing a realistic lure and defining how the exercise would be run safely across the business.</div>
+      </div>
+      <div class="task">
+        <div class="task-n">TASK 02</div>
+        <div class="task-t">Interpret phishing simulation results</div>
+        <div class="task-d">Analysed the response data to identify which teams and business areas showed the weakest security posture, then translated those findings into prioritised training recommendations.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="sec-h"><span class="sec-n">03</span> What I Did</h2>
+    <ul>
+      <li>Served as an analyst on Mastercard&rsquo;s Security Awareness Team within the simulation</li>
+      <li>Helped identify and report security threats, with a focus on phishing</li>
+      <li>Analysed results to determine which areas of the business needed more robust security training</li>
+      <li>Implemented training courses and procedures targeted at the teams showing the greatest risk</li>
+    </ul>
+  </div>
+
+  <div class="sec">
+    <h2 class="sec-h"><span class="sec-n">04</span> Skills Applied</h2>
+    <div class="chips">
+      <span class="chip">Communication</span>
+      <span class="chip">Cybersecurity</span>
+      <span class="chip">Data Analysis</span>
+      <span class="chip">Data Visualization</span>
+      <span class="chip">Design Thinking</span>
+      <span class="chip">Problem Solving</span>
+      <span class="chip">Security Awareness</span>
+      <span class="chip">Security Training</span>
+      <span class="chip">Strategy</span>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 class="sec-h"><span class="sec-n">05</span> Verification</h2>
+    <div class="verify">
+      Issued to <span>ALEX PHILIP</span><br>
+      Date <span>23 September 2026</span><br>
+      Enrolment Verification Code <span>6ab2adccdd9917cbea02dc20</span><br>
+      User Verification Code <span>6ab2ad5a27a1fce094f43efd</span><br>
+      Issued by <span>Forage</span>
+    </div>
+  </div>
+</div>
+
+<div class="lightbox" id="lb" onclick="this.classList.remove('open')">
+  <img src="mastercard-cert.jpg" alt="Mastercard Cybersecurity Job Simulation certificate">
+</div>
+
+<script>
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') document.getElementById('lb').classList.remove('open');
+});
+</script>
+</body>
+</html>
