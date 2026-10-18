@@ -1,0 +1,40 @@
+/* Shared "sunset drive" layer: loaded after each page's own styles so every page matches drive.html. */
+:root {
+  --ap-ink: #22183a;
+  --ap-paper: #fff7ee;
+  --ap-rose: #ff4f7b;
+  --ap-sun: #ff8a3d;
+  --ap-display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
+  --ap-body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --ap-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+html body {
+  background-image: linear-gradient(180deg, #ffd2b4 0, #ffe4cf 180px, rgba(255, 228, 207, 0) 520px);
+  background-repeat: no-repeat;
+  -webkit-font-smoothing: antialiased;
+}
+h1, h2, h3 { letter-spacing: -0.02em; text-wrap: balance; }
+h1 em, h2 em, h3 em { font-style: normal; }
+::selection { background: rgba(255, 79, 123, .22); color: var(--ap-ink); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ap-rose); outline-offset: 3px; }
+img { max-width: 100%; }
+
+.ap-drive {
+  position: fixed; z-index: 9999;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 999px;
+  background: var(--ap-ink); color: var(--ap-paper) !important;
+  font: 600 12px/1 var(--ap-mono); letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
+  box-shadow: 0 12px 30px -12px rgba(34, 24, 58, .6);
+  transition: background .2s, transform .2s;
+}
+.ap-drive:hover { background: var(--ap-rose); transform: translateY(-2px); }
+.ap-drive-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-sun); box-shadow: 0 0 0 3px rgba(255, 138, 61, .3); }
+@media print { .ap-drive { display: none; } html body { background-image: none; } }
+@media (max-width: 520px) { .ap-drive { padding: 9px 13px; font-size: 11px; } }
+/* the display face is wider than the old serif: never let a long title push a phone screen sideways */
+h1, h2 { overflow-wrap: break-word; hyphens: manual; }
+@media (max-width: 600px) { h1 { letter-spacing: -0.035em; } }

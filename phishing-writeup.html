@@ -6,26 +6,26 @@
 <title>PhishGuard — Alex Philip · Portfolio</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='18' fill='black'/%3E%3Cpolygon points='15,22 50,40 85,22 85,32 50,50 15,32' fill='%237c3aed'/%3E%3Cpolygon points='15,42 50,60 85,42 85,52 50,70 15,52' fill='%237c3aed'/%3E%3Cpolygon points='22,62 50,76 78,62 78,72 50,86 22,72' fill='%237c3aed'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --bg:#080a0f;
-  --bg2:#0d1017;
-  --surface:#111520;
-  --border:#1e2535;
-  --border2:#2a3347;
-  --text:#e8edf5;
-  --muted:#5a6680;
-  --muted2:#3a4560;
-  --accent:#7c3aed;
-  --accent2:#a855f7;
-  --accent-glow:rgba(124,58,237,.25);
-  --green:#10d97a;
-  --red:#ef4444;
-  --yellow:#f59e0b;
-  --cyan:#22d3ee;
+  --bg:#fff4eb;
+  --bg2:#fff7f1;
+  --surface:#fffaf6;
+  --border:#f5e3d7;
+  --border2:#f3decf;
+  --text:#2c1c46;
+  --muted:#8c7ca8;
+  --muted2:#aea3c1;
+  --accent:#ff4f7b;
+  --accent2:#ff4f7b;
+  --accent-glow:rgba(255,79,123,0.25);
+  --green:#0fc770;
+  --red:#c51111;
+  --yellow:#ce8408;
+  --cyan:#0fafc7;
 }
 
 html{scroll-behavior:smooth}
@@ -55,7 +55,7 @@ nav{
   position:fixed;top:0;left:0;right:0;z-index:100;
   display:flex;align-items:center;justify-content:space-between;
   padding:20px 48px;
-  background:rgba(8,10,15,.85);
+  background:rgba(255,245,237,0.85);
   backdrop-filter:blur(12px);
   border-bottom:1px solid var(--border);
 }
@@ -78,13 +78,13 @@ nav{
 .nav-cta{
   display:flex;align-items:center;gap:8px;
   padding:8px 20px;border-radius:6px;
-  background:var(--accent);color:#fff;
+  background:var(--accent);color:#ffffff;
   font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
   text-decoration:none;transition:all .2s;
   border:1px solid var(--accent2);
 }
 .nav-cta:hover{background:var(--accent2);box-shadow:0 0 24px var(--accent-glow)}
-.nav-cta svg{width:13px;height:13px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.nav-cta svg{width:13px;height:13px;stroke:#ffffff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 
 /* ── Hero ── */
 .hero{
@@ -97,8 +97,8 @@ nav{
 .hero-grid-bg{
   position:absolute;inset:0;
   background-image:
-    linear-gradient(rgba(124,58,237,.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(124,58,237,.06) 1px, transparent 1px);
+    linear-gradient(rgba(255,79,123,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,79,123,0.06) 1px, transparent 1px);
   background-size:60px 60px;
   mask-image:radial-gradient(ellipse 80% 80% at 50% 50%, black 20%, transparent 100%);
 }
@@ -109,8 +109,8 @@ nav{
   filter:blur(80px);
   pointer-events:none;
 }
-.hero-orb-1{width:600px;height:600px;background:rgba(124,58,237,.15);top:-100px;right:-100px}
-.hero-orb-2{width:400px;height:400px;background:rgba(34,211,238,.06);bottom:100px;left:-50px}
+.hero-orb-1{width:600px;height:600px;background:rgba(255,79,123,0.15);top:-100px;right:-100px}
+.hero-orb-2{width:400px;height:400px;background:rgba(34,211,238,0.06);bottom:100px;left:-50px}
 
 .hero-tag{
   font-family:'JetBrains Mono',monospace;
@@ -152,10 +152,10 @@ nav{
 .btn-primary{
   display:inline-flex;align-items:center;gap:8px;
   padding:14px 28px;border-radius:8px;
-  background:var(--accent);color:#fff;
+  background:var(--accent);color:#ffffff;
   font-size:13px;font-weight:700;letter-spacing:.5px;
   text-decoration:none;transition:all .2s;
-  border:1px solid rgba(168,85,247,.3);
+  border:1px solid rgba(255,79,123,0.3);
 }
 .btn-primary:hover{background:var(--accent2);box-shadow:0 0 32px var(--accent-glow);transform:translateY(-2px)}
 .btn-primary svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
@@ -236,7 +236,7 @@ section{padding:100px 48px;position:relative}
 .stat-item:last-child{border-right:none}
 .stat-item::after{
   content:'';position:absolute;inset:0;
-  background:linear-gradient(135deg,rgba(124,58,237,.04),transparent);
+  background:linear-gradient(135deg,rgba(255,79,123,0.04),transparent);
   pointer-events:none;
 }
 .stat-val{
@@ -319,9 +319,9 @@ section{padding:100px 48px;position:relative}
   font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;
   padding:3px 10px;border-radius:20px;letter-spacing:.5px;
 }
-.v-high{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.3)}
-.v-med{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.3)}
-.v-low{background:rgba(16,217,122,.15);color:#34d399;border:1px solid rgba(16,217,122,.3)}
+.v-high{background:rgba(239,68,68,0.15);color:#cc0a0a;border:1px solid rgba(239,68,68,0.3)}
+.v-med{background:rgba(245,158,11,0.15);color:#d29904;border:1px solid rgba(245,158,11,0.3)}
+.v-low{background:rgba(16,217,122,0.15);color:#26b07e;border:1px solid rgba(16,217,122,0.3)}
 
 /* ── Test result card ── */
 .test-result{
@@ -341,19 +341,19 @@ section{padding:100px 48px;position:relative}
 .test-score-badge{
   display:flex;align-items:center;gap:10px;
   padding:8px 18px;border-radius:8px;
-  background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);
+  background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);
 }
-.test-score-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#f87171;line-height:1}
-.test-score-label{font-size:11px;color:#f87171;font-weight:700;letter-spacing:1px}
+.test-score-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:#cc0a0a;line-height:1}
+.test-score-label{font-size:11px;color:#cc0a0a;font-weight:700;letter-spacing:1px}
 .test-result-body{padding:28px;display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .test-field-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
 .test-field-val{font-size:13px;color:var(--text);word-break:break-all}
-.test-field-val.danger{color:#f87171}
+.test-field-val.danger{color:#cc0a0a}
 .test-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
 .test-chip{
   font-family:'JetBrains Mono',monospace;font-size:10px;
   padding:3px 9px;border-radius:10px;
-  background:rgba(124,58,237,.1);color:var(--accent2);border:1px solid rgba(124,58,237,.2);
+  background:rgba(255,79,123,0.1);color:var(--accent2);border:1px solid rgba(255,79,123,0.2);
 }
 
 /* ── Features grid ── */
@@ -427,7 +427,7 @@ section{padding:100px 48px;position:relative}
 .cta-section{
   padding:100px 48px;
   text-align:center;
-  background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(124,58,237,.08) 0%, transparent 70%);
+  background:radial-gradient(ellipse 60% 60% at 50% 50%, rgba(255,79,123,0.08) 0%, transparent 70%);
   border-top:1px solid var(--border);
 }
 .cta-section .section-title{margin-bottom:16px}
@@ -473,6 +473,7 @@ footer{
   .cta-section{padding:72px 24px}
 }
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 
@@ -638,7 +639,7 @@ footer{
       <div class="score-table-head">Risk Verdict</div>
       <div class="verdict-row"><span class="score-row-label">70 – 100</span><span class="verdict-badge v-high">HIGH RISK</span></div>
       <div class="verdict-row"><span class="score-row-label">40 – 69</span><span class="verdict-badge v-med">MEDIUM RISK</span></div>
-      <div class="verdict-row"><span class="score-row-label">15 – 39</span><span class="verdict-badge" style="background:rgba(245,158,11,.08);color:#fbbf24;border:1px solid rgba(245,158,11,.2)">LOW RISK</span></div>
+      <div class="verdict-row"><span class="score-row-label">15 – 39</span><span class="verdict-badge" style="background:rgba(245,158,11,0.08);color:#d29904;border:1px solid rgba(245,158,11,0.2)">LOW RISK</span></div>
       <div class="verdict-row"><span class="score-row-label">0 – 14</span><span class="verdict-badge v-low">CLEAN</span></div>
     </div>
   </div>
@@ -696,7 +697,7 @@ footer{
       </div>
       <div style="grid-column:1/-1;padding-top:8px;border-top:1px solid var(--border)">
         <div class="test-field-label" style="margin-bottom:8px">Outcome</div>
-        <p style="font-size:13px;line-height:1.7;color:var(--muted)">The extortion category auto-escalated the score when two or more extortion-specific indicators were found, correctly classifying this sextortion scam as <strong style="color:#f87171">HIGH RISK</strong>. Without the dedicated extortion category, this email previously scored only 8% — a critical detection gap now resolved.</p>
+        <p style="font-size:13px;line-height:1.7;color:var(--muted)">The extortion category auto-escalated the score when two or more extortion-specific indicators were found, correctly classifying this sextortion scam as <strong style="color:#cc0a0a">HIGH RISK</strong>. Without the dedicated extortion category, this email previously scored only 8% — a critical detection gap now resolved.</p>
       </div>
     </div>
   </div>
@@ -885,5 +886,6 @@ document.querySelectorAll('.reveal').forEach((el, i) => {
   observer.observe(el);
 });
 </script>
+<a class="ap-drive" href="drive.html" aria-label="Open the 3D drive-through portfolio"><span class="ap-drive-dot"></span>Take the 3D drive</a>
 </body>
 </html>
