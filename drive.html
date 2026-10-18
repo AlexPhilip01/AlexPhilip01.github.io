@@ -479,7 +479,9 @@
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   } catch (e) { addEventListener('scroll', () => updatePanels(scrollProgress()), { passive: true }); return; }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, isPhone ? 1.5 : 1.75));
+  const MAX_PR = Math.min(devicePixelRatio || 1, 2);
+  let curPR = Math.min(MAX_PR, isPhone ? 1.5 : 2);
+  renderer.setPixelRatio(curPR);
   renderer.setSize(innerWidth, innerHeight, false);
   renderer.shadowMap.enabled = !isPhone;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -513,7 +515,8 @@
   scene.add(new THREE.HemisphereLight('#f3e9f0', '#6f6478', 0.86));
   const sunLight = new THREE.DirectionalLight('#ffdcb8', 0.78);
   sunLight.castShadow = !isPhone;
-  sunLight.shadow.mapSize.set(2048, 2048);
+  sunLight.shadow.mapSize.set(isPhone ? 1024 : 4096, isPhone ? 1024 : 4096);
+  sunLight.shadow.normalBias = 0.03;
   Object.assign(sunLight.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 400 });
   sunLight.shadow.bias = -0.0008;
   scene.add(sunLight, sunLight.target);
@@ -1623,7 +1626,7 @@
   }
   const trunkGeo = new THREE.CylinderGeometry(0.18, 0.26, 2.2, 6); trunkGeo.translate(0, 1.1, 0);
   instanced(trunkGeo, M('#6b5a4a'), trunks);
-  instanced(new THREE.IcosahedronGeometry(1.5, 0), new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 }), crowns, it => it.color);
+  instanced(new THREE.IcosahedronGeometry(1.5, 1), new THREE.MeshPhongMaterial({ color: '#ffffff', shininess: 4 }), crowns, it => it.color);
 
   const posts = [], bulbs = [];
   let lampSide = 1;
@@ -2071,7 +2074,7 @@
     const g = new THREE.Group();
     const n = 3 + Math.floor(rand() * 4);
     for (let j = 0; j < n; j++) {
-      const s = new THREE.Mesh(new THREE.IcosahedronGeometry(4 + rand() * 5, 0), cloudMat);
+      const s = new THREE.Mesh(new THREE.IcosahedronGeometry(4 + rand() * 5, 1), cloudMat);
       s.position.set(j * 5 - n * 2.5, rand() * 2, (rand() - 0.5) * 4); s.scale.y = 0.6; g.add(s);
     }
     const a = rand() * Math.PI * 2, r = 40 + rand() * 260;
@@ -2399,6 +2402,31 @@
     document.getElementById('soundLabel').textContent = soundOn ? 'Sound on' : 'Sound off';
   });
 
+  // ---- smoother look: rounded shapes get smooth shading (boxes and pyramids stay crisp), sharper texture filtering ----
+  (function smoothScene() {
+    const maxAniso = renderer.capabilities.getMaxAnisotropy();
+    const cache = new Map();
+    const isRound = g => { const t = g.type, pr = g.parameters || {}; return t === 'SphereGeometry' || t === 'TorusGeometry' || (t === 'IcosahedronGeometry' && pr.detail >= 1) || ((t === 'CylinderGeometry' || t === 'ConeGeometry') && (pr.radialSegments || 8) >= 8); };
+    scene.traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (m.map && m.map.anisotropy < maxAniso) { m.map.anisotropy = maxAniso; m.map.needsUpdate = true; } if (m.emissiveMap) { m.emissiveMap.anisotropy = maxAniso; m.emissiveMap.needsUpdate = true; } });
+      if (Array.isArray(o.material) || !o.material.flatShading || !isRound(o.geometry)) return;
+      let sm = cache.get(o.material); if (!sm) { sm = o.material.clone(); sm.flatShading = false; sm.needsUpdate = true; cache.set(o.material, sm); }
+      o.material = sm;
+    });
+  })();
+  // keep the frame rate smooth: lower or raise the rendering resolution to suit the device
+  const perf = { t: 0, n: 0, last: performance.now() };
+  function adaptResolution(now) {
+    perf.t += now - perf.last; perf.last = now; perf.n++;
+    if (perf.n < 45) return;
+    const avg = perf.t / perf.n; perf.t = 0; perf.n = 0;
+    let next = curPR;
+    if (avg > 24 && curPR > 1) next = Math.max(1, curPR - 0.25);
+    else if (avg < 14 && curPR < MAX_PR) next = Math.min(MAX_PR, curPR + 0.25);
+    if (next !== curPR) { curPR = next; renderer.setPixelRatio(curPR); renderer.setSize(innerWidth, innerHeight, false); }
+  }
+
   // ---------- Loop ----------
   const odoM = document.getElementById('odoM'), odoBar = document.getElementById('odoBar');
   document.getElementById('odoTotal').textContent = Math.round((U1 - U0) * LEN).toLocaleString('en');
@@ -2426,6 +2454,7 @@
 
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    adaptResolution(now);
     const target = laps + scrollProgress();
     const prev = prog;
     prog += (target - prog) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 3.2));
