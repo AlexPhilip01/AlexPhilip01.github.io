@@ -1020,10 +1020,37 @@
   }
   const boxGeo = new THREE.BoxGeometry(1, 1, 1); boxGeo.translate(0, 0.5, 0);
   const topMat = new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 });
+  // windows: a tall tile of 3 x 8 windows, some lit warm (a few with TV-blue), different for every height class
+  function litTiles() {
+    const map = document.createElement('canvas'), glow = document.createElement('canvas');
+    map.width = glow.width = 128; map.height = glow.height = 512;
+    const m = map.getContext('2d'), e = glow.getContext('2d');
+    m.fillStyle = '#ffffff'; m.fillRect(0, 0, 128, 512); e.fillStyle = '#000000'; e.fillRect(0, 0, 128, 512);
+    for (let row = 0; row < 8; row++) {
+      const y = row * 64;
+      m.fillStyle = 'rgba(0,0,0,0.10)'; m.fillRect(0, y + 58, 128, 4);
+      for (let k = 0; k < 3; k++) {
+        const x = 16 + k * 38;
+        m.fillStyle = 'rgba(0,0,0,0.18)'; m.fillRect(x - 2, y + 8, 26, 4);
+        const lit = rand() < 0.42, tv = lit && rand() < 0.12;
+        const warm = tv ? '#9fc4ff' : pick(['#ffd27a', '#ffc861', '#ffe3a3', '#ffb85c']);
+        m.fillStyle = lit ? warm : 'rgba(34,38,52,0.78)'; m.fillRect(x, y + 14, 22, 38);
+        if (lit) {
+          e.fillStyle = warm; e.fillRect(x, y + 14, 22, 38);
+          if (rand() < 0.5) { m.fillStyle = 'rgba(120,60,40,0.35)'; m.fillRect(x, y + 14, 22, 14); e.fillStyle = 'rgba(0,0,0,0.45)'; e.fillRect(x, y + 14, 22, 14); } // half-drawn curtain
+        }
+        m.fillStyle = 'rgba(255,255,255,0.5)'; m.fillRect(x + 10, y + 14, 2, 38); m.fillRect(x, y + 32, 22, 2); // sash bars
+      }
+    }
+    const tm = new THREE.CanvasTexture(map), te = new THREE.CanvasTexture(glow);
+    [tm, te].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
+    return [tm, te];
+  }
   classes.forEach(c => {
     if (!c.list.length) return;
-    const t = winTex.clone(); t.needsUpdate = true; t.repeat.set(1, c.rows);
-    const side = new THREE.MeshPhongMaterial({ color: '#ffffff', map: t, flatShading: true, shininess: 4 });
+    const [tm, te] = litTiles();
+    [tm, te].forEach(t => t.repeat.set(1, c.rows / 8));
+    const side = new THREE.MeshPhongMaterial({ color: '#ffffff', map: tm, emissive: '#ffffff', emissiveMap: te, emissiveIntensity: 0.95, flatShading: true, shininess: 4 });
     instanced(boxGeo, [side, side, topMat, topMat, side, side], c.list, it => it.color);
   });
   instanced(boxGeo, new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 }), roofs, it => it.color);
@@ -1288,6 +1315,78 @@
       if (flagsUp > (isPhone ? 10 : 22) || rand() > 0.16 || roadDist(b.x, b.z) > ROAD_W + 16) return;
       flagOnPole(scene, b.x, b.sy, b.z, 1.1, 3.2, rand() * Math.PI * 2); flagsUp++;
     }));
+  })();
+
+  // ---------- Birds: flocks overhead, gulls by the river, pigeons on the pavement ----------
+  (function () {
+    const tri = pts => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); g.computeVertexNormals(); return g; };
+    const wingL = tri([0, 0, 0.16, 0, 0, -0.14, 0.75, 0, -0.06]), wingR = tri([0, 0, 0.16, -0.75, 0, -0.06, 0, 0, -0.14]);
+    const bodyGeo = new THREE.BoxGeometry(0.17, 0.14, 0.55);
+    function flier(col) {
+      const b = new THREE.Group();
+      const mat = new THREE.MeshLambertMaterial({ color: col, side: THREE.DoubleSide });
+      b.add(new THREE.Mesh(bodyGeo, mat));
+      const wl = new THREE.Mesh(wingL, mat), wr = new THREE.Mesh(wingR, mat); b.add(wl, wr);
+      b.userData.w = [wl, wr];
+      b.scale.setScalar(1.9);
+      return b;
+    }
+    const flocks = [];
+    const spots = [[0.06, 10, 13, '#4f5563'], [0.2, -8, 15, '#565c6a'], [0.3, 12, 14, '#565c6a'], [0.5, 8, 12, '#4f5563'], [0.703, 0, 11, '#f4f4f2'], [0.72, 14, 13, '#f4f4f2'], [0.88, 10, 14, '#565c6a']];
+    spots.forEach(([prog, side, h, col], i) => {
+      const u = prog > 0.7 && prog < 0.71 ? prog : uOf(prog);
+      const f = frameAt(u), c = f.p.clone().addScaledVector(f.n, side).setY(h);
+      const n = 6 + Math.floor(rand() * 6), birds = [];
+      for (let k = 0; k < n; k++) {
+        const b = flier(col); scene.add(b);
+        birds.push({ b, dx: (rand() - 0.5) * 6, dy: (rand() - 0.5) * 3, dz: -k * 1.3 + (rand() - 0.5), ph: rand() * 6, flap: 9 + rand() * 4 });
+      }
+      flocks.push({ c, R: 12 + rand() * 12, w: (0.18 + rand() * 0.12) * (i % 2 ? 1 : -1), a: rand() * 6, birds, bob: rand() * 6 });
+    });
+    const tmp = new THREE.Vector3();
+    function flyStep(dt, now) {
+      flocks.forEach(fl => {
+        fl.a += fl.w * dt;
+        const heading = fl.a + (fl.w > 0 ? Math.PI / 2 : -Math.PI / 2);
+        const fx = Math.cos(heading), fz = -Math.sin(heading); // forward
+        fl.birds.forEach(bd => {
+          bd.ph += dt * bd.flap;
+          const cx = fl.c.x + Math.cos(fl.a) * fl.R, cz = fl.c.z - Math.sin(fl.a) * fl.R;
+          // lay the flock out behind and beside the leader
+          tmp.set(cx + fx * bd.dz + fz * bd.dx, fl.c.y + bd.dy + Math.sin(now * 0.0012 + fl.bob) * 1.2, cz + fz * bd.dz - fx * bd.dx);
+          bd.b.position.copy(tmp);
+          bd.b.rotation.set(0, Math.atan2(fx, fz), (fl.w > 0 ? -1 : 1) * 0.25);
+          const flap = Math.sin(bd.ph) * 0.75, glide = Math.sin(bd.ph * 0.13) > 0.6;
+          bd.b.userData.w[0].rotation.z = glide ? 0.1 : flap; bd.b.userData.w[1].rotation.z = glide ? -0.1 : -flap;
+        });
+      });
+    }
+
+    // pigeons pecking on the pavement outside the palace, the shops and the café
+    const pigeonBody = new THREE.SphereGeometry(0.16, 8, 6), pigeonHead = new THREE.SphereGeometry(0.08, 8, 6);
+    const pigeons = [];
+    [[0.25, -1], [0.29, -1], [0.075, -1], [0.155, -1], [0.8, 1], [0.905, 1], [0.565, 1]].forEach(([prog, side]) => {
+      for (let k = 0; k < 4 + Math.floor(rand() * 4); k++) {
+        const f = frameAt(uOf(prog) + (rand() - 0.5) * 12 / LEN), off = ROAD_W + 1.0 + rand() * 1.2;
+        const p = new THREE.Group(); p.position.copy(f.p).addScaledVector(f.n, side * off); p.rotation.y = rand() * Math.PI * 2; scene.add(p);
+        const body = new THREE.Mesh(pigeonBody, M(pick(['#7d8491', '#6d7380', '#8f95a0']))); body.scale.set(0.9, 0.8, 1.4); body.position.y = 0.2; p.add(body);
+        const neck = new THREE.Group(); neck.position.set(0, 0.3, 0.17); p.add(neck);
+        const head = new THREE.Mesh(pigeonHead, M('#4e5a66')); head.position.set(0, 0.04, 0.06); neck.add(head);
+        const beak = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.07, 4), M('#d9a441')); beak.rotation.x = Math.PI / 2; beak.position.set(0, 0.03, 0.15); neck.add(beak);
+        [-0.05, 0.05].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.02), M('#c56a6a')); l.position.set(x, 0.05, 0); p.add(l); });
+        p.traverse(m => { if (m.isMesh) m.castShadow = false; });
+        pigeons.push({ p, neck, ph: rand() * 10, speed: 2 + rand() * 3, turn: rand() * 6 });
+      }
+    });
+    function pigeonStep(dt, now) {
+      pigeons.forEach(pg => {
+        pg.ph += dt * pg.speed;
+        pg.neck.rotation.x = Math.max(0, Math.sin(pg.ph * 2.2)) * 0.9; // peck
+        if (Math.sin(pg.ph * 0.37 + pg.turn) > 0.97) pg.p.rotation.y += dt * 4; // shuffle round now and then
+      });
+    }
+    flyStep(0, 0); pigeonStep(0, 0);
+    spinners.push(flyStep, pigeonStep);
   })();
 
   // ---------- Grey London clouds & distant skyline ----------
