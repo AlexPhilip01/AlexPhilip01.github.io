@@ -783,6 +783,133 @@
     [[-Dp / 2, -7], [-Dp / 2, 7], [1.5, -10.5], [1.5, 10.5], [1.5, 0]].forEach(([lx, lz]) => { const w = toW(lx, lz); occupied.push({ x: w.x, z: w.z, r: lx < 0 ? 9 : 2.5 }); });
   })();
 
+  // ---------- Tribute: Royal Holloway entrance and Founder's Building ----------
+  (function () {
+    const { pos, heading } = placeAt(uOf(0.245), 1, ROAD_W + 3.0);
+    const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = heading; scene.add(g); // local +x faces the road, z runs along it
+    const BRICK = '#c25b3c', BRICK_D = '#a84a30', DRESS = '#e9dfcb', SLATE_R = '#4d5560', LEAD = '#5d6670', IRON = '#15151a';
+    const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, heading).add(pos);
+    for (let lx = -2; lx >= -60; lx -= 7) for (let lz = -40; lz <= 40; lz += 7) { const w = toW(lx, lz); occupied.push({ x: w.x, z: w.z, r: 5 }); }
+
+    // grounds: lawn, gravel drive, cedars
+    const lawn = new THREE.Mesh(new THREE.PlaneGeometry(36, 80), M('#5f8f4a')); lawn.rotation.x = -Math.PI / 2; lawn.position.set(-18, 0.045, 0); lawn.receiveShadow = true; g.add(lawn);
+    const drive = new THREE.Mesh(new THREE.PlaneGeometry(24, 7), M('#d6ccb6')); drive.rotation.x = -Math.PI / 2; drive.position.set(-12, 0.05, 0); drive.receiveShadow = true; g.add(drive);
+    const forecourt = new THREE.Mesh(new THREE.PlaneGeometry(6, 30), M('#d6ccb6')); forecourt.rotation.x = -Math.PI / 2; forecourt.position.set(-21, 0.05, 2); g.add(forecourt);
+    function cedar(x, z, s) {
+      const t = new THREE.Group(); t.position.set(x, 0, z); t.scale.setScalar(s); t.rotation.y = rand() * 3; g.add(t);
+      mk(new THREE.CylinderGeometry(0.35, 0.55, 6, 7), '#5a4636', 0, 3, 0, t);
+      [[3.0, 4.6, 0.9], [5.0, 4.0, 0.9], [7.0, 3.2, 0.8], [9.0, 2.2, 0.8], [10.8, 1.2, 0.9]].forEach(([y, r, h]) => mk(new THREE.CylinderGeometry(r * 0.75, r, h, 8), '#2f5136', 0, y, 0, t));
+    }
+    cedar(-9, -27, 1.2); cedar(-8, 30, 1.05);
+    [[-14, 13], [-15, -13]].forEach(([x, z]) => { mk(new THREE.CylinderGeometry(0.25, 0.35, 3, 6), '#5a4636', x, 1.5, z, g); mk(new THREE.IcosahedronGeometry(2.6, 0), '#4f7f4a', x, 4.6, z, g); });
+
+    // ---- entrance: stone piers with finials, brick walls with balustrades, iron gates, name boards ----
+    function pier(z, h = 4.2) {
+      mk(new THREE.BoxGeometry(1.7, h, 1.7), DRESS, 0, h / 2, z, g);
+      mk(new THREE.BoxGeometry(2.0, 0.3, 2.0), '#d9cdb5', 0, h + 0.15, z, g);
+      mk(new THREE.CylinderGeometry(0.28, 0.36, 0.5, 10), DRESS, 0, h + 0.55, z, g);
+      mk(new THREE.SphereGeometry(0.48, 12, 10), DRESS, 0, h + 1.1, z, g);
+      [0.9, 2.1, 3.3].forEach(y => mk(new THREE.BoxGeometry(1.78, 0.08, 1.78), '#d4c7ad', 0, y, z, g)); // rusticated bands
+    }
+    [-4.6, 4.6, -16, 16, -34, 34].forEach(z => pier(z));
+    const balT = canvasTex(256, 64, (x, w, h) => { x.fillStyle = 'rgba(0,0,0,0)'; x.clearRect(0, 0, w, h); x.fillStyle = DRESS; x.fillRect(0, 0, w, 10); x.fillRect(0, h - 8, w, 8); for (let i = 0; i < 10; i++) { x.beginPath(); x.ellipse(12 + i * 25.6, 34, 6, 20, 0, 0, Math.PI * 2); x.fill(); } });
+    balT.wrapS = THREE.RepeatWrapping;
+    [[-4.6, -16], [4.6, 16], [-16, -34], [16, 34]].forEach(([a, b]) => {
+      const len = Math.abs(b - a) - 1.7, zc = (a + b) / 2;
+      mk(new THREE.BoxGeometry(0.9, 1.3, len), BRICK, 0, 0.65, zc, g);
+      mk(new THREE.BoxGeometry(1.0, 0.14, len), DRESS, 0, 1.36, zc, g);
+      const t = balT.clone(); t.needsUpdate = true; t.repeat.set(len / 2.5, 1);
+      [-1, 1].forEach(s => { const b2 = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.9), new THREE.MeshLambertMaterial({ map: t, transparent: true, side: THREE.DoubleSide })); b2.position.set(s * 0.12, 1.88, zc); b2.rotation.y = Math.PI / 2; g.add(b2); });
+      mk(new THREE.BoxGeometry(1.0, 0.12, len), DRESS, 0, 2.38, zc, g);
+    });
+    // open iron gates
+    [-1, 1].forEach(s => {
+      const leaf = new THREE.Group(); leaf.position.set(0, 0, s * 3.75); leaf.rotation.y = s * 1.2; g.add(leaf);
+      for (let k = 0; k < 14; k++) mk(new THREE.BoxGeometry(0.06, 3.2, 0.06), IRON, -0.0, 1.6 + Math.sin(k / 13 * Math.PI) * 0.25, -s * (0.15 + k * 0.26), leaf);
+      [0.4, 2.6].forEach(y => mk(new THREE.BoxGeometry(0.08, 0.1, 3.6), IRON, 0, y, -s * 1.85, leaf));
+    });
+    // name boards on the walls and the tribute plaque
+    const board = canvasTex(512, 128, (x, w, h) => { x.fillStyle = '#16233d'; x.fillRect(0, 0, w, h); x.strokeStyle = '#c9a43c'; x.lineWidth = 6; x.strokeRect(6, 6, w - 12, h - 12); x.fillStyle = '#e9d9a2'; x.textAlign = 'center'; x.font = '700 42px Georgia, serif'; x.fillText('ROYAL HOLLOWAY', w / 2, 58); x.font = '600 24px Georgia, serif'; x.fillText('UNIVERSITY OF LONDON', w / 2, 98); });
+    [-10.3, 10.3].forEach(z => { const b = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 1.1), new THREE.MeshBasicMaterial({ map: board })); b.position.set(0.47, 1.9, z); b.rotation.y = Math.PI / 2; g.add(b); });
+    const plaque = canvasTex(256, 192, (x, w, h) => { x.fillStyle = '#e2d6bd'; x.fillRect(0, 0, w, h); x.strokeStyle = '#8a7a5a'; x.lineWidth = 4; x.strokeRect(8, 8, w - 16, h - 16); x.fillStyle = '#3a3226'; x.textAlign = 'center'; x.font = '700 18px Georgia, serif'; x.fillText('IN TRIBUTE TO', w / 2, 44); x.font = '700 21px Georgia, serif'; x.fillText('ROYAL HOLLOWAY', w / 2, 76); x.font = '600 15px Georgia, serif'; x.fillText('ALEX PHILIP', w / 2, 116); x.fillText('MSc INFORMATION SECURITY', w / 2, 140); x.fillText('2022 – 2024', w / 2, 164); });
+    const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: plaque })); pl.position.set(0.87, 2.4, 4.6); pl.rotation.y = Math.PI / 2; g.add(pl);
+
+    // ---- Founder's Building (angled a little towards oncoming drivers) ----
+    const bg = new THREE.Group(); bg.rotation.y = 0.28; g.add(bg);
+    function facadeTex(widthM, floors) {
+      const t = canvasTex(256, 384, (x, w, h) => {
+        x.fillStyle = BRICK; x.fillRect(0, 0, w, h);
+        x.fillStyle = 'rgba(0,0,0,0.05)'; for (let y = 0; y < h; y += 6) x.fillRect(0, y, w, 1);
+        const fh = h / floors;
+        for (let f = 0; f < floors; f++) {
+          const y0 = f * fh;
+          x.fillStyle = DRESS; x.fillRect(0, y0 + fh - 10, w, 10);                       // stone string course
+          [40, 152].forEach(cx => {
+            x.fillStyle = DRESS; x.fillRect(cx - 6, y0 + 16, 76, fh - 34);                // stone surround
+            x.fillStyle = '#2e3440'; x.fillRect(cx, y0 + 24, 64, fh - 48);
+            x.fillStyle = DRESS; x.fillRect(cx + 30, y0 + 24, 4, fh - 48); x.fillRect(cx, y0 + 24 + (fh - 48) * 0.45, 64, 4); // mullion and transom
+            if (rand() < 0.35) { x.fillStyle = 'rgba(255,214,140,0.85)'; x.fillRect(cx + 2, y0 + 26, 26, (fh - 52) * 0.42); }
+          });
+        }
+        x.fillStyle = DRESS; x.fillRect(0, 0, 10, h); x.fillRect(w - 10, 0, 10, h);   // quoins
+      });
+      t.wrapS = THREE.RepeatWrapping; t.repeat.set(widthM / 5.5, 1); return t;
+    }
+    const roofPrism = (span, rise, len) => { const sh = new THREE.Shape(); sh.moveTo(-span / 2, 0); sh.lineTo(span / 2, 0); sh.lineTo(0, rise); sh.closePath(); const geo = new THREE.ExtrudeGeometry(sh, { depth: len, bevelEnabled: false }); geo.translate(0, 0, -len / 2); return geo; };
+    function block(x, z, dx, h, dz, floors) {
+      const side = new THREE.MeshLambertMaterial({ map: facadeTex(dz, floors) }), end = new THREE.MeshLambertMaterial({ map: facadeTex(dx, floors) }), top = M(BRICK_D);
+      const m = shadowy(new THREE.Mesh(new THREE.BoxGeometry(dx, h, dz), [side, side, top, top, end, end])); m.position.set(x, h / 2, z); bg.add(m);
+      return m;
+    }
+    const FX = -24; // building front line
+    // main range with slate roof, dormers and chimneys
+    block(FX - 7, 0, 14, 13, 68, 3);
+    mk(roofPrism(14.4, 6.5, 68), SLATE_R, FX - 7, 13, 0, bg);
+    for (let z = -30; z <= 30; z += 5) { if (Math.abs(z) < 7 || Math.abs(Math.abs(z) - 22) < 4) continue; mk(new THREE.BoxGeometry(1.6, 2.0, 1.8), BRICK, FX - 2.6, 14.4, z, bg); mk(new THREE.ConeGeometry(1.35, 1.6, 4), DRESS, FX - 2.6, 16.2, z, bg, { ry: Math.PI / 4 }); }
+    [-27, -14, 14, 27].forEach(z => { mk(new THREE.BoxGeometry(1.2, 5, 1.8), BRICK_D, FX - 7, 18.5, z, bg); mk(new THREE.BoxGeometry(1.5, 0.35, 2.1), DRESS, FX - 7, 21.1, z, bg); });
+    // pavilions: two inner and two end pavilions with steep roofs, spirelets and turrets
+    [-22, 22, -34, 34].forEach((z, i) => {
+      const dz = i < 2 ? 9 : 8, h = i < 2 ? 17 : 16;
+      block(FX - 6.5, z, 15, h, dz, 4);
+      const r = mk(new THREE.ConeGeometry(1, 1, 4), SLATE_R, FX - 6.5, h + 4.5, z, bg, { ry: Math.PI / 4 }); r.scale.set(10.6, 9, dz * 0.71);
+      mk(new THREE.ConeGeometry(0.35, 3.5, 6), LEAD, FX - 6.5, h + 10.5, z, bg);
+      [-1, 1].forEach(s => {
+        const tz = z + s * (dz / 2), tx = FX + 0.6;
+        mk(new THREE.CylinderGeometry(1.0, 1.0, h + 2, 10), BRICK, tx, (h + 2) / 2, tz, bg);
+        [h * 0.33, h * 0.66, h + 1.6].forEach(y => mk(new THREE.CylinderGeometry(1.06, 1.06, 0.35, 10), DRESS, tx, y, tz, bg));
+        mk(new THREE.ConeGeometry(1.25, 3.4, 10), LEAD, tx, h + 3.7, tz, bg);
+        mk(new THREE.SphereGeometry(0.16, 8, 6), GOLD, tx, h + 5.5, tz, bg);
+      });
+    });
+    // central clock tower with archway, lantern, cupolas and flag
+    block(FX - 4.5, 0, 11, 27, 11, 6);
+    [-1, 1].forEach(sx => [-1, 1].forEach(sz => mk(new THREE.BoxGeometry(0.7, 27, 0.7), DRESS, FX - 4.5 + sx * 5.3, 13.5, sz * 5.3, bg)));
+    [9, 18, 26.6].forEach(y => mk(new THREE.BoxGeometry(11.4, 0.5, 11.4), DRESS, FX - 4.5, y, 0, bg));
+    const archT = canvasTex(128, 192, (x, w, h) => { x.fillStyle = DRESS; x.fillRect(0, 0, w, h); x.fillStyle = '#1d1f26'; x.beginPath(); x.moveTo(22, h); x.lineTo(22, 80); x.arc(64, 80, 42, Math.PI, 0); x.lineTo(106, h); x.closePath(); x.fill(); x.fillStyle = 'rgba(255,214,140,0.35)'; x.fillRect(40, 120, 48, 72); });
+    const arch = new THREE.Mesh(new THREE.PlaneGeometry(6, 9), new THREE.MeshLambertMaterial({ map: archT })); arch.position.set(FX + 1.02, 4.5, 0); arch.rotation.y = Math.PI / 2; bg.add(arch);
+    const clockT = canvasTex(256, 256, (x) => {
+      x.fillStyle = '#f6f1e4'; x.beginPath(); x.arc(128, 128, 120, 0, Math.PI * 2); x.fill(); x.strokeStyle = '#1d1f26'; x.lineWidth = 6; x.stroke();
+      for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; x.lineWidth = i % 3 ? 4 : 9; x.beginPath(); x.moveTo(128 + Math.sin(a) * 92, 128 - Math.cos(a) * 92); x.lineTo(128 + Math.sin(a) * 110, 128 - Math.cos(a) * 110); x.stroke(); }
+      x.lineWidth = 9; x.beginPath(); x.moveTo(128, 128); x.lineTo(170, 100); x.stroke(); x.lineWidth = 6; x.beginPath(); x.moveTo(128, 128); x.lineTo(128, 40); x.stroke();
+    });
+    [[FX + 1.04, 0, Math.PI / 2], [FX - 4.5, 5.54, 0], [FX - 4.5, -5.54, Math.PI]].forEach(([x, z, ry]) => {
+      const c = new THREE.Mesh(new THREE.CircleGeometry(2.0, 32), new THREE.MeshBasicMaterial({ map: clockT })); c.position.set(x, 22, z); c.rotation.y = ry; bg.add(c);
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(2.1, 0.16, 6, 32), M(GOLD)); ring.position.copy(c.position); ring.rotation.y = ry; bg.add(ring);
+    });
+    // corner pinnacles on the tower top
+    [-1, 1].forEach(sx => [-1, 1].forEach(sz => { const px = FX - 4.5 + sx * 4.8, pz = sz * 4.8; mk(new THREE.CylinderGeometry(0.75, 0.75, 4.2, 8), DRESS, px, 29, pz, bg); mk(new THREE.ConeGeometry(0.95, 3.2, 8), LEAD, px, 32.7, pz, bg); mk(new THREE.SphereGeometry(0.15, 8, 6), GOLD, px, 34.4, pz, bg); }));
+    // octagonal lantern stages, domes and spire
+    mk(new THREE.CylinderGeometry(3.8, 4.2, 4.2, 8), BRICK, FX - 4.5, 29, 0, bg);
+    mk(new THREE.CylinderGeometry(4.3, 4.3, 0.4, 8), DRESS, FX - 4.5, 31.2, 0, bg);
+    mk(new THREE.SphereGeometry(4.0, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), LEAD, FX - 4.5, 31.3, 0, bg);
+    mk(new THREE.CylinderGeometry(1.7, 1.9, 3.2, 8), DRESS, FX - 4.5, 36.4, 0, bg);
+    mk(new THREE.SphereGeometry(1.8, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2), LEAD, FX - 4.5, 38, 0, bg);
+    mk(new THREE.CylinderGeometry(0.7, 0.8, 1.8, 8), DRESS, FX - 4.5, 40.4, 0, bg);
+    mk(new THREE.ConeGeometry(0.75, 3.2, 8), LEAD, FX - 4.5, 42.9, 0, bg);
+    mk(new THREE.SphereGeometry(0.25, 8, 6), GOLD, FX - 4.5, 44.6, 0, bg);
+    flagOnPole(bg, FX - 4.5, 44.6, 0, 1.6, 3.4, Math.PI / 2);
+  })();
+
   // Gothic clock tower
   (function () {
     const { pos } = placeAt(uOf(0.1), -1, 22);
