@@ -576,7 +576,7 @@
   }
 
   // ---------- Billboards at each stop ----------
-  const signColors = [['#a855f7', '#ffffff'], ['#140d1a', '#c084fc'], ['#fff7ee', '#6b21a8'], ['#6b21a8', '#f0eaff'], ['#140d1a', '#ffffff']];
+  const signColors = [['#111114', '#ffffff'], ['#ffffff', '#111114']];
   const signBoards = [];
   // Overhead gantry signs: centred over the road so they are always in view as you approach
   panels.slice(1).forEach((p, i) => {
@@ -628,8 +628,8 @@
     occupied.push({ x: f.p.x + f.n.x * (ROAD_W + 1.6), z: f.p.z + f.n.z * (ROAD_W + 1.6), r: 3 });
     occupied.push({ x: f.p.x - f.n.x * (ROAD_W + 1.6), z: f.p.z - f.n.z * (ROAD_W + 1.6), r: 3 });
   }
-  gate(uOf(0) + 0.022, 'CYBERSECURITY PORTFOLIO', 'ALEX PHILIP', '#140d1a', '#c084fc');
-  gate(U1 + 0.012, 'END OF THE ROAD', 'THANKS FOR DRIVING', '#a855f7', '#ffffff');
+  gate(uOf(0) + 0.022, 'CYBERSECURITY PORTFOLIO', 'ALEX PHILIP', '#111114', '#ffffff');
+  gate(U1 + 0.012, 'END OF THE ROAD', 'THANKS FOR DRIVING', '#ffffff', '#111114');
 
   // ---------- London: landmarks ----------
   const spinners = [];
