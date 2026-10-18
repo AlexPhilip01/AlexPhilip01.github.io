@@ -4,22 +4,22 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CyberLeek: Extortion Without a Ransom Note &ndash; Alex Philip</title>
-<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="icon" type="image/jpeg" href="shield-icon.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#07050a;--surface:#140d1a;--surface2:#1a1025;--border:rgba(255,255,255,0.07);--border2:rgba(168,85,247,0.25);--accent:#a855f7;--accent2:#c084fc;--accent-dim:rgba(168,85,247,0.1);--text:#f0eaff;--text2:#8a7a9a;--text3:#5a4a6a;--mono:"DM Mono",monospace;--serif:"DM Serif Display",Georgia,serif;--sans:"Outfit",sans-serif}
+  :root{--bg:#080807;--surface:#151412;--surface2:#1d1b18;--border:rgba(255,255,255,0.07);--border2:rgba(212,168,58,0.25);--accent:#d4a83a;--accent2:#e9cf7a;--accent-dim:rgba(212,168,58,0.1);--text:#f7f6f2;--text2:#968e7e;--text3:#635d51;--mono:"DM Mono",monospace;--serif:"Cinzel",Georgia,serif;--sans:"Outfit",sans-serif}
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7}
   p{text-align:justify}
-  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(168,85,247,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(168,85,247,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(212,168,58,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(212,168,58,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
 
-  .topbar{position:sticky;top:0;z-index:100;background:rgba(7,5,10,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(8,8,7,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
   .back-link{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.04em;transition:color 0.2s}
   .back-link:hover{color:var(--accent)}
-  .topbar-tag{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(168,85,247,0.2);padding:0.25rem 0.75rem;border-radius:100px;letter-spacing:0.06em}
+  .topbar-tag{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(212,168,58,0.2);padding:0.25rem 0.75rem;border-radius:100px;letter-spacing:0.06em}
 
   .hero{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3.5rem 2rem 0}
   .hero-label{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:0.7rem}
@@ -59,7 +59,7 @@
   .article a.inline{color:var(--accent2);text-decoration:none;border-bottom:1px solid var(--border2)}
   .article a.inline:hover{color:var(--accent)}
 
-  .callout{background:var(--accent-dim);border:1px solid rgba(168,85,247,0.25);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
+  .callout{background:var(--accent-dim);border:1px solid rgba(212,168,58,0.25);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
   .callout strong{color:var(--accent)}
   .warn{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25);border-left:3px solid #f87171;border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
   .warn strong{color:#f87171}
@@ -78,10 +78,10 @@
   /* comparison */
   .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin:1rem 0}
   .cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem}
-  .cmp-card.trad{border-left:3px solid #64748b}
+  .cmp-card.trad{border-left:3px solid #837b6c}
   .cmp-card.new{border-left:3px solid var(--accent)}
   .cmp-label{font-family:var(--mono);font-size:0.63rem;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:0.55rem}
-  .cmp-card.trad .cmp-label{color:#94a3b8}
+  .cmp-card.trad .cmp-label{color:#afa99d}
   .cmp-card.new .cmp-label{color:var(--accent)}
   .cmp-item{font-size:0.82rem;color:var(--text2);padding-left:1rem;position:relative;line-height:1.7;margin-bottom:0.35rem}
   .cmp-item::before{content:"\203A";position:absolute;left:0;font-weight:700;color:var(--text3)}
@@ -98,7 +98,7 @@
   .data-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.84rem}
   .data-table th{font-family:var(--mono);font-size:0.64rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);padding:0.6rem 0.9rem;text-align:left;border:1px solid var(--border2)}
   .data-table td{padding:0.6rem 0.9rem;border:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.65}
-  .data-table tr:hover td{background:rgba(168,85,247,0.03)}
+  .data-table tr:hover td{background:rgba(212,168,58,0.03)}
 
   /* sources */
   .src-list{display:flex;flex-direction:column;gap:0.5rem}
