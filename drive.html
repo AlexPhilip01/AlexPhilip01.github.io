@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="description" content="Alex Philip – cybersecurity portfolio. Drive through it in 3D.">
-<link rel="icon" type="image/jpeg" href="logo.jpg">
+<link rel="icon" type="image/jpeg" href="shield-icon.jpg">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
@@ -215,6 +215,48 @@
     .panel.hero { width: auto; padding: 20px; background: rgba(10, 10, 12, .88); }
     .hero h1 { font-size: clamp(34px, 11vw, 52px); }
   }
+  /* ---- SHIELD theme: black glass, gold, warm white ---- */
+  :root {
+    --ink: #ece8de; --ink-soft: #b3ac9c; --paper: #0b0b0d; --glass: rgba(11, 11, 13, .86);
+    --rose: #d4a83a; --rose-text: #e9cf7a; --line: rgba(212, 168, 58, .28);
+    --display: 'Cinzel', 'Trajan Pro', Georgia, 'Times New Roman', serif;
+  }
+  .panel { border-color: rgba(212, 168, 58, .55); box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .7); }
+  .panel h2, .panel h3 { color: #f0c94f; letter-spacing: .03em; }
+  .panel h2 { font-weight: 600; }
+  .project h3, .timeline h3 { color: #ece8de; font-family: var(--body); font-weight: 700; letter-spacing: 0; }
+  .eyebrow { color: #c9c3b4; letter-spacing: .2em; }
+  .eyebrow::before { background: var(--rose); }
+  .skill-group h3 { color: #b3ac9c; font-family: var(--mono); }
+  .chip { border-color: rgba(212, 168, 58, .6); color: #ece8de; }
+  .chip.hot { background: linear-gradient(180deg, #f0c94f, #c99a2e); color: #0b0b0d; border-color: #d4a83a; }
+  .facts dt, .project .yr, .timeline .when { color: #b3ac9c; }
+  .timeline { border-left-color: rgba(212, 168, 58, .7); }
+  .timeline li::before { background: #0b0b0d; border-color: #d4a83a; }
+  .timeline li:first-child::before { background: #d4a83a; border-color: #d4a83a; }
+  .project { border-top-color: rgba(212, 168, 58, .22); }
+  .email { background: rgba(212, 168, 58, .1); color: #f0c94f; }
+  .links a { color: #ece8de; border-bottom-color: #d4a83a; }
+  .links a:hover, .tags a:hover, a.plain:hover { color: #f0c94f; }
+  .btn { background: rgba(11, 11, 13, .86); color: #e9cf7a; border-color: rgba(212, 168, 58, .55); }
+  .btn:hover { background: #0b0b0d; border-color: #d4a83a; }
+  .btn.solid { background: linear-gradient(180deg, #f0c94f, #c99a2e); color: #0b0b0d; border-color: #d4a83a; }
+  .btn.solid:hover { background: #f0c94f; }
+  .brand-name { font-family: 'Cinzel', Georgia, serif; color: #f0c94f; font-weight: 600; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
+  img.mono-mark { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid #d4a83a; background: #0b0b0d; display: block; }
+  .draft { background: rgba(11, 11, 13, .86); color: #e9cf7a; border: 1px solid rgba(212, 168, 58, .45); }
+  .stops { background: rgba(11, 11, 13, .86); border-color: rgba(212, 168, 58, .45); }
+  .stop-btn { color: #e9cf7a; }
+  .stop-btn i { border-color: #d4a83a; }
+  .stop-btn.active i { background: #d4a83a; border-color: #d4a83a; }
+  .odo { color: #e9cf7a; background: rgba(11, 11, 13, .82); border: 1px solid rgba(212, 168, 58, .45); border-radius: 12px; padding: 8px 12px; }
+  .odo-bar { background: rgba(212, 168, 58, .25); }
+  .odo-bar i { background: #d4a83a; }
+  .hint { color: #e9cf7a; background: rgba(11, 11, 13, .8); border: 1px solid rgba(212, 168, 58, .45); border-radius: 14px; padding: 10px 14px; }
+  .hint .wheel, .hint .wheel::after { border-color: #d4a83a; }
+  .hint .wheel::after { background: #d4a83a; }
+  ::selection { background: rgba(212, 168, 58, .35); color: #fff; }
+  .btn:focus-visible, .stop-btn:focus-visible, a:focus-visible { outline-color: #d4a83a; }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -222,7 +264,7 @@
 
 <header class="hud-top">
   <a class="brand" href="index.html" title="Back to the main site" style="color:inherit;text-decoration:none">
-    <div class="mono-mark" aria-hidden="true">AP</div>
+    <img class="mono-mark" src="data:image/jpeg;base64,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" alt="" aria-hidden="true">
     <span class="brand-name">Alex Philip</span>
     <span class="draft"><i class="live-dot"></i>Available for opportunities</span>
   </a>
@@ -1993,7 +2035,7 @@
   const lean = new THREE.Group(); rider.add(lean);
   const wheels = [];
   (function buildCar() {
-    const white = M('#fbfaf7'), glass = M('#1f2740'), dark = M('#1d1a26'), rimM = M('#565866'), chrome = M('#d7dae2'), trim = M('#2e2a3a'), caliper = M('#ff4f7b');
+    const white = M('#fbfaf7'), glass = M('#1f2740'), dark = M('#1d1a26'), rimM = M('#565866'), chrome = M('#d7dae2'), trim = M('#2e2a3a'), caliper = M('#d4a83a');
     const add = (geo, mat, x, y, z, rx = 0, ry = 0, parent = lean) => { const m = shadowy(new THREE.Mesh(geo, mat), true, false); m.position.set(x, y, z); m.rotation.x = rx; m.rotation.y = ry; parent.add(m); return m; };
     const profile = (pts, width) => {
       const sh = new THREE.Shape(); pts.forEach(([z, y], i) => i ? sh.lineTo(z, y) : sh.moveTo(z, y));
@@ -2004,8 +2046,9 @@
     const bx = bc.getContext('2d');
     bx.fillStyle = '#22183a'; bx.beginPath(); bx.arc(128, 128, 124, 0, Math.PI * 2); bx.fill();
     bx.strokeStyle = '#d7dae2'; bx.lineWidth = 10; bx.beginPath(); bx.arc(128, 128, 112, 0, Math.PI * 2); bx.stroke();
-    bx.strokeStyle = '#ff4f7b'; bx.lineWidth = 8; bx.beginPath(); bx.arc(128, 128, 96, 0, Math.PI * 2); bx.stroke();
+    bx.strokeStyle = '#d4a83a'; bx.lineWidth = 8; bx.beginPath(); bx.arc(128, 128, 96, 0, Math.PI * 2); bx.stroke();
     bx.fillStyle = '#ffffff'; bx.textAlign = 'center'; bx.textBaseline = 'middle'; bx.font = '800 92px Unbounded, "Arial Black", sans-serif'; bx.fillText('AP', 128, 134);
+    { const im = new Image(); im.onload = () => { bx.save(); bx.beginPath(); bx.arc(128, 128, 90, 0, Math.PI * 2); bx.clip(); bx.fillStyle = '#0b0b0d'; bx.fillRect(0, 0, 256, 256); bx.drawImage(im, 150, 18, 212, 272, 76, 60, 104, 134); bx.restore(); badgeTex.needsUpdate = true; }; im.src = SHIELD_LOGO; } // SHIELD emblem replaces the AP monogram
     const badgeTex = new THREE.CanvasTexture(bc); badgeTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     const badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex });
     const badge = (r, x, y, z, rx, ry, parent = lean) => { const m = new THREE.Mesh(new THREE.CircleGeometry(r, 32), badgeMat); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); parent.add(m); return m; };
