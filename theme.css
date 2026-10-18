@@ -1,36 +1,19 @@
-/* Shared "clean light" layer, loaded after each page's own styles. drive.html does not use it. */
-:root {
-  --ap-ink: #1d2330;
-  --ap-muted: #5b6372;
-  --ap-line: #e4e7ec;
-  --ap-blue: #2357d9;
-  --ap-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  color-scheme: light;
-}
-html body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
-/* the old dark pages drew a faint grid behind everything; a minimal page goes without it */
-body::before { background-image: none !important; }
-h1, h2, h3 { letter-spacing: -0.025em; text-wrap: balance; }
-h1 em, h2 em, h3 em { font-style: normal; }
-::selection { background: rgba(35, 87, 217, .16); color: var(--ap-ink); }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 3px; }
-img { max-width: 100%; }
-h1, h2 { overflow-wrap: break-word; }
-
+/* Shared layer for the original black & purple pages: only adds the link to the 3D drive. drive.html does not use it. */
 .ap-drive {
   position: fixed; z-index: 9999;
   right: max(16px, env(safe-area-inset-right, 0px));
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 16px; border-radius: 999px;
-  background: #fff; color: var(--ap-ink) !important; border: 1px solid var(--ap-line);
-  font: 500 12px/1 var(--ap-mono); letter-spacing: .04em; text-decoration: none;
-  box-shadow: 0 6px 20px -10px rgba(29, 35, 48, .35);
-  transition: border-color .2s, color .2s, transform .2s;
+  background: rgba(20, 13, 26, .92); color: #f0eaff !important;
+  border: 1px solid rgba(168, 85, 247, .35);
+  font: 500 12px/1 'DM Mono', ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; text-decoration: none;
+  box-shadow: 0 0 30px rgba(168, 85, 247, .18);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  transition: border-color .2s, box-shadow .2s, transform .2s;
 }
-.ap-drive:hover { border-color: var(--ap-blue); color: var(--ap-blue) !important; transform: translateY(-1px); }
-.ap-drive-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ap-blue); }
+.ap-drive:hover { border-color: #a855f7; box-shadow: 0 0 40px rgba(168, 85, 247, .35); transform: translateY(-1px); }
+.ap-drive:focus-visible { outline: 2px solid #c084fc; outline-offset: 3px; }
+.ap-drive-dot { width: 7px; height: 7px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 8px #a855f7; }
 @media print { .ap-drive { display: none; } }
 @media (max-width: 520px) { .ap-drive { padding: 9px 13px; font-size: 11px; } }
-/* SOC write-up: one badge inherited a transparent gradient-text fill and showed up blank */
-.pill { -webkit-text-fill-color: currentColor; }
