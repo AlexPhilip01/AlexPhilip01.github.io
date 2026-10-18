@@ -257,6 +257,8 @@
   .hint .wheel::after { background: #d4a83a; }
   ::selection { background: rgba(212, 168, 58, .35); color: #fff; }
   .btn:focus-visible, .stop-btn:focus-visible, a:focus-visible { outline-color: #d4a83a; }
+  .minimap { position: fixed; z-index: 5; right: max(24px, calc(env(safe-area-inset-right, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); width: 172px; height: 172px; border-radius: 50%; pointer-events: none; box-shadow: 0 10px 30px -8px rgba(0, 0, 0, .7); }
+  @media (max-width: 760px) { .minimap { width: 92px; height: 92px; bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 66px); right: max(14px, env(safe-area-inset-right, 0px)); } }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
@@ -1670,6 +1672,7 @@
     }
   })();
 
+  const trafficRef = { list: [] };
   // ---------- Traffic: red double-deckers and black cabs (oncoming lane) ----------
   (function () {
     function wheelSet(parent, xs, zs, r) {
@@ -1747,6 +1750,42 @@
       g.userData.isBus = true;
       return g;
     }
+    // SHIELD-liveried SUVs and sedans
+    const emblemMat = shieldAd(128, 160, (x, img) => { x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 128, 160); x.strokeStyle = '#d4a83a'; x.lineWidth = 5; x.strokeRect(3, 3, 122, 154); x.drawImage(img, 150, 18, 212, 272, 14, 10, 100, 128); x.fillStyle = '#f0c94f'; x.font = '700 18px Georgia, serif'; x.textAlign = 'center'; x.fillText('SHIELD', 64, 152); });
+    function decals(g, x, y, z, w, h) {
+      [-1, 1].forEach(sd => { const d = new THREE.Mesh(new THREE.PlaneGeometry(w, h), emblemMat); d.position.set(sd * x, y, z); d.rotation.y = sd * Math.PI / 2; g.add(d); });
+    }
+    function lamps(g, y, zf, zb, xs) {
+      xs.forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), BasicM('#f4fbff')); l.position.set(x, y, zf); g.add(l); const t = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), BasicM('#ff2a4a')); t.position.set(x, y, zb); g.add(t); });
+    }
+    function suv(col) {
+      const g = new THREE.Group(), carGlass = '#26303f';
+      mk(new THREE.BoxGeometry(2.0, 0.95, 4.7), col, 0, 0.9, 0, g);
+      mk(new THREE.BoxGeometry(2.04, 0.32, 4.74), '#24242a', 0, 0.48, 0, g);
+      mk(new THREE.BoxGeometry(1.86, 0.78, 2.9), carGlass, 0, 1.75, -0.3, g);
+      mk(new THREE.BoxGeometry(1.9, 0.1, 2.75), col, 0, 2.17, -0.32, g);
+      [-0.78, 0.78].forEach(x => mk(new THREE.BoxGeometry(0.06, 0.07, 2.4), '#9aa0aa', x, 2.26, -0.32, g));
+      [-0.95, 0.95].forEach(x => mk(new THREE.BoxGeometry(0.05, 0.78, 0.12), col, x, 1.75, -0.2, g));
+      mk(new THREE.BoxGeometry(1.2, 0.3, 0.05), '#1a1a1e', 0, 0.85, 2.36, g);
+      lamps(g, 1.1, 2.36, -2.36, [-0.72, 0.72]);
+      decals(g, 1.006, 0.98, 0.35, 0.72, 0.9);
+      const hood = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.62), emblemMat); hood.rotation.x = -Math.PI / 2; hood.position.set(0, 1.38, 1.7); g.add(hood);
+      wheelSet(g, [-0.95, 0.95], [1.5, -1.5], 0.44);
+      return g;
+    }
+    function sedan(col) {
+      const g = new THREE.Group(), carGlass = '#26303f';
+      mk(new THREE.BoxGeometry(1.86, 0.62, 4.6), col, 0, 0.66, 0, g);
+      mk(new THREE.BoxGeometry(1.8, 0.14, 1.3), col, 0, 1.0, 1.55, g, { rx: 0.06 });
+      mk(new THREE.BoxGeometry(1.66, 0.6, 2.3), carGlass, 0, 1.25, -0.25, g);
+      mk(new THREE.BoxGeometry(1.7, 0.08, 1.95), col, 0, 1.58, -0.3, g);
+      [-0.84, 0.84].forEach(x => mk(new THREE.BoxGeometry(0.05, 0.6, 0.1), col, x, 1.25, -0.2, g));
+      lamps(g, 0.78, 2.31, -2.31, [-0.62, 0.62]);
+      decals(g, 0.936, 0.66, 0.2, 0.56, 0.62);
+      const boot = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.45), emblemMat); boot.rotation.y = Math.PI; boot.position.set(0, 0.7, -2.31); g.add(boot);
+      wheelSet(g, [-0.9, 0.9], [1.42, -1.42], 0.36);
+      return g;
+    }
     function cab() {
       const g = new THREE.Group();
       mk(new THREE.BoxGeometry(1.8, 0.85, 4.4), '#16161a', 0, 0.72, 0, g);
@@ -1759,7 +1798,7 @@
       return g;
     }
     const fleet = [];
-    [[0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.37, bus, 9], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.8, cab, 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
+    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
       const v = make(); scene.add(v); fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus });
     });
     function place(o) {
@@ -1768,6 +1807,7 @@
       o.v.rotation.y = Math.atan2(f.t.x, f.t.z) + Math.PI;
     }
     fleet.forEach(place);
+    trafficRef.list = fleet;
     // buses pull in at every shelter on their side for 3 seconds; everything keeps a safe gap to whatever is in front
     const stopsU = BUS_STOP_PROGS.map(uOf);
     const aheadDist = (from, to) => ((((from - to) % 1) + 1) % 1) * LEN; // we travel towards smaller u
@@ -2030,6 +2070,61 @@
   }
   const sk = instanced(boxGeo, new THREE.MeshLambertMaterial({ color: '#ffffff' }), skyline, it => it.color); sk.castShadow = false;
 
+  // ---------- Mini-map (bottom right): the loop, river, stops, landmarks, traffic and you ----------
+  const miniMap = (function () {
+    const mm = document.createElement('canvas'); mm.className = 'minimap'; mm.setAttribute('role', 'img'); mm.setAttribute('aria-label', 'Map of the route');
+    document.body.appendChild(mm);
+    const ctx = mm.getContext('2d');
+    const road = []; for (let i = 0; i <= SEG; i += 6) road.push(frames[i].p);
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
+    road.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z); });
+    const cx0 = (minX + maxX) / 2, cz0 = (minZ + maxZ) / 2, span = Math.max(maxX - minX, maxZ - minZ) * 1.18;
+    const stopPts = signBoards.map(s => s.g.position.clone());
+    const marks = [
+      { p: frameAt(uOf(0) + 0.022).p, c: '#ffffff', label: 'S' },
+      { p: frameAt(uOf(0.128)).p.clone().addScaledVector(frameAt(uOf(0.128)).n, 14), c: '#d4a83a', sq: true },
+      { p: frameAt(uOf(0.245)).p.clone().addScaledVector(frameAt(uOf(0.245)).n, 30), c: '#c25b3c', sq: true }
+    ];
+    const riverA = RIV.p.clone().addScaledVector(RIV.n, -RIVER_LEN / 2), riverB = RIV.p.clone().addScaledVector(RIV.n, RIVER_LEN / 2);
+    let size = 0;
+    function resize() {
+      const css = mm.getBoundingClientRect().width || 170, dpr = Math.min(devicePixelRatio || 1, 2);
+      if (Math.round(css * dpr) !== size) { size = Math.round(css * dpr); mm.width = mm.height = size; }
+    }
+    return function draw(pos, t) {
+      resize(); if (!size) return;
+      const S = size, R = S / 2, k = S / span;
+      const X = x => R + (x - cx0) * k, Y = z => R + (z - cz0) * k;
+      ctx.clearRect(0, 0, S, S);
+      ctx.save(); ctx.beginPath(); ctx.arc(R, R, R - 1, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = 'rgba(11, 11, 13, 0.88)'; ctx.fillRect(0, 0, S, S);
+      // river
+      ctx.strokeStyle = '#2f5d86'; ctx.lineWidth = Math.max(6, S * 0.045); ctx.lineCap = 'round';
+      ctx.beginPath(); ctx.moveTo(X(riverA.x), Y(riverA.z)); ctx.lineTo(X(riverB.x), Y(riverB.z)); ctx.stroke();
+      // road
+      ctx.strokeStyle = '#6f6a5e'; ctx.lineWidth = Math.max(4, S * 0.03); ctx.lineJoin = 'round';
+      ctx.beginPath(); road.forEach((p, i) => i ? ctx.lineTo(X(p.x), Y(p.z)) : ctx.moveTo(X(p.x), Y(p.z))); ctx.closePath(); ctx.stroke();
+      ctx.strokeStyle = 'rgba(212, 168, 58, 0.55)'; ctx.lineWidth = Math.max(1, S * 0.006); ctx.stroke();
+      // landmarks
+      marks.forEach(m => { ctx.fillStyle = m.c; const r = S * 0.022; if (m.sq) ctx.fillRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); else { ctx.beginPath(); ctx.arc(X(m.p.x), Y(m.p.z), r, 0, Math.PI * 2); ctx.fill(); } });
+      // traffic
+      (trafficRef.list || []).forEach(o => { ctx.fillStyle = o.isBus ? '#e0303f' : '#b9b4a8'; ctx.beginPath(); ctx.arc(X(o.v.position.x), Y(o.v.position.z), S * (o.isBus ? 0.013 : 0.009), 0, Math.PI * 2); ctx.fill(); });
+      // numbered stops
+      ctx.font = '700 ' + Math.round(S * 0.055) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      stopPts.forEach((p, i) => { ctx.fillStyle = '#d4a83a'; ctx.beginPath(); ctx.arc(X(p.x), Y(p.z), S * 0.036, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#0b0b0d'; ctx.fillText(String(i + 1), X(p.x), Y(p.z) + 1); });
+      // you
+      const px = X(pos.x), py = Y(pos.z), a = Math.atan2(t.z, t.x), L = S * 0.06;
+      ctx.save(); ctx.translate(px, py); ctx.rotate(a);
+      ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1.5, S * 0.012);
+      ctx.beginPath(); ctx.moveTo(L, 0); ctx.lineTo(-L * 0.7, L * 0.6); ctx.lineTo(-L * 0.35, 0); ctx.lineTo(-L * 0.7, -L * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke();
+      ctx.restore();
+      ctx.restore();
+      // rim and north
+      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(2, S * 0.014); ctx.beginPath(); ctx.arc(R, R, R - ctx.lineWidth / 2, 0, Math.PI * 2); ctx.stroke();
+      ctx.fillStyle = '#d4a83a'; ctx.font = '700 ' + Math.round(S * 0.07) + 'px Cinzel, Georgia, serif'; ctx.fillText('N', R, S * 0.085);
+    };
+  })();
+
   // ---------- Rider ----------
   const rider = new THREE.Group(); rider.rotation.order = 'YXZ';
   const lean = new THREE.Group(); rider.add(lean);
@@ -2283,6 +2378,7 @@
     }
     camera.position.copy(camPos); camera.lookAt(camLook);
 
+    miniMap(lanePos, f.t);
     signBoards.forEach(({ g, board }) => {
       const dx = camera.position.x - g.position.x, dz = camera.position.z - g.position.z;
       if (dx * dx + dz * dz > 160 * 160) return;
