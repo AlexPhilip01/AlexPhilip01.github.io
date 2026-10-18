@@ -12,7 +12,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
 <style>
   /* Layout: a fixed WebGL street scene driven by page scroll; one glass card per stop on the left (bottom sheet on phones), HUD at the edges. */
   :root {
@@ -199,6 +199,21 @@
   @media (prefers-reduced-motion: reduce) {
     .panel, .panel.on { transition: opacity .2s, visibility 0s; }
     .hint .wheel::after, .sound-on .bars i { animation: none; }
+  }
+  /* SHIELD-style hero card */
+  .panel.hero { background: rgba(10, 10, 12, .84); border: 1px solid rgba(212, 168, 58, .6); border-radius: 18px; padding: 26px 30px 24px; box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: min(520px, 44vw); }
+  .hero h1, .hero h1 .line2 {
+    font-family: 'Cinzel', 'Trajan Pro', Georgia, 'Times New Roman', serif; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
+    -webkit-text-stroke: 0; background: linear-gradient(180deg, #fbeea0 0%, #e6c04a 38%, #b8891f 64%, #f2d76a 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  }
+  .hero h1 { font-size: clamp(40px, 5.4vw, 82px); line-height: 1.04; }
+  .hero .eyebrow { color: #e8e4da; text-shadow: none; letter-spacing: .3em; }
+  .hero .eyebrow::before { background: #d4a83a; box-shadow: none; }
+  .hero .lede { color: #d9d4c7; text-shadow: none; margin-top: 16px; }
+  @media (max-width: 760px) {
+    .panel.hero { width: auto; padding: 20px; background: rgba(10, 10, 12, .88); }
+    .hero h1 { font-size: clamp(34px, 11vw, 52px); }
   }
 </style>
 
