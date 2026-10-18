@@ -1506,6 +1506,26 @@
       const geo = new THREE.CylinderGeometry(r, r, 0.3, 14); geo.rotateZ(Math.PI / 2);
       xs.forEach(x => zs.forEach(z => mk(geo, '#151519', x, r, z, parent)));
     }
+    // SHIELD advert for the sides of every bus: logo, gold wordmark, tagline
+    const busAd = (() => {
+      const c = document.createElement('canvas'); c.width = 1024; c.height = 176;
+      const x = c.getContext('2d'); x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 1024, 176);
+      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 4;
+      const img = new Image();
+      img.onload = () => {
+        x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 1024, 176);
+        x.strokeStyle = '#d4a83a'; x.lineWidth = 6; x.strokeRect(8, 8, 1008, 160);
+        x.drawImage(img, 150, 18, 212, 272, 34, 16, 112, 144); // the shield emblem from the logo
+        x.fillStyle = '#d4a83a'; x.font = '600 76px Cinzel, Georgia, "Times New Roman", serif'; x.textBaseline = 'middle';
+        x.fillText('S H I E L D', 190, 72);
+        x.fillStyle = '#e8e4da'; x.font = '600 26px Arial, Helvetica, sans-serif'; x.fillText('D E T E C T   ·   D E F E N D   ·   D E T E R', 194, 132);
+        x.fillStyle = '#d4a83a'; x.font = '600 22px Arial'; x.textAlign = 'right'; x.fillText('CYBERSECURITY', 990, 132);
+        tex.needsUpdate = true;
+      };
+      img.src = SHIELD_LOGO;
+      return tex;
+    })();
+    const busAdMat = new THREE.MeshBasicMaterial({ map: busAd });
     function bus(destText = '11  WESTMINSTER', express = false) {
       const g = new THREE.Group();
       mk(new THREE.BoxGeometry(2.5, 1.9, 10), RED, 0, 1.35, 0, g);
@@ -1518,6 +1538,8 @@
       mk(new THREE.BoxGeometry(2.2, 0.85, 0.05), '#2a2f3a', 0, 3.3, 4.86, g);
       const dest = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.32), new THREE.MeshBasicMaterial({ map: canvasTex(160, 32, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffcf33'; x.font = '700 20px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(destText, w / 2, h / 2 + 1); }) }));
       dest.position.set(0, 2.55, 5.02); g.add(dest);
+      [-1, 1].forEach(sd => { const ad = new THREE.Mesh(new THREE.PlaneGeometry(6.2, 1.06), busAdMat); ad.position.set(sd * 1.262, 0.92, -0.7); ad.rotation.y = sd * Math.PI / 2; g.add(ad); });
+      const backAd = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.38), busAdMat); backAd.position.set(0, 0.95, -5.02); backAd.rotation.y = Math.PI; g.add(backAd);
       if (express) { mk(new THREE.BoxGeometry(2.54, 0.42, 10.04), '#6a6f78', 0, 3.86, -0.05, g); mk(new THREE.BoxGeometry(2.54, 0.12, 10.04), '#6a6f78', 0, 0.72, 0, g); }
       [-0.75, 0.75].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.18, 0.05), BasicM('#fff4d0')); l.position.set(x, 0.75, 5.02); g.add(l); });
       wheelSet(g, [-1.15, 1.15], [3.2, -3.3], 0.55);
