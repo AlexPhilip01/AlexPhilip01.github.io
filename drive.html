@@ -965,6 +965,83 @@
     spinners.push(dt => { wheel.rotation.z += dt * 0.05; pods.forEach(p => p.rotation.z = -wheel.rotation.z); });
   })();
 
+  // ---------- Boats on the river, all flying SHIELD flags ----------
+  (function () {
+    const sg = new THREE.Group(); sg.position.copy(RIV.p); sg.rotation.y = RIV.heading; scene.add(sg); // local x runs along the river
+    const nameTex = text => canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#121215'; x.fillRect(0, 0, w, h); x.fillStyle = '#d4a83a'; x.font = '600 28px Cinzel, Georgia, serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(text, w / 2, h / 2 + 2); });
+    const bow = (len, wid, h, col) => { const b = new THREE.Mesh(new THREE.CylinderGeometry(0.01, wid / 2, len, 4, 1), M(col)); b.rotation.z = -Math.PI / 2; b.rotation.x = Math.PI / 4; b.scale.set(1, 1, h / wid * 1.4); b.castShadow = true; return b; };
+    function wake(len, wid) {
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, -wid / 2, 0, 0, wid / 2, -len, 0, -wid * 1.6, 0, 0, wid / 2, -len, 0, wid * 1.6, -len, 0, -wid * 1.6], 3)); g.computeVertexNormals();
+      const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: '#eef3f6', transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false })); m.position.y = 0.06; return m;
+    }
+    function cruiser(name) {
+      const g = new THREE.Group();
+      mk(new THREE.BoxGeometry(14, 1.6, 4.2), '#121215', 0, 0.55, 0, g);
+      const b = bow(3.2, 4.2, 1.6, '#121215'); b.position.set(8.6, 0.55, 0); g.add(b);
+      mk(new THREE.BoxGeometry(14.06, 0.2, 4.26), GOLD, 0, 1.05, 0, g);
+      mk(new THREE.BoxGeometry(9.5, 1.9, 3.5), '#f2f0ea', -0.8, 2.3, 0, g);
+      mk(new THREE.BoxGeometry(9.56, 0.65, 3.56), '#1f2a3a', -0.8, 2.45, 0, g);
+      mk(new THREE.BoxGeometry(9.8, 0.12, 3.8), GOLD, -0.8, 3.3, 0, g);
+      mk(new THREE.BoxGeometry(2.6, 1.2, 2.8), '#f2f0ea', 2.4, 3.95, 0, g);
+      mk(new THREE.BoxGeometry(2.66, 0.45, 2.86), '#1f2a3a', 2.4, 4.05, 0, g);
+      [-1, 1].forEach(s => { const n = new THREE.Mesh(new THREE.PlaneGeometry(4.2, 0.8), new THREE.MeshBasicMaterial({ map: nameTex(name), side: THREE.DoubleSide })); n.position.set(4.2, 0.6, s * 2.12); g.add(n); });
+      const fp = shieldFlagPole(g, -6.6, 0, 4.4, 1.7); fp.position.y = 1.3; fp.rotation.y = Math.PI;
+      g.add(wake(16, 4.2));
+      return g;
+    }
+    function tug() {
+      const g = new THREE.Group();
+      mk(new THREE.BoxGeometry(7, 1.4, 3), '#7d1b22', 0, 0.5, 0, g);
+      const b = bow(1.8, 3, 1.4, '#7d1b22'); b.position.set(4.4, 0.5, 0); g.add(b);
+      mk(new THREE.BoxGeometry(7.05, 0.35, 3.05), '#121215', 0, 1.1, 0, g);
+      mk(new THREE.BoxGeometry(2.6, 1.8, 2.2), '#f2f0ea', 0.6, 2.1, 0, g);
+      mk(new THREE.BoxGeometry(2.66, 0.55, 2.26), '#1f2a3a', 0.6, 2.5, 0, g);
+      mk(new THREE.CylinderGeometry(0.4, 0.45, 1.6, 10), '#121215', -1.4, 2.4, 0, g); mk(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 10), GOLD, -1.4, 2.7, 0, g);
+      [-1, 1].forEach(s => mk(new THREE.TorusGeometry(0.4, 0.12, 6, 12), '#2b2b30', 1.5, 0.9, s * 1.55, g));
+      const fp = shieldFlagPole(g, -3.2, 0, 3.4, 1.3); fp.position.y = 1.2; fp.rotation.y = Math.PI;
+      g.add(wake(10, 3));
+      return g;
+    }
+    function yacht() {
+      const g = new THREE.Group();
+      mk(new THREE.BoxGeometry(8, 1.0, 2.6), '#f6f6f4', 0, 0.4, 0, g);
+      const b = bow(2, 2.6, 1.0, '#f6f6f4'); b.position.set(5, 0.4, 0); g.add(b);
+      mk(new THREE.BoxGeometry(8.04, 0.14, 2.64), GOLD, 0, 0.75, 0, g);
+      mk(new THREE.BoxGeometry(3, 0.7, 1.8), '#e8e4da', -0.6, 1.25, 0, g);
+      mk(new THREE.CylinderGeometry(0.07, 0.08, 9, 6), '#d9d9de', 1, 5.2, 0, g);
+      const sail = new THREE.BufferGeometry(); sail.setAttribute('position', new THREE.Float32BufferAttribute([1.05, 1.2, 0, 1.05, 9.3, 0, -3.2, 1.3, 0], 3)); sail.computeVertexNormals();
+      g.add(new THREE.Mesh(sail, new THREE.MeshLambertMaterial({ color: '#fbfbf8', side: THREE.DoubleSide })));
+      const fp = shieldFlagPole(g, -3.6, 0, 2.6, 1.0); fp.position.y = 0.9; fp.rotation.y = Math.PI;
+      g.add(wake(9, 2.6));
+      return g;
+    }
+    const boats = [
+      { g: cruiser('SHIELD  I'), xmin: 16, xmax: 190, x: 60, z: -7, h: 0, v: 4.2 },
+      { g: tug(), xmin: 16, xmax: 190, x: 150, z: 7, h: Math.PI, v: 3.4 },
+      { g: cruiser('SHIELD  II'), xmin: -190, xmax: -16, x: -90, z: 7, h: Math.PI, v: 4.0 },
+      { g: yacht(), xmin: -190, xmax: -16, x: -40, z: -7, h: 0, v: 3.0 }
+    ];
+    boats.forEach((b, i) => { sg.add(b.g); b.turning = 0; b.ph = i * 1.7; });
+    function sail(dt, now) {
+      boats.forEach(b => {
+        const goingUp = Math.cos(b.h) > 0;
+        if (!b.turning && ((goingUp && b.x > b.xmax) || (!goingUp && b.x < b.xmin))) {
+          b.turning = Math.PI; b.sign = Math.sign(b.z || 1) * Math.sign(Math.cos(b.h));
+        }
+        if (b.turning) {
+          const w = b.v / 7, step = Math.min(b.turning, w * dt);
+          b.h += b.sign * step; b.turning -= step;
+          if (b.turning <= 1e-4) { b.turning = 0; b.h = Math.round(b.h / Math.PI) * Math.PI; }
+        }
+        b.x += Math.cos(b.h) * b.v * dt; b.z -= Math.sin(b.h) * b.v * dt;
+        b.g.position.set(b.x, Math.sin(now * 0.0013 + b.ph) * 0.07, b.z);
+        b.g.rotation.set(Math.sin(now * 0.0011 + b.ph) * 0.025, b.h, Math.sin(now * 0.0009 + b.ph) * 0.015);
+      });
+    }
+    sail(0, 0);
+    spinners.push(sail);
+  })();
+
   // Glass spire on the skyline near the finish
   (function () {
     const { pos } = placeAt(uOf(0.95), -1, 70);
