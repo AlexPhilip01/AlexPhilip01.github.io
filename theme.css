@@ -1,24 +1,21 @@
-/* Shared "sunset drive" layer: loaded after each page's own styles so every page matches drive.html. */
+/* Shared "clean light" layer, loaded after each page's own styles. drive.html does not use it. */
 :root {
-  --ap-ink: #22183a;
-  --ap-paper: #fff7ee;
-  --ap-rose: #ff4f7b;
-  --ap-sun: #ff8a3d;
-  --ap-display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
-  --ap-body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --ap-mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
+  --ap-ink: #1d2330;
+  --ap-muted: #5b6372;
+  --ap-line: #e4e7ec;
+  --ap-blue: #2357d9;
+  --ap-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
   color-scheme: light;
 }
-html body {
-  background-image: linear-gradient(180deg, #ffd2b4 0, #ffe4cf 180px, rgba(255, 228, 207, 0) 520px);
-  background-repeat: no-repeat;
-  -webkit-font-smoothing: antialiased;
-}
-h1, h2, h3 { letter-spacing: -0.02em; text-wrap: balance; }
+html body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+/* the old dark pages drew a faint grid behind everything; a minimal page goes without it */
+body::before { background-image: none !important; }
+h1, h2, h3 { letter-spacing: -0.025em; text-wrap: balance; }
 h1 em, h2 em, h3 em { font-style: normal; }
-::selection { background: rgba(255, 79, 123, .22); color: var(--ap-ink); }
-a:focus-visible, button:focus-visible { outline: 2px solid var(--ap-rose); outline-offset: 3px; }
+::selection { background: rgba(35, 87, 217, .16); color: var(--ap-ink); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ap-blue); outline-offset: 3px; }
 img { max-width: 100%; }
+h1, h2 { overflow-wrap: break-word; }
 
 .ap-drive {
   position: fixed; z-index: 9999;
@@ -26,15 +23,14 @@ img { max-width: 100%; }
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
   display: inline-flex; align-items: center; gap: 8px;
   padding: 10px 16px; border-radius: 999px;
-  background: var(--ap-ink); color: var(--ap-paper) !important;
-  font: 600 12px/1 var(--ap-mono); letter-spacing: .06em; text-transform: uppercase; text-decoration: none;
-  box-shadow: 0 12px 30px -12px rgba(34, 24, 58, .6);
-  transition: background .2s, transform .2s;
+  background: #fff; color: var(--ap-ink) !important; border: 1px solid var(--ap-line);
+  font: 500 12px/1 var(--ap-mono); letter-spacing: .04em; text-decoration: none;
+  box-shadow: 0 6px 20px -10px rgba(29, 35, 48, .35);
+  transition: border-color .2s, color .2s, transform .2s;
 }
-.ap-drive:hover { background: var(--ap-rose); transform: translateY(-2px); }
-.ap-drive-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ap-sun); box-shadow: 0 0 0 3px rgba(255, 138, 61, .3); }
-@media print { .ap-drive { display: none; } html body { background-image: none; } }
+.ap-drive:hover { border-color: var(--ap-blue); color: var(--ap-blue) !important; transform: translateY(-1px); }
+.ap-drive-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ap-blue); }
+@media print { .ap-drive { display: none; } }
 @media (max-width: 520px) { .ap-drive { padding: 9px 13px; font-size: 11px; } }
-/* the display face is wider than the old serif: never let a long title push a phone screen sideways */
-h1, h2 { overflow-wrap: break-word; hyphens: manual; }
-@media (max-width: 600px) { h1 { letter-spacing: -0.035em; } }
+/* SOC write-up: one badge inherited a transparent gradient-text fill and showed up blank */
+.pill { -webkit-text-fill-color: currentColor; }

@@ -7,23 +7,23 @@
 <link rel="icon" type="image/jpeg" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500;1,700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #fff3e8;
-    --bg2: #fff5ec;
-    --surface: #fff8f2;
-    --border: rgba(34,24,58,0.119);
-    --border2: rgba(255,79,123,0.25);
-    --accent: #ff4f7b;
-    --accent2: #e0661f;
-    --accent-dim: rgba(255,79,123,0.12);
-    --text: #291b41;
-    --text2: #6f5e8c;
-    --text3: #a093b7;
-    --mono: 'JetBrains Mono', monospace;
-    --serif: 'Unbounded', Georgia, serif;
-    --sans: 'Manrope', sans-serif;
+    --bg: #ffffff;
+    --bg2: #fcfcfd;
+    --surface: #f6f7fa;
+    --border: rgba(29,35,48,0.112);
+    --border2: rgba(35,87,217,0.25);
+    --accent: #2357d9;
+    --accent2: #4f7ff0;
+    --accent-dim: rgba(35,87,217,0.12);
+    --text: #1d2330;
+    --text2: #677083;
+    --text3: #9aa1b0;
+    --mono: 'IBM Plex Mono', monospace;
+    --serif: 'Hanken Grotesk', Georgia, serif;
+    --sans: 'Hanken Grotesk', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -38,8 +38,8 @@
     content: '';
     position: fixed; inset: 0;
     background-image:
-      linear-gradient(rgba(255,79,123,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,79,123,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(35,87,217,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(35,87,217,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none; z-index: 0;
   }
@@ -117,7 +117,7 @@
   .letter-card:hover {
     border-color: var(--border2);
     transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(255,79,123,0.1);
+    box-shadow: 0 8px 32px rgba(35,87,217,0.1);
   }
   .letter-card::before {
     content: '';
@@ -135,7 +135,7 @@
     position: relative;
     overflow: hidden;
     cursor: zoom-in;
-    background: #fff6ee;
+    background: #f9fafc;
     border-right: 1px solid var(--border);
   }
   .letter-img-wrap img {
@@ -147,7 +147,7 @@
   .letter-card:hover .letter-img-wrap img { transform: scale(1.04); }
   .letter-img-overlay {
     position: absolute; inset: 0;
-    background: rgba(255,245,237,0.5);
+    background: rgba(255,255,255,0.5);
     opacity: 0; transition: opacity 0.25s;
     display: flex; align-items: center; justify-content: center;
   }
@@ -156,7 +156,7 @@
   .letter-num-badge {
     position: absolute; top: 0.6rem; left: 0.6rem;
     font-family: var(--mono); font-size: 0.62rem;
-    background: rgba(255,245,237,0.85); color: var(--accent);
+    background: rgba(255,255,255,0.85); color: var(--accent);
     padding: 0.2rem 0.5rem; border-radius: 4px;
     letter-spacing: 0.06em; backdrop-filter: blur(4px);
   }
@@ -210,7 +210,7 @@
   /* ── LIGHTBOX ── */
   .lightbox {
     position: fixed; inset: 0; z-index: 900;
-    background: rgba(255,245,237,0.95);
+    background: rgba(255,255,255,0.95);
     backdrop-filter: blur(12px);
     display: none;
     align-items: center; justify-content: center;
@@ -236,7 +236,7 @@
     object-fit: contain;
     border-radius: 8px;
     border: 1px solid var(--border2);
-    box-shadow: 0 24px 80px rgba(255,245,237,0.8);
+    box-shadow: 0 24px 80px rgba(255,255,255,0.8);
   }
 
   .lightbox-close {
@@ -284,7 +284,7 @@
   /* ── TOPBAR ── */
   .topbar {
     position: sticky; top: 0; z-index: 100;
-    background: rgba(255,245,237,0.95); backdrop-filter: blur(16px);
+    background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border);
     display: flex; align-items: center; justify-content: space-between;
     padding: 0.65rem 2rem;
@@ -313,7 +313,7 @@
   .topbar-tag {
     font-family: var(--mono); font-size: 0.68rem;
     color: var(--accent); background: var(--accent-dim);
-    border: 1px solid rgba(255,79,123,0.2);
+    border: 1px solid rgba(35,87,217,0.2);
     padding: 0.25rem 0.75rem; border-radius: 100px;
     letter-spacing: 0.06em;
   }
