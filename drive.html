@@ -650,6 +650,38 @@
     m.position.copy(a).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(UP, d.normalize()); parent.add(m); return m;
   }
   function canvasTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+  const unionTex = canvasTex(240, 120, (x, w, h) => {
+    x.fillStyle = '#012169'; x.fillRect(0, 0, w, h);
+    x.strokeStyle = '#ffffff'; x.lineWidth = 24; x.beginPath(); x.moveTo(0, 0); x.lineTo(w, h); x.moveTo(w, 0); x.lineTo(0, h); x.stroke();
+    x.strokeStyle = '#c8102e'; x.lineWidth = 8; x.beginPath(); x.moveTo(0, 0); x.lineTo(w, h); x.moveTo(w, 0); x.lineTo(0, h); x.stroke();
+    x.fillStyle = '#ffffff'; x.fillRect(w / 2 - 20, 0, 40, h); x.fillRect(0, h / 2 - 20, w, 40);
+    x.fillStyle = '#c8102e'; x.fillRect(w / 2 - 12, 0, 24, h); x.fillRect(0, h / 2 - 12, w, 24);
+  });
+  const unionMat = new THREE.MeshBasicMaterial({ map: unionTex, side: THREE.DoubleSide });
+  // one shared waving flag cloth; every flag mesh reuses it
+  const flagGeo = new THREE.PlaneGeometry(1, 0.5, 8, 1); flagGeo.translate(0.5, 0, 0);
+  const flagBase = flagGeo.attributes.position.array.slice();
+  spinners.push((dt, now) => { const a = flagGeo.attributes.position; for (let i = 0; i < a.count; i++) { const xx = flagBase[i * 3]; a.array[i * 3 + 2] = Math.sin(xx * 6 - now * 0.005) * 0.06 * xx; } a.needsUpdate = true; });
+  function flagOnPole(parent, x, y, z, size, poleH, ry = 0) {
+    const g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; parent.add(g);
+    mk(new THREE.CylinderGeometry(0.04 * size, 0.05 * size, poleH, 6), '#e4e4e8', 0, poleH / 2, 0, g);
+    const f = new THREE.Mesh(flagGeo, unionMat); f.scale.set(size * 1.8, size * 1.8, size * 1.8); f.position.set(0.05, poleH - size * 0.5, 0); g.add(f);
+    return g;
+  }
+  // King's Guard figure, shared by the palace and the marching column
+  function guardsman() {
+    const s = new THREE.Group();
+    const legs = [-0.12, 0.12].map(x => { const pv = new THREE.Group(); pv.position.set(x, 0.95, 0); s.add(pv); mk(new THREE.BoxGeometry(0.17, 0.92, 0.2), '#15151a', 0, -0.47, 0, pv); return pv; });
+    mk(new THREE.BoxGeometry(0.5, 0.72, 0.32), RED, 0, 1.32, 0, s);
+    mk(new THREE.BoxGeometry(0.52, 0.08, 0.34), '#f4f1ea', 0, 1.0, 0, s);
+    mk(new THREE.BoxGeometry(0.06, 0.6, 0.34), '#f4f1ea', 0.12, 1.36, 0, s, { rz: 0.5 });
+    const arms = [-0.31, 0.31].map(x => { const pv = new THREE.Group(); pv.position.set(x, 1.62, 0); s.add(pv); mk(new THREE.BoxGeometry(0.13, 0.62, 0.15), RED, 0, -0.31, 0, pv); mk(new THREE.BoxGeometry(0.12, 0.1, 0.12), '#f4f1ea', 0, -0.65, 0, pv); return pv; });
+    mk(new THREE.SphereGeometry(0.13, 10, 8), '#d9a77f', 0, 1.82, 0.02, s);
+    mk(new THREE.CylinderGeometry(0.19, 0.23, 0.62, 12), '#0d0d10', 0, 2.17, 0, s);
+    const rifle = mk(new THREE.BoxGeometry(0.05, 1.1, 0.06), '#3b2a20', 0, 0.55, 0.12, arms[0]); mk(new THREE.BoxGeometry(0.03, 0.3, 0.03), '#c9ced6', 0, 0.7, 0, rifle);
+    s.userData = { legs, arms };
+    return s;
+  }
 
   // Gothic clock tower
   (function () {
@@ -696,14 +728,7 @@
     mk(new THREE.BoxGeometry(2.4, 2.4, 18), '#efe8da', 7.2, 13.4, 0, bld);
     // flag
     mk(new THREE.CylinderGeometry(0.08, 0.08, 7, 6), '#ddd', 0, 18.2, 0, bld);
-    const flagT = canvasTex(240, 120, (x, w, h) => {
-      x.fillStyle = '#012169'; x.fillRect(0, 0, w, h);
-      x.strokeStyle = '#ffffff'; x.lineWidth = 24; x.beginPath(); x.moveTo(0, 0); x.lineTo(w, h); x.moveTo(w, 0); x.lineTo(0, h); x.stroke();
-      x.strokeStyle = '#c8102e'; x.lineWidth = 8; x.beginPath(); x.moveTo(0, 0); x.lineTo(w, h); x.moveTo(w, 0); x.lineTo(0, h); x.stroke();
-      x.fillStyle = '#ffffff'; x.fillRect(w / 2 - 20, 0, 40, h); x.fillRect(0, h / 2 - 20, w, 40);
-      x.fillStyle = '#c8102e'; x.fillRect(w / 2 - 12, 0, 24, h); x.fillRect(0, h / 2 - 12, w, 24);
-    });
-    const flag = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8, 8, 1), new THREE.MeshBasicMaterial({ map: flagT, side: THREE.DoubleSide }));
+    const flag = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 1.8, 8, 1), unionMat);
     flag.position.set(0, 20.6, 1.85); flag.rotation.y = Math.PI / 2; bld.add(flag);
     const fpos = flag.geometry.attributes.position, fbase = fpos.array.slice();
     spinners.push((dt, now) => { for (let i = 0; i < fpos.count; i++) { const xx = fbase[i * 3]; fpos.array[i * 3 + 2] = Math.sin(xx * 1.8 - now * 0.004) * 0.18 * (xx + 1.8) / 3.6; } fpos.needsUpdate = true; });
@@ -717,20 +742,6 @@
     [-3, 3].forEach(z => { mk(new THREE.BoxGeometry(0.7, 3.4, 0.7), PORTLAND, 14, 1.7, z, g); mk(new THREE.SphereGeometry(0.35, 8, 6), GOLD, 14, 3.7, z, g); });
     mk(new THREE.BoxGeometry(0.1, 2.8, 5.4), M(GOLD), 14, 1.4, 0, g);
 
-    // guardsman figure
-    function guardsman() {
-      const s = new THREE.Group();
-      const legs = [-0.12, 0.12].map(x => { const pv = new THREE.Group(); pv.position.set(x, 0.95, 0); s.add(pv); mk(new THREE.BoxGeometry(0.17, 0.92, 0.2), '#15151a', 0, -0.47, 0, pv); return pv; });
-      mk(new THREE.BoxGeometry(0.5, 0.72, 0.32), RED, 0, 1.32, 0, s);
-      mk(new THREE.BoxGeometry(0.52, 0.08, 0.34), '#f4f1ea', 0, 1.0, 0, s);
-      mk(new THREE.BoxGeometry(0.06, 0.6, 0.34), '#f4f1ea', 0.12, 1.36, 0, s, { rz: 0.5 });
-      const arms = [-0.31, 0.31].map(x => { const pv = new THREE.Group(); pv.position.set(x, 1.62, 0); s.add(pv); mk(new THREE.BoxGeometry(0.13, 0.62, 0.15), RED, 0, -0.31, 0, pv); mk(new THREE.BoxGeometry(0.12, 0.1, 0.12), '#f4f1ea', 0, -0.65, 0, pv); return pv; });
-      mk(new THREE.SphereGeometry(0.13, 10, 8), '#d9a77f', 0, 1.82, 0.02, s);
-      mk(new THREE.CylinderGeometry(0.19, 0.23, 0.62, 12), '#0d0d10', 0, 2.17, 0, s);
-      const rifle = mk(new THREE.BoxGeometry(0.05, 1.1, 0.06), '#3b2a20', 0, 0.55, 0.12, arms[0]); mk(new THREE.BoxGeometry(0.03, 0.3, 0.03), '#c9ced6', 0, 0.7, 0, rifle);
-      s.userData = { legs, arms };
-      return s;
-    }
     function sentryBox(z) {
       const b = new THREE.Group(); b.position.set(24.4, 0, z); g.add(b);
       mk(new THREE.BoxGeometry(1.3, 2.6, 1.3), '#2c3a33', 0, 1.3, 0, b);
@@ -1040,6 +1051,144 @@
     }
     fleet.forEach(place);
     spinners.push(dt => fleet.forEach(o => { o.u -= o.speed * dt / LEN; if (o.u < 0.004) o.u = 0.996; place(o); }));
+  })();
+
+  // ---------- Street life: pedestrians, cyclists, the guard column, bunting and rooftop flags ----------
+  (function () {
+    const fastFrame = u => frames[Math.max(0, Math.min(SEG, Math.round(u * SEG)))];
+    const wrap = u => (u < 0.003 ? 0.997 : u > 0.997 ? 0.003 : u);
+    const noShadow = o => o.traverse(m => { if (m.isMesh) m.castShadow = false; });
+    const coats = ['#2b2f3a', '#6b2737', '#36495e', '#7a6a55', '#1f3b2e', '#8c8c8c', '#b0753c', '#c8102e', '#3e3a5a', '#d9d2c3', '#5b6b4a'];
+    const skins = ['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e', '#e8b893'];
+
+    function walker() {
+      const s = new THREE.Group();
+      const trousers = pick(['#1d1f26', '#2f3442', '#4a3f35', '#24324a', '#5a5f6b']);
+      const legs = [-0.1, 0.1].map(x => { const pv = new THREE.Group(); pv.position.set(x, 0.88, 0); s.add(pv); mk(new THREE.BoxGeometry(0.15, 0.86, 0.17), trousers, 0, -0.43, 0, pv); return pv; });
+      const coat = pick(coats);
+      mk(new THREE.BoxGeometry(0.44, 0.72, 0.26), coat, 0, 1.22, 0, s);
+      const arms = [-0.28, 0.28].map(x => { const pv = new THREE.Group(); pv.position.set(x, 1.52, 0); s.add(pv); mk(new THREE.BoxGeometry(0.12, 0.6, 0.14), coat, 0, -0.3, 0, pv); return pv; });
+      mk(new THREE.SphereGeometry(0.13, 10, 8), pick(skins), 0, 1.72, 0, s);
+      const r = rand();
+      if (r < 0.2) { // bowler hat
+        mk(new THREE.CylinderGeometry(0.13, 0.14, 0.13, 12), '#141418', 0, 1.87, 0, s);
+        mk(new THREE.CylinderGeometry(0.21, 0.21, 0.02, 14), '#141418', 0, 1.81, 0, s);
+      } else if (r < 0.45) { // umbrella
+        const um = new THREE.Group(); um.position.set(0.28, 1.45, 0.05); s.add(um);
+        mk(new THREE.CylinderGeometry(0.015, 0.015, 0.95, 4), '#222', 0, 0.47, 0, um);
+        mk(new THREE.ConeGeometry(0.62, 0.32, 8), pick(['#111114', '#111114', '#c8102e', '#1b2b4a', '#f2efe6']), 0, 0.98, 0, um);
+      } else {
+        mk(new THREE.SphereGeometry(0.135, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pick(['#2a1d14', '#141414', '#6b4a2b', '#c9a46a', '#8a8a8a']), 0, 1.74, 0, s);
+      }
+      if (rand() < 0.3) mk(new THREE.BoxGeometry(0.1, 0.3, 0.34), pick(['#3a2a1e', '#111', '#7a5a3a']), 0.3, 0.95, 0, s); // bag
+      s.userData = { legs, arms };
+      noShadow(s);
+      return s;
+    }
+
+    function cyclist() {
+      const c = new THREE.Group();
+      const frameCol = pick(['#c8102e', '#1b2b4a', '#2e7d4f', '#e9e4d8', '#111114']);
+      const wheelGeo = new THREE.TorusGeometry(0.33, 0.035, 6, 20);
+      [0.52, -0.52].forEach(z => { const w = new THREE.Mesh(wheelGeo, M('#1a1a1e')); w.position.set(0, 0.34, z); w.rotation.y = Math.PI / 2; c.add(w); });
+      const P = (x, y, z) => new THREE.Vector3(x, y, z);
+      [[P(0, 0.34, -0.52), P(0, 0.36, 0)], [P(0, 0.36, 0), P(0, 0.34, 0.52)], [P(0, 0.36, 0), P(0, 0.86, -0.18)], [P(0, 0.86, -0.18), P(0, 0.88, 0.38)], [P(0, 0.88, 0.38), P(0, 0.34, 0.52)], [P(0, 0.88, 0.38), P(0, 1.02, 0.42)]]
+        .forEach(([a, b]) => beam(a, b, 0.045, frameCol, c));
+      mk(new THREE.BoxGeometry(0.5, 0.04, 0.04), '#222', 0, 1.02, 0.42, c);
+      mk(new THREE.BoxGeometry(0.12, 0.05, 0.24), '#111', 0, 0.9, -0.2, c);
+      const jacket = pick(['#d7f22e', '#d7f22e', '#2b2f3a', '#c8102e', '#36495e', '#e9e4d8']);
+      mk(new THREE.BoxGeometry(0.4, 0.62, 0.24), jacket, 0, 1.24, 0.02, c, { rx: 0.75 });
+      mk(new THREE.SphereGeometry(0.12, 10, 8), pick(skins), 0, 1.55, 0.3, c);
+      mk(new THREE.SphereGeometry(0.15, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pick(['#ffffff', '#111114', '#c8102e', '#2e7d4f']), 0, 1.58, 0.28, c);
+      [-1, 1].forEach(sx => beam(P(sx * 0.2, 1.42, 0.22), P(sx * 0.22, 1.03, 0.42), 0.09, jacket, c));
+      const legs = [-1, 1].map(sx => { const pv = new THREE.Group(); pv.position.set(sx * 0.12, 0.92, -0.14); c.add(pv); mk(new THREE.BoxGeometry(0.13, 0.62, 0.14), '#1d1f26', 0, -0.3, 0.06, pv); return pv; });
+      c.userData = { legs };
+      noShadow(c);
+      return c;
+    }
+
+    // pedestrians on both pavements, walking both ways
+    const peds = [];
+    const nPeds = isPhone ? 26 : 52;
+    for (let k = 0; k < nPeds; k++) {
+      const w = walker(); scene.add(w);
+      peds.push({ w, u: rand(), side: rand() < 0.5 ? -1 : 1, off: ROAD_W + 1.6 + rand() * 0.6, dir: rand() < 0.5 ? -1 : 1, speed: 1.0 + rand() * 0.6, ph: rand() * 6 });
+    }
+    // cyclists: with us on the left (slower, so we overtake), and oncoming on the right
+    const bikes = [];
+    for (let k = 0; k < (isPhone ? 6 : 12); k++) {
+      const c = cyclist(); scene.add(c);
+      const oncoming = k % 2 === 1;
+      bikes.push({ c, u: rand(), lane: oncoming ? 3.6 : -3.45, dir: oncoming ? -1 : 1, speed: 4.5 + rand() * 2.5, ph: rand() * 6 });
+    }
+    // King's Guard column marching along the palace pavement, led by a flag bearer
+    const palaceU = uOf(0.27);
+    const column = [];
+    for (let k = 0; k < 6; k++) {
+      const s = guardsman(); noShadow(s); scene.add(s);
+      if (k === 0) flagOnPole(s.userData.arms[1], 0, -0.6, 0.1, 0.7, 2.6);
+      column.push({ s, k });
+    }
+
+    function placeOnRoad(obj, u, lateral, facing) {
+      const f = fastFrame(u);
+      obj.position.set(f.p.x + f.n.x * lateral, 0, f.p.z + f.n.z * lateral);
+      obj.rotation.y = Math.atan2(f.t.x, f.t.z) + (facing < 0 ? Math.PI : 0);
+    }
+    function step(dt, now) {
+      peds.forEach(p => {
+        p.u = wrap(p.u + p.dir * p.speed * dt / LEN); p.ph += dt * p.speed * 5.5;
+        placeOnRoad(p.w, p.u, p.side * p.off, p.dir);
+        p.w.visible = !inRiver(p.w.position.x, p.w.position.z);
+        const sw = Math.sin(p.ph) * 0.45;
+        p.w.userData.legs[0].rotation.x = sw; p.w.userData.legs[1].rotation.x = -sw;
+        p.w.userData.arms[0].rotation.x = -sw * 0.7; p.w.userData.arms[1].rotation.x = sw * 0.7;
+      });
+      bikes.forEach(b => {
+        b.u = wrap(b.u + b.dir * b.speed * dt / LEN); b.ph += dt * b.speed * 2.2;
+        placeOnRoad(b.c, b.u, b.lane, b.dir);
+        b.c.userData.legs[0].rotation.x = Math.sin(b.ph) * 0.6; b.c.userData.legs[1].rotation.x = -Math.sin(b.ph) * 0.6;
+      });
+      // the column marches 40 m up the pavement and back, in step
+      const span = 40 / LEN, cyc = (now / 1000 * 1.1 * (1 / 40)) % 2, fwd = cyc < 1, t = fwd ? cyc : 2 - cyc;
+      const sw = Math.sin(now * 0.0085) * 0.5;
+      column.forEach(({ s, k }) => {
+        const u = palaceU - span / 2 + t * span - (fwd ? 1 : -1) * k * 1.5 / LEN;
+        placeOnRoad(s, u, -(ROAD_W + 1.9), fwd ? 1 : -1);
+        s.userData.legs[0].rotation.x = sw; s.userData.legs[1].rotation.x = -sw;
+        if (s.userData.arms[1].children.length < 3) s.userData.arms[1].rotation.x = -sw * 0.8;
+      });
+    }
+    step(0, 0);
+    spinners.push(step);
+
+    // red, white and blue bunting strung across the street (kept clear of signs, gates and the bridge)
+    const tri = new THREE.BufferGeometry();
+    tri.setAttribute('position', new THREE.Float32BufferAttribute([-0.22, 0, 0, 0.22, 0, 0, 0, -0.42, 0], 3)); tri.computeVertexNormals();
+    const pennants = [], lines = [];
+    const busy = signBoards.map(s => s.g.position).concat([frameAt(uOf(0) + 0.022).p, frameAt(U1 + 0.012).p]);
+    for (let d = 30; d < LEN - 30; d += 48) {
+      const u = d / LEN, f = frameAt(u);
+      if (busy.some(q => q.distanceTo(f.p) < 20) || inRiver(f.p.x, f.p.z, 30)) continue;
+      const half = ROAD_W + 3, y0 = 6.4, sag = 0.9, ry = Math.atan2(f.t.x, f.t.z);
+      const pts2 = [];
+      for (let k = 0; k <= 22; k++) {
+        const a = -half + (2 * half) * k / 22, y = y0 - sag * (1 - Math.pow(a / half, 2));
+        const pt = f.p.clone().addScaledVector(f.n, a).setY(y); pts2.push(pt);
+        if (k > 0 && k < 22) pennants.push({ x: pt.x, y: pt.y, z: pt.z, ry, color: new THREE.Color(['#c8102e', '#f4f4f6', '#012169'][k % 3]) });
+      }
+      for (let k = 0; k < pts2.length - 1; k++) lines.push([pts2[k], pts2[k + 1]]);
+      [-1, 1].forEach(sd => { const base = f.p.clone().addScaledVector(f.n, sd * half); beam(base.clone().setY(0), base.clone().setY(y0 + 0.2), 0.12, '#1d1d22', scene); });
+    }
+    const pm = instanced(tri, new THREE.MeshLambertMaterial({ color: '#ffffff', side: THREE.DoubleSide }), pennants, it => it.color); pm.castShadow = false;
+    lines.forEach(([a, b]) => beam(a, b, 0.025, '#2a2a2e', scene).castShadow = false);
+
+    // Union flags on a scattering of rooftops near the road
+    let flagsUp = 0;
+    classes.slice(0, 3).forEach(c => c.list.forEach(b => {
+      if (flagsUp > (isPhone ? 10 : 22) || rand() > 0.16 || roadDist(b.x, b.z) > ROAD_W + 16) return;
+      flagOnPole(scene, b.x, b.sy, b.z, 1.1, 3.2, rand() * Math.PI * 2); flagsUp++;
+    }));
   })();
 
   // ---------- Grey London clouds & distant skyline ----------
