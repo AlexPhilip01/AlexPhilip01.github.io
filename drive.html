@@ -843,7 +843,7 @@
 
   // ---------- Tribute: Royal Holloway entrance and Founder's Building ----------
   (function () {
-    const { pos, heading } = placeAt(uOf(0.245), 1, ROAD_W + 3.0);
+    const { pos, heading } = placeAt(uOf(0.255), 1, ROAD_W + 3.0);
     const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = heading; scene.add(g); // local +x faces the road, z runs along it
     const BRICK = '#c25b3c', BRICK_D = '#a84a30', DRESS = '#e9dfcb', SLATE_R = '#4d5560', LEAD = '#5d6670', IRON = '#15151a';
     const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, heading).add(pos);
@@ -858,7 +858,7 @@
       mk(new THREE.CylinderGeometry(0.35, 0.55, 6, 7), '#5a4636', 0, 3, 0, t);
       [[3.0, 4.6, 0.9], [5.0, 4.0, 0.9], [7.0, 3.2, 0.8], [9.0, 2.2, 0.8], [10.8, 1.2, 0.9]].forEach(([y, r, h]) => mk(new THREE.CylinderGeometry(r * 0.75, r, h, 8), '#2f5136', 0, y, 0, t));
     }
-    cedar(-9, -27, 1.2); cedar(-8, 30, 1.05);
+    cedar(-9, -27, 1.2); cedar(-6, -37, 1.05);
     [[-14, 13], [-15, -13]].forEach(([x, z]) => { mk(new THREE.CylinderGeometry(0.25, 0.35, 3, 6), '#5a4636', x, 1.5, z, g); mk(new THREE.IcosahedronGeometry(2.6, 0), '#4f7f4a', x, 4.6, z, g); });
 
     // ---- entrance: stone piers with finials, brick walls with balustrades, iron gates, name boards ----
@@ -893,7 +893,7 @@
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: plaque })); pl.position.set(0.87, 2.4, 4.6); pl.rotation.y = Math.PI / 2; g.add(pl);
 
     // ---- Founder's Building (angled a little towards oncoming drivers) ----
-    const bg = new THREE.Group(); bg.rotation.y = 0.28; g.add(bg);
+    const bg = new THREE.Group(); bg.rotation.y = 0.46; g.add(bg);
     function facadeTex(widthM, floors) {
       const t = canvasTex(256, 384, (x, w, h) => {
         x.fillStyle = BRICK; x.fillRect(0, 0, w, h);
@@ -970,9 +970,15 @@
 
   // ---------- Tribute: Sri Krishna College of Engineering and Technology (SKCET) entrance ----------
   (function () {
-    const { pos, heading } = placeAt(uOf(0.65), 1, ROAD_W + 3.2);
-    const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = heading; scene.add(g); // local +x faces the road, z runs along it
-    const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, heading).add(pos);
+    const TURN = 0.42; // the gate is turned to face drivers as they approach
+    const { pos, heading } = placeAt(uOf(0.567), 1, ROAD_W + 13.2); // a stretch where the right-hand side stays in view
+    const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = heading + TURN; scene.add(g); // local +x faces the road (and oncoming drivers)
+    const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, heading + TURN).add(pos);
+    { // open forecourt between the pavement and the gate, square to the road
+      const fc = new THREE.Mesh(new THREE.PlaneGeometry(13, 50), M('#b9b6ae')); fc.rotation.x = -Math.PI / 2; fc.position.set(3.5, 0.048, 0);
+      const fg = new THREE.Group(); fg.position.copy(pos); fg.rotation.y = heading; fg.add(fc); fc.receiveShadow = true; scene.add(fg);
+      for (let lz = -24; lz <= 24; lz += 6) { const w = new THREE.Vector3(3.5, 0, lz).applyAxisAngle(UP, heading).add(pos); occupied.push({ x: w.x, z: w.z, r: 4.5 }); }
+    }
     for (let lx = -2; lx >= -44; lx -= 7) for (let lz = -24; lz <= 24; lz += 7) { const w = toW(lx, lz); occupied.push({ x: w.x, z: w.z, r: 5 }); }
     const CON = '#a3a39e', CON_D = '#8a8a86', CON_L = '#b4b4ae';
     // plaza, campus lawn and the drive through the gates
@@ -1527,7 +1533,7 @@
       x.fillStyle = '#d4a83a'; x.beginPath(); x.moveTo(40, 110); x.lineTo(50, 60); x.lineTo(65, 90); x.lineTo(80, 50); x.lineTo(95, 90); x.lineTo(110, 60); x.lineTo(120, 110); x.closePath(); x.fill();
       x.fillRect(40, 112, 80, 12); x.font = '700 20px Georgia, serif'; x.textAlign = 'center'; x.fillText("THE KING'S", w / 2, 155); x.fillText('ARMS', w / 2, 180);
     });
-    shopfront(0.565, 1, {
+    shopfront(0.65, 1, {
       name: "The King's Arms", tagline: 'ALES · FOOD · SINCE 1868', fascia: '#1d3b2a', ink: '#d4a83a', front: '#1d3b2a', door: '#5a2a1f',
       font: '700 60px Georgia, "Times New Roman", serif',
       window: (x, w, h) => { const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#f6c66b'); gr.addColorStop(1, '#a8572a'); x.fillStyle = gr; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(29,59,42,0.9)'; for (let i = 0; i <= 8; i++) x.fillRect(i * 63, 0, 6, h); x.fillRect(0, 60, w, 6); },
@@ -1597,7 +1603,7 @@
     const lambSign = signDisc('LAMB &', 'FLAG', '#3e5a2a', '#f2efe6', x => { x.beginPath(); x.arc(70, 92, 22, 0, Math.PI * 2); x.arc(92, 88, 18, 0, Math.PI * 2); x.fill(); x.fillRect(104, 40, 4, 50); x.fillStyle = '#c8102e'; x.fillRect(108, 40, 26, 18); });
     shopfront(0.765, 1, { name: 'The White Hart', tagline: 'TRADITIONAL ALES', fascia: '#2b2b30', ink: '#f2efe6', front: '#2b2b30', door: '#5a2a1f', font: '700 60px Georgia, "Times New Roman", serif', window: pubWindow, extras: g => { hangingSign(g, hartSign); baskets(g); } });
     shopfront(0.2, 1, { name: 'The Lamb & Flag', tagline: 'PUB · ROASTS · QUIZ NIGHT', fascia: '#3e5a2a', ink: '#f2efe6', front: '#3e5a2a', door: '#3a1416', font: '700 58px Georgia, "Times New Roman", serif', window: pubWindow, extras: g => { hangingSign(g, lambSign); baskets(g); } });
-    shopfront(0.29, 1, {
+    shopfront(0.298, 1, {
       name: 'Paper & Co', tagline: 'NEWSAGENT · SNACKS · TOP-UP', fascia: '#1b2b4a', ink: '#ffffff', awning: ['#1b2b4a', '#ffffff'], window: shelves,
       extras: g => { [-5.4, -4.6].forEach((z, i) => { mk(new THREE.BoxGeometry(0.6, 1.0, 0.7), '#2b2f3a', 1.0, 0.5, z, g); mk(new THREE.BoxGeometry(0.55, 0.06, 0.62), i ? '#e8e4da' : '#f2d24a', 1.0, 1.03, z, g); }); }
     });
@@ -1720,7 +1726,7 @@
     // speed cameras with 30 mph signs
     const thirty = canvasTex(128, 128, (x, w, h) => { x.fillStyle = '#c8102e'; x.beginPath(); x.arc(64, 64, 62, 0, Math.PI * 2); x.fill(); x.fillStyle = '#fff'; x.beginPath(); x.arc(64, 64, 48, 0, Math.PI * 2); x.fill(); x.fillStyle = '#111'; x.font = '800 54px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('30', 64, 68); });
     const camSign = canvasTex(96, 64, (x, w, h) => { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.strokeStyle = '#111'; x.lineWidth = 4; x.strokeRect(2, 2, w - 4, h - 4); x.fillStyle = '#111'; x.fillRect(26, 22, 34, 20); x.beginPath(); x.arc(64, 32, 8, 0, Math.PI * 2); x.fill(); x.fillRect(38, 42, 8, 14); });
-    [[0.23, -1], [0.55, 1], [0.935, -1]].forEach(([prog, side]) => {
+    [[0.23, -1], [0.64, 1], [0.935, -1]].forEach(([prog, side]) => {
       const { g, pos } = onPavement(prog, side, ROAD_W + 1.3);
       mk(new THREE.CylinderGeometry(0.12, 0.14, 3.4, 8), '#7d828c', 0, 1.7, 0, g);
       const cam = mk(new THREE.BoxGeometry(0.7, 0.75, 1.2), '#ffd200', 0, 3.6, 0, g);
@@ -2310,7 +2316,7 @@
     // pigeons pecking on the pavement outside the palace, the shops and the café
     const pigeonBody = new THREE.SphereGeometry(0.16, 8, 6), pigeonHead = new THREE.SphereGeometry(0.08, 8, 6);
     const pigeons = [];
-    [[0.25, -1], [0.29, -1], [0.075, -1], [0.155, -1], [0.8, 1], [0.905, 1], [0.565, 1]].forEach(([prog, side]) => {
+    [[0.25, -1], [0.29, -1], [0.075, -1], [0.155, -1], [0.8, 1], [0.905, 1], [0.65, 1]].forEach(([prog, side]) => {
       for (let k = 0; k < 4 + Math.floor(rand() * 4); k++) {
         const f = frameAt(uOf(prog) + (rand() - 0.5) * 12 / LEN), off = ROAD_W + 1.0 + rand() * 1.2;
         const p = new THREE.Group(); p.position.copy(f.p).addScaledVector(f.n, side * off); p.rotation.y = rand() * Math.PI * 2; scene.add(p);
