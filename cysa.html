@@ -7,22 +7,22 @@
 <link rel="icon" type="image/jpeg" href="logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #07050a;
-    --surface: #140d1a;
-    --border: rgba(255,255,255,0.07);
-    --border2: rgba(168,85,247,0.25);
-    --accent: #a855f7;
-    --accent2: #c084fc;
-    --accent-dim: rgba(168,85,247,0.1);
-    --text: #f0eaff;
-    --text2: #8a7a9a;
-    --text3: #5a4a6a;
-    --mono: "DM Mono", monospace;
-    --serif: "DM Serif Display", Georgia, serif;
-    --sans: "Outfit", sans-serif;
+    --bg: #fff3e8;
+    --surface: #fff8f2;
+    --border: rgba(34,24,58,0.119);
+    --border2: rgba(255,79,123,0.25);
+    --accent: #ff4f7b;
+    --accent2: #e0661f;
+    --accent-dim: rgba(255,79,123,0.1);
+    --text: #291b41;
+    --text2: #6f5e8c;
+    --text3: #a093b7;
+    --mono: "JetBrains Mono", monospace;
+    --serif: "Unbounded", Georgia, serif;
+    --sans: "Manrope", sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
@@ -37,8 +37,8 @@
     content: "";
     position: fixed; inset: 0;
     background-image:
-      linear-gradient(rgba(168,85,247,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(168,85,247,0.03) 1px, transparent 1px);
+      linear-gradient(rgba(255,79,123,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,79,123,0.03) 1px, transparent 1px);
     background-size: 40px 40px;
     pointer-events: none; z-index: 0;
   }
@@ -91,16 +91,16 @@
   .cert-wrap {
     position: relative; border-radius: 14px; overflow: hidden;
     border: 1px solid var(--border2);
-    box-shadow: 0 0 60px rgba(168,85,247,0.1);
+    box-shadow: 0 0 60px rgba(255,79,123,0.1);
     margin-bottom: 3rem; cursor: zoom-in;
     transition: box-shadow 0.2s;
   }
-  .cert-wrap:hover { box-shadow: 0 0 80px rgba(168,85,247,0.18); }
+  .cert-wrap:hover { box-shadow: 0 0 80px rgba(255,79,123,0.18); }
   .cert-wrap img { width: 100%; display: block; }
   .cert-zoom-hint {
     position: absolute; bottom: 1rem; right: 1rem;
     font-family: var(--mono); font-size: 0.65rem;
-    background: rgba(7,5,10,0.82); color: var(--accent);
+    background: rgba(255,245,237,0.82); color: var(--accent);
     padding: 0.3rem 0.75rem; border-radius: 4px;
     letter-spacing: 0.06em; backdrop-filter: blur(4px); pointer-events: none;
   }
@@ -125,7 +125,7 @@
     background: var(--surface);
     border: 1px solid var(--border2);
     padding: 10px;
-    box-shadow: 0 0 30px rgba(168,85,247,0.12);
+    box-shadow: 0 0 30px rgba(255,79,123,0.12);
   }
   .badge-label {
     font-family: var(--mono); font-size: 0.65rem;
@@ -194,7 +194,7 @@
   /* lightbox */
   .lightbox {
     position: fixed; inset: 0; z-index: 900;
-    background: rgba(4,3,4,0.96); backdrop-filter: blur(14px);
+    background: rgba(255,245,237,0.96); backdrop-filter: blur(14px);
     display: none; align-items: center; justify-content: center;
     padding: 1.5rem; cursor: zoom-out;
   }
@@ -203,7 +203,7 @@
     max-width: 90vw; max-height: 88vh;
     object-fit: contain; border-radius: 10px;
     border: 1px solid var(--border2);
-    box-shadow: 0 24px 80px rgba(0,0,0,0.9);
+    box-shadow: 0 24px 80px rgba(255,245,237,0.9);
   }
   .lb-close {
     position: fixed; top: 1.5rem; right: 1.5rem;
@@ -213,7 +213,7 @@
     display: flex; align-items: center; justify-content: center;
     color: var(--text2); transition: background 0.2s, color 0.2s; z-index: 910;
   }
-  .lb-close:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .lb-close:hover { background: var(--accent); color: #ffffff; border-color: var(--accent); }
 
   /* animations */
   .fade-in { opacity: 0; transform: translateY(14px); animation: fadein 0.5s ease forwards; }
@@ -228,6 +228,7 @@
     .cert-details { grid-template-columns: 1fr 1fr; }
   }
 </style>
+<link rel="stylesheet" href="theme.css">
 </head>
 <body>
 
@@ -358,5 +359,6 @@ document.addEventListener("keydown", e => {
 });
 </script>
 
+<a class="ap-drive" href="drive.html" aria-label="Open the 3D drive-through portfolio"><span class="ap-drive-dot"></span>Take the 3D drive</a>
 </body>
 </html>
