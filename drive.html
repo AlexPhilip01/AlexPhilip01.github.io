@@ -868,92 +868,100 @@
   let audio = null, soundOn = false;
   const soundBtn = document.getElementById('soundBtn');
   function startAudio() {
+    // Synthesised twin-turbo V8: lumpy cross-plane idle, gear changes, turbo whistle, blow-off, overrun crackle.
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
     const ctx = new AC();
     const master = ctx.createGain(); master.gain.value = 0;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 5;
     master.connect(comp); comp.connect(ctx.destination);
-
-    // shared noise buffer (drums + wind)
     const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
     const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
 
-    // ---- music bus: synthwave loop, Am - F - C - G at 96 bpm ----
-    const music = ctx.createGain(); music.gain.value = 0.55; music.connect(master);
-    const delay = ctx.createDelay(1); delay.delayTime.value = 60 / 96 * 0.75;
-    const fb = ctx.createGain(); fb.gain.value = 0.32; const wet = ctx.createGain(); wet.gain.value = 0.35;
-    delay.connect(fb); fb.connect(delay); delay.connect(wet); wet.connect(music);
-    const mtof = m => 440 * Math.pow(2, (m - 69) / 12);
-    const chords = [[57, 60, 64], [53, 57, 60], [48, 52, 55], [55, 59, 62]];
-    const beat = 60 / 96, six = beat / 4;
-    function tone(freq, t, dur, type, gain, cutoff, dest, attack = 0.005) {
-      const o = ctx.createOscillator(); o.type = type; o.frequency.value = freq;
-      const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = cutoff;
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(gain, t + attack); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-      o.connect(f); f.connect(g); g.connect(dest); o.start(t); o.stop(t + dur + 0.05);
-      return g;
-    }
-    function hit(t, type) {
-      if (type === 'kick') {
-        const o = ctx.createOscillator(); const g = ctx.createGain();
-        o.frequency.setValueAtTime(130, t); o.frequency.exponentialRampToValueAtTime(42, t + 0.14);
-        g.gain.setValueAtTime(0.7, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.32);
-        o.connect(g); g.connect(music); o.start(t); o.stop(t + 0.35); return;
-      }
-      const s = ctx.createBufferSource(); s.buffer = noise;
-      const f = ctx.createBiquadFilter(); const g = ctx.createGain();
-      const snare = type === 'snare';
-      f.type = snare ? 'bandpass' : 'highpass'; f.frequency.value = snare ? 1900 : 7500;
-      g.gain.setValueAtTime(snare ? 0.22 : 0.05, t); g.gain.exponentialRampToValueAtTime(0.0001, t + (snare ? 0.18 : 0.045));
-      s.connect(f); f.connect(g); g.connect(music); if (snare) g.connect(delay);
-      s.start(t, Math.random()); s.stop(t + 0.2);
-    }
-    let step = 0, next = ctx.currentTime + 0.1;
-    function schedule() {
-      while (next < ctx.currentTime + 0.15) {
-        const bar = Math.floor(step / 16) % 4, s16 = step % 16, ch = chords[bar];
-        if (s16 === 0) ch.forEach(m => { tone(mtof(m), next, beat * 4.1, 'sawtooth', 0.022, 1100, music, 0.5); tone(mtof(m) * 1.005, next, beat * 4.1, 'sawtooth', 0.016, 900, music, 0.5); });
-        if (s16 % 2 === 0) tone(mtof(ch[0] - 24 + (s16 % 4 === 2 ? 12 : 0)), next, six * 1.8, 'sawtooth', 0.11, 420, music);
-        const arp = [ch[0], ch[1], ch[2], ch[1] + 12][s16 % 4] + 12;
-        const g = tone(mtof(arp), next, six * 1.6, 'square', 0.018, 2600, music); g.connect(delay);
-        if (s16 === 0 || s16 === 8 || (bar === 3 && s16 === 14)) hit(next, 'kick');
-        if (s16 === 4 || s16 === 12) hit(next, 'snare');
-        if (s16 % 2 === 0) hit(next, 'hat');
-        next += six; step++;
-      }
-    }
-    schedule(); const timer = setInterval(schedule, 25);
-
-    // ---- engine: growling twin-saw with a sub, lowpass opens as you speed up ----
-    const eng = ctx.createGain(); eng.gain.value = 0.03; eng.connect(master);
-    const elp = ctx.createBiquadFilter(); elp.type = 'lowpass'; elp.frequency.value = 220; elp.Q.value = 3; elp.connect(eng);
-    const shaper = ctx.createWaveShaper(); const curve = new Float32Array(256);
-    for (let i = 0; i < 256; i++) { const x = i / 128 - 1; curve[i] = Math.tanh(2.2 * x); } shaper.curve = curve; shaper.connect(elp);
-    const oscA = ctx.createOscillator(); oscA.type = 'sawtooth';
-    const oscB = ctx.createOscillator(); oscB.type = 'sawtooth'; oscB.detune.value = 9;
-    const sub = ctx.createOscillator(); sub.type = 'square';
-    const burble = ctx.createOscillator(); burble.type = 'sine'; const bd = ctx.createGain(); bd.gain.value = 0.35;
-    const ag = ctx.createGain(); ag.gain.value = 0.6; burble.connect(bd); bd.connect(ag.gain);
-    [oscA, oscB].forEach(o => o.connect(ag)); const sg = ctx.createGain(); sg.gain.value = 0.5; sub.connect(sg); sg.connect(ag);
-    ag.connect(shaper);
-    [oscA, oscB, sub, burble].forEach(o => o.start());
-
-    // ---- wind / tyre noise ----
+    // engine voice: saws at firing frequency + square sub -> uneven-firing AM -> drive -> chest EQ -> lowpass
+    const engOut = ctx.createGain(); engOut.gain.value = 0; engOut.connect(master);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 1.2; lp.frequency.value = 600; lp.connect(engOut);
+    const chest = ctx.createBiquadFilter(); chest.type = 'peaking'; chest.frequency.value = 130; chest.gain.value = 9; chest.Q.value = 1; chest.connect(lp);
+    const shaper = ctx.createWaveShaper(); const cv = new Float32Array(1024);
+    for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; cv[i] = Math.tanh(3.2 * x); } shaper.curve = cv; shaper.oversample = '2x'; shaper.connect(chest);
+    const pre = ctx.createGain(); pre.gain.value = 0.55; pre.connect(shaper);
+    const am = ctx.createGain(); am.gain.value = 0.7; am.connect(pre);
+    const sawA = ctx.createOscillator(); sawA.type = 'sawtooth';
+    const sawB = ctx.createOscillator(); sawB.type = 'sawtooth'; sawB.detune.value = 8;
+    const sub = ctx.createOscillator(); sub.type = 'square'; const subG = ctx.createGain(); subG.gain.value = 0.45;
+    sawA.connect(am); sawB.connect(am); sub.connect(subG); subG.connect(am);
+    const lump = ctx.createOscillator(); lump.type = 'sine'; const lumpD = ctx.createGain(); lumpD.gain.value = 0.45;
+    lump.connect(lumpD); lumpD.connect(am.gain);
+    // turbo whistle
+    const whistle = ctx.createOscillator(); whistle.type = 'sine'; const wh = ctx.createGain(); wh.gain.value = 0;
+    whistle.connect(wh); wh.connect(master);
+    // wind
     const wind = ctx.createBufferSource(); wind.buffer = noise; wind.loop = true;
     const wbp = ctx.createBiquadFilter(); wbp.type = 'bandpass'; wbp.frequency.value = 500; wbp.Q.value = 0.7;
-    const wg = ctx.createGain(); wg.gain.value = 0; wind.connect(wbp); wbp.connect(wg); wg.connect(master); wind.start();
+    const wg = ctx.createGain(); wg.gain.value = 0; wind.connect(wbp); wbp.connect(wg); wg.connect(master);
+    [sawA, sawB, sub, lump, whistle, wind].forEach(o => o.start());
+
+    function setRPM(rpm, t, tc) {
+      const f = rpm / 60 * 4; // 8 cylinders, four-stroke: 4 firings per revolution
+      sawA.frequency.setTargetAtTime(f, t, tc); sawB.frequency.setTargetAtTime(f, t, tc);
+      sub.frequency.setTargetAtTime(f / 2, t, tc); lump.frequency.setTargetAtTime(rpm / 60, t, tc);
+      lumpD.gain.setTargetAtTime(rpm < 1500 ? 0.45 : 0.18, t, 0.2);
+    }
+    function pop(t, amp) {
+      const s = ctx.createBufferSource(); s.buffer = noise;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 700 + Math.random() * 1600; f.Q.value = 1.5;
+      const g = ctx.createGain(); g.gain.setValueAtTime(amp * 0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + Math.random() * 0.04);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + 0.1);
+      const o = ctx.createOscillator(); const og = ctx.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.06);
+      og.gain.setValueAtTime(amp * 0.5, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.08); o.connect(og); og.connect(master); o.start(t); o.stop(t + 0.1);
+    }
+    function blowOff(t) {
+      const s = ctx.createBufferSource(); s.buffer = noise;
+      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(5200, t); f.frequency.exponentialRampToValueAtTime(1400, t + 0.45);
+      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
+      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + 0.55);
+    }
+
+    const gearTop = [0.14, 0.28, 0.45, 0.63, 0.82, 1.0];
+    let rpm = 850, gear = 0, lastS = 0, lastT = ctx.currentTime, shiftUntil = 0, crackleUntil = 0, peakRpm = 850;
+    // start-up: crank, catch, blip, settle to idle
+    const t0 = ctx.currentTime, startupUntil = t0 + 1.9;
+    [sawA, sawB].forEach(o => { o.frequency.setValueAtTime(18, t0); o.frequency.linearRampToValueAtTime(60, t0 + 0.45); o.frequency.exponentialRampToValueAtTime(240, t0 + 0.75); o.frequency.exponentialRampToValueAtTime(57, t0 + 1.8); });
+    sub.frequency.setValueAtTime(9, t0); sub.frequency.linearRampToValueAtTime(30, t0 + 0.45); sub.frequency.exponentialRampToValueAtTime(120, t0 + 0.75); sub.frequency.exponentialRampToValueAtTime(28, t0 + 1.8);
+    lump.frequency.setValueAtTime(5, t0); lump.frequency.linearRampToValueAtTime(14, t0 + 1.8);
+    lp.frequency.setValueAtTime(300, t0); lp.frequency.linearRampToValueAtTime(2600, t0 + 0.75); lp.frequency.linearRampToValueAtTime(650, t0 + 1.8);
+    engOut.gain.setValueAtTime(0.0001, t0); engOut.gain.exponentialRampToValueAtTime(0.05, t0 + 0.4); engOut.gain.linearRampToValueAtTime(0.16, t0 + 0.75); engOut.gain.linearRampToValueAtTime(0.07, t0 + 1.8);
+    pop(t0 + 1.05, 0.5); pop(t0 + 1.18, 0.35);
 
     function update(s) {
-      const t = ctx.currentTime, f = 30 + s * 62;
-      oscA.frequency.setTargetAtTime(f, t, 0.15); oscB.frequency.setTargetAtTime(f, t, 0.15);
-      sub.frequency.setTargetAtTime(f / 2, t, 0.15); burble.frequency.setTargetAtTime(f / 4, t, 0.15);
-      elp.frequency.setTargetAtTime(200 + s * 1300, t, 0.15);
-      eng.gain.setTargetAtTime(0.035 + s * 0.08, t, 0.2);
-      wg.gain.setTargetAtTime(s * 0.06, t, 0.3); wbp.frequency.setTargetAtTime(400 + s * 900, t, 0.3);
+      const t = ctx.currentTime, dt = Math.max(0.001, t - lastT); lastT = t;
+      const ds = (s - lastS) / dt; lastS = s;
+      wg.gain.setTargetAtTime(s * 0.05, t, 0.3); wbp.frequency.setTargetAtTime(400 + s * 900, t, 0.3);
+      if (t < startupUntil) return;
+      let g = 0; while (g < gearTop.length - 1 && s > gearTop[g]) g++;
+      const moving = s > 0.012;
+      if (moving && g > gear) { shiftUntil = t + 0.11; pop(t + 0.03, 0.35); }
+      gear = moving ? g : 0;
+      const lo = gear ? gearTop[gear - 1] : 0, hi = gearTop[gear];
+      const target = moving ? 2300 + clamp((s - lo) / (hi - lo), 0, 1) * 4600 : 850;
+      const load = clamp(ds * 0.9, 0, 1);
+      rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 5 : 2.5));
+      peakRpm = Math.max(rpm, peakRpm * 0.995);
+      setRPM(rpm, t, 0.04);
+      const r = (rpm - 850) / 6050;
+      lp.frequency.setTargetAtTime(550 + r * 2600 + load * 1200, t, 0.06);
+      const shifting = t < shiftUntil;
+      engOut.gain.setTargetAtTime(shifting ? 0.03 : 0.07 + r * 0.09 + load * 0.04, t, shifting ? 0.015 : 0.06);
+      whistle.frequency.setTargetAtTime(2400 + rpm * 0.55, t, 0.15);
+      wh.gain.setTargetAtTime(rpm > 2600 ? 0.0035 + load * 0.012 : 0, t, 0.2);
+      // lift off the throttle at high revs: blow-off valve + overrun crackle
+      if (ds < -0.45 && peakRpm > 3400 && t > crackleUntil) {
+        crackleUntil = t + 1.1; peakRpm = rpm;
+        blowOff(t);
+        const n = 4 + Math.floor(Math.random() * 5);
+        for (let k = 0; k < n; k++) pop(t + 0.12 + Math.random() * 0.8, 0.2 + Math.random() * 0.5);
+      }
     }
-    update(0);
-    return { ctx, master, update, timer };
+    return { ctx, master, update };
   }
   soundBtn.addEventListener('click', () => {
     soundOn = !soundOn;
