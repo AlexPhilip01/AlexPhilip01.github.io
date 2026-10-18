@@ -16,12 +16,13 @@
 <style>
   /* Layout: a fixed WebGL street scene driven by page scroll; one glass card per stop on the left (bottom sheet on phones), HUD at the edges. */
   :root {
-    --ink: #22183a;
-    --ink-soft: #5b4d74;
+    --ink: #140d1a;
+    --ink-soft: #5a4a6a;
     --paper: #fff7ee;
     --glass: rgba(255, 247, 238, .86);
     --sun: #ff8a3d;
-    --rose: #ff4f7b;
+    --rose: #a855f7;
+    --rose-text: #7e3ae0;
     --line: rgba(34, 24, 58, .14);
     --sky: #f3b08e;
     --display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
@@ -53,8 +54,8 @@
   .brand-name { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: .01em; }
   .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #2fb67c; margin-right: 6px; vertical-align: 1px; }
   a.plain { color: inherit; text-decoration: none; border-bottom: 1.5px solid var(--line); }
-  a.plain:hover { color: var(--rose); border-color: var(--rose); }
-  .tags a { color: var(--rose); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
+  a.plain:hover { color: var(--rose-text); border-color: var(--rose); }
+  .tags a { color: var(--rose-text); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
   .tags a:hover { color: var(--ink); }
   .draft {
     font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
@@ -156,7 +157,7 @@
   .project:last-child { padding-bottom: 0; }
   .project .yr { font: 500 12px/1.4 var(--mono); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
   .project p { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--ink-soft); }
-  .tags { grid-column: 1 / -1; font: 500 11px/1.4 var(--mono); letter-spacing: .04em; color: var(--rose); margin-top: 2px; }
+  .tags { grid-column: 1 / -1; font: 500 11px/1.4 var(--mono); letter-spacing: .04em; color: var(--rose-text); margin-top: 2px; }
 
   .timeline { list-style: none; margin: 6px 0 0; padding: 0 0 0 18px; border-left: 2px solid var(--ink); display: flex; flex-direction: column; gap: 16px; }
   .timeline li { position: relative; }
@@ -171,7 +172,7 @@
   .btn.solid:hover { background: var(--rose); border-color: var(--rose); }
   .links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
   .links a { color: var(--ink); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--rose); padding-bottom: 1px; }
-  .links a:hover { color: var(--rose); }
+  .links a:hover { color: var(--rose-text); }
 
   /* ---------- Phone ---------- */
   @media (max-width: 760px) {
@@ -554,7 +555,7 @@
   }
 
   // ---------- Billboards at each stop ----------
-  const signColors = [['#ff4f7b', '#fff7ee'], ['#22183a', '#ffd36e'], ['#fff7ee', '#22183a'], ['#3f6fd8', '#fff7ee'], ['#ffd36e', '#22183a']];
+  const signColors = [['#a855f7', '#ffffff'], ['#140d1a', '#c084fc'], ['#fff7ee', '#6b21a8'], ['#6b21a8', '#f0eaff'], ['#140d1a', '#ffffff']];
   const signBoards = [];
   // Overhead gantry signs: centred over the road so they are always in view as you approach
   panels.slice(1).forEach((p, i) => {
@@ -605,8 +606,8 @@
     occupied.push({ x: f.p.x + f.n.x * (ROAD_W + 1.6), z: f.p.z + f.n.z * (ROAD_W + 1.6), r: 3 });
     occupied.push({ x: f.p.x - f.n.x * (ROAD_W + 1.6), z: f.p.z - f.n.z * (ROAD_W + 1.6), r: 3 });
   }
-  gate(uOf(0) + 0.022, 'CYBERSECURITY PORTFOLIO', 'ALEX PHILIP', '#fff7ee', '#22183a');
-  gate(U1 + 0.012, 'END OF THE ROAD', 'THANKS FOR DRIVING', '#ff4f7b', '#fff7ee');
+  gate(uOf(0) + 0.022, 'CYBERSECURITY PORTFOLIO', 'ALEX PHILIP', '#140d1a', '#c084fc');
+  gate(U1 + 0.012, 'END OF THE ROAD', 'THANKS FOR DRIVING', '#a855f7', '#ffffff');
 
   // ---------- Landmarks ----------
   const spinners = [];
