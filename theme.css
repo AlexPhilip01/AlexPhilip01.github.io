@@ -1,19 +1,27 @@
-/* Shared layer for the original black & purple pages: only adds the link to the 3D drive. drive.html does not use it. */
+/* Shared SHIELD layer for the main site (black & gold). drive.html does not use it. */
+:root { --sh-gold: #d4a83a; --sh-gold-lt: #e9cf7a; --sh-ink: #0b0b0d; --sh-text: #ece8de; color-scheme: dark; }
+h1, h2, h3 { letter-spacing: .02em; text-wrap: balance; }
+h1 em, h2 em, h3 em { font-style: normal; }
+::selection { background: rgba(212, 168, 58, .3); color: #fff; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--sh-gold); outline-offset: 3px; }
+img { max-width: 100%; }
 .ap-drive {
   position: fixed; z-index: 9999;
   right: max(16px, env(safe-area-inset-right, 0px));
   bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: 9px;
   padding: 10px 16px; border-radius: 999px;
-  background: rgba(20, 13, 26, .92); color: #f0eaff !important;
-  border: 1px solid rgba(168, 85, 247, .35);
-  font: 500 12px/1 'DM Mono', ui-monospace, Menlo, Consolas, monospace; letter-spacing: .04em; text-decoration: none;
-  box-shadow: 0 0 30px rgba(168, 85, 247, .18);
+  background: rgba(11, 11, 13, .92); color: var(--sh-gold-lt) !important;
+  border: 1px solid rgba(212, 168, 58, .55);
+  font: 600 12px/1 'Cinzel', Georgia, serif; letter-spacing: .12em; text-transform: uppercase; text-decoration: none;
+  box-shadow: 0 0 28px rgba(212, 168, 58, .18);
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   transition: border-color .2s, box-shadow .2s, transform .2s;
 }
-.ap-drive:hover { border-color: #a855f7; box-shadow: 0 0 40px rgba(168, 85, 247, .35); transform: translateY(-1px); }
-.ap-drive:focus-visible { outline: 2px solid #c084fc; outline-offset: 3px; }
-.ap-drive-dot { width: 7px; height: 7px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 8px #a855f7; }
+.ap-drive:hover { border-color: var(--sh-gold); box-shadow: 0 0 40px rgba(212, 168, 58, .35); transform: translateY(-1px); }
+.ap-drive-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sh-gold); box-shadow: 0 0 8px var(--sh-gold); }
 @media print { .ap-drive { display: none; } }
 @media (max-width: 520px) { .ap-drive { padding: 9px 13px; font-size: 11px; } }
+/* small fixes: a SOC badge that inherited a transparent text fill, and a too-dark subtitle on the PhishGuard write-up */
+.pill { -webkit-text-fill-color: currentColor; }
+.hero-subtitle { color: #a29c8e !important; }
