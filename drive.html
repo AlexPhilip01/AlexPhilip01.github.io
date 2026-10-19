@@ -3325,100 +3325,72 @@
   let audio = null, soundOn = false;
   const soundBtn = document.getElementById('soundBtn');
   function startAudio() {
-    // Synthesised twin-turbo V8: lumpy cross-plane idle, gear changes, turbo whistle, blow-off, overrun crackle.
+    // Synthesised V12 limousine: silky even firing, deep and muffled, seamless shifts, soft road and wind hush.
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
     const ctx = new AC();
     const master = ctx.createGain(); master.gain.value = 0;
-    const carBus = ctx.createGain(); carBus.gain.value = 0.32; carBus.connect(master); // quiet, refined engine
-    const popBus = ctx.createGain(); popBus.gain.value = 0.12; popBus.connect(carBus);  // barely any crackle
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 5;
+    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
     master.connect(comp); comp.connect(ctx.destination);
-    const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    const carBus = ctx.createGain(); carBus.gain.value = 0.55; carBus.connect(master);
+    // brown noise for road rumble, white noise for wind
+    const len = ctx.sampleRate * 2, brown = ctx.createBuffer(1, len, ctx.sampleRate), white = ctx.createBuffer(1, len, ctx.sampleRate);
+    { const b = brown.getChannelData(0), w = white.getChannelData(0); let last = 0; for (let i = 0; i < len; i++) { const r = Math.random() * 2 - 1; w[i] = r; last = (last + 0.02 * r) / 1.02; b[i] = last * 3.5; } }
 
-    // engine voice: saws at firing frequency + square sub -> uneven-firing AM -> drive -> chest EQ -> lowpass
+    // engine: two detuned saws at firing frequency + half-order triangle + deep sine, gently warmed, then heavily muffled
     const engOut = ctx.createGain(); engOut.gain.value = 0; engOut.connect(carBus);
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 1.2; lp.frequency.value = 600; lp.connect(engOut);
-    const chest = ctx.createBiquadFilter(); chest.type = 'peaking'; chest.frequency.value = 130; chest.gain.value = 9; chest.Q.value = 1; chest.connect(lp);
+    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 0.6; lp.frequency.value = 260; lp.connect(engOut);
+    const lp2 = ctx.createBiquadFilter(); lp2.type = 'lowpass'; lp2.Q.value = 0.5; lp2.frequency.value = 900; lp2.connect(lp);
+    const body = ctx.createBiquadFilter(); body.type = 'peaking'; body.frequency.value = 85; body.gain.value = 7; body.Q.value = 0.8; body.connect(lp2);
     const shaper = ctx.createWaveShaper(); const cv = new Float32Array(1024);
-    for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; cv[i] = Math.tanh(3.2 * x); } shaper.curve = cv; shaper.oversample = '2x'; shaper.connect(chest);
-    const pre = ctx.createGain(); pre.gain.value = 0.55; pre.connect(shaper);
-    const am = ctx.createGain(); am.gain.value = 0.7; am.connect(pre);
+    for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; cv[i] = Math.tanh(1.4 * x); } shaper.curve = cv; shaper.connect(body);
+    const mix = ctx.createGain(); mix.gain.value = 0.5; mix.connect(shaper);
     const sawA = ctx.createOscillator(); sawA.type = 'sawtooth';
-    const sawB = ctx.createOscillator(); sawB.type = 'sawtooth'; sawB.detune.value = 8;
-    const sub = ctx.createOscillator(); sub.type = 'square'; const subG = ctx.createGain(); subG.gain.value = 0.45;
-    sawA.connect(am); sawB.connect(am); sub.connect(subG); subG.connect(am);
-    const lump = ctx.createOscillator(); lump.type = 'sine'; const lumpD = ctx.createGain(); lumpD.gain.value = 0.45;
-    lump.connect(lumpD); lumpD.connect(am.gain);
-    // turbo whistle
-    const whistle = ctx.createOscillator(); whistle.type = 'sine'; const wh = ctx.createGain(); wh.gain.value = 0;
-    whistle.connect(wh); wh.connect(carBus);
-    // wind
-    const wind = ctx.createBufferSource(); wind.buffer = noise; wind.loop = true;
-    const wbp = ctx.createBiquadFilter(); wbp.type = 'bandpass'; wbp.frequency.value = 500; wbp.Q.value = 0.7;
+    const sawB = ctx.createOscillator(); sawB.type = 'sawtooth'; sawB.detune.value = 6;
+    const half = ctx.createOscillator(); half.type = 'triangle'; const halfG = ctx.createGain(); halfG.gain.value = 0.55;
+    const deep = ctx.createOscillator(); deep.type = 'sine'; const deepG = ctx.createGain(); deepG.gain.value = 0.7;
+    const sawG = ctx.createGain(); sawG.gain.value = 0.32;
+    sawA.connect(sawG); sawB.connect(sawG); sawG.connect(mix); half.connect(halfG); halfG.connect(mix); deep.connect(deepG); deepG.connect(mix);
+    // road rumble and wind
+    const road = ctx.createBufferSource(); road.buffer = brown; road.loop = true;
+    const rlp = ctx.createBiquadFilter(); rlp.type = 'lowpass'; rlp.frequency.value = 160;
+    const rg = ctx.createGain(); rg.gain.value = 0; road.connect(rlp); rlp.connect(rg); rg.connect(carBus);
+    const wind = ctx.createBufferSource(); wind.buffer = white; wind.loop = true;
+    const wbp = ctx.createBiquadFilter(); wbp.type = 'bandpass'; wbp.frequency.value = 500; wbp.Q.value = 0.5;
     const wg = ctx.createGain(); wg.gain.value = 0; wind.connect(wbp); wbp.connect(wg); wg.connect(carBus);
-    [sawA, sawB, sub, lump, whistle, wind].forEach(o => o.start());
+    [sawA, sawB, half, deep, road, wind].forEach(o => o.start());
 
     function setRPM(rpm, t, tc) {
-      const f = rpm / 60 * 4; // 8 cylinders, four-stroke: 4 firings per revolution
+      const f = rpm / 60 * 6; // 12 cylinders, four-stroke: 6 firings per revolution
       sawA.frequency.setTargetAtTime(f, t, tc); sawB.frequency.setTargetAtTime(f, t, tc);
-      sub.frequency.setTargetAtTime(f / 2, t, tc); lump.frequency.setTargetAtTime(rpm / 60, t, tc);
-      lumpD.gain.setTargetAtTime(rpm < 1500 ? 0.45 : 0.18, t, 0.2);
+      half.frequency.setTargetAtTime(f / 2, t, tc); deep.frequency.setTargetAtTime(rpm / 60 * 1.5, t, tc);
     }
-    function pop(t, amp) {
-      const s = ctx.createBufferSource(); s.buffer = noise;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 700 + Math.random() * 1600; f.Q.value = 1.5;
-      const g = ctx.createGain(); g.gain.setValueAtTime(amp * 0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + Math.random() * 0.04);
-      s.connect(f); f.connect(g); g.connect(popBus); s.start(t, Math.random()); s.stop(t + 0.1);
-      const o = ctx.createOscillator(); const og = ctx.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.06);
-      og.gain.setValueAtTime(amp * 0.5, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.08); o.connect(og); og.connect(popBus); o.start(t); o.stop(t + 0.1);
-    }
-    function blowOff(t) {
-      const s = ctx.createBufferSource(); s.buffer = noise;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(5200, t); f.frequency.exponentialRampToValueAtTime(1400, t + 0.45);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-      s.connect(f); f.connect(g); g.connect(popBus); s.start(t, Math.random()); s.stop(t + 0.55);
-    }
+    // start-up: a soft starter whirr, then the V12 catches and settles to a near-silent idle
+    const t0 = ctx.currentTime, startupUntil = t0 + 1.6;
+    setRPM(120, t0, 0.01);
+    [sawA, sawB].forEach(o => { o.frequency.setValueAtTime(12, t0); o.frequency.linearRampToValueAtTime(30, t0 + 0.5); o.frequency.exponentialRampToValueAtTime(110, t0 + 0.8); o.frequency.exponentialRampToValueAtTime(60, t0 + 1.5); });
+    engOut.gain.setValueAtTime(0.0001, t0); engOut.gain.exponentialRampToValueAtTime(0.04, t0 + 0.5); engOut.gain.linearRampToValueAtTime(0.11, t0 + 0.8); engOut.gain.linearRampToValueAtTime(0.06, t0 + 1.5);
 
-    const gearTop = [0.14, 0.28, 0.45, 0.63, 0.82, 1.0];
-    let rpm = 850, gear = 0, lastS = 0, lastT = ctx.currentTime, shiftUntil = 0, crackleUntil = 0, peakRpm = 850;
-    // start-up: crank, catch, blip, settle to idle
-    const t0 = ctx.currentTime, startupUntil = t0 + 1.9;
-    [sawA, sawB].forEach(o => { o.frequency.setValueAtTime(18, t0); o.frequency.linearRampToValueAtTime(60, t0 + 0.45); o.frequency.exponentialRampToValueAtTime(240, t0 + 0.75); o.frequency.exponentialRampToValueAtTime(57, t0 + 1.8); });
-    sub.frequency.setValueAtTime(9, t0); sub.frequency.linearRampToValueAtTime(30, t0 + 0.45); sub.frequency.exponentialRampToValueAtTime(120, t0 + 0.75); sub.frequency.exponentialRampToValueAtTime(28, t0 + 1.8);
-    lump.frequency.setValueAtTime(5, t0); lump.frequency.linearRampToValueAtTime(14, t0 + 1.8);
-    lp.frequency.setValueAtTime(300, t0); lp.frequency.linearRampToValueAtTime(2600, t0 + 0.75); lp.frequency.linearRampToValueAtTime(650, t0 + 1.8);
-    engOut.gain.setValueAtTime(0.0001, t0); engOut.gain.exponentialRampToValueAtTime(0.05, t0 + 0.4); engOut.gain.linearRampToValueAtTime(0.16, t0 + 0.75); engOut.gain.linearRampToValueAtTime(0.07, t0 + 1.8);
-    pop(t0 + 1.05, 0.5); pop(t0 + 1.18, 0.35);
-
+    const gearTop = [0.1, 0.2, 0.32, 0.45, 0.58, 0.72, 0.86, 1.0]; // eight smooth gears
+    let rpm = 600, gear = 0, lastS = 0, lastT = ctx.currentTime, shiftUntil = 0;
     function update(s) {
       const t = ctx.currentTime, dt = Math.max(0.001, t - lastT); lastT = t;
       const ds = (s - lastS) / dt; lastS = s;
-      wg.gain.setTargetAtTime(s * 0.05, t, 0.3); wbp.frequency.setTargetAtTime(400 + s * 900, t, 0.3);
+      rg.gain.setTargetAtTime(s * 0.22, t, 0.4);
+      wg.gain.setTargetAtTime(s * s * 0.03, t, 0.4); wbp.frequency.setTargetAtTime(380 + s * 700, t, 0.4);
       if (t < startupUntil) return;
       let g = 0; while (g < gearTop.length - 1 && s > gearTop[g]) g++;
       const moving = s > 0.012;
-      if (moving && g > gear) { shiftUntil = t + 0.11; pop(t + 0.03, 0.35); }
+      if (moving && g > gear) shiftUntil = t + 0.25; // seamless shift: just a soft dip
       gear = moving ? g : 0;
       const lo = gear ? gearTop[gear - 1] : 0, hi = gearTop[gear];
-      const target = moving ? 2300 + clamp((s - lo) / (hi - lo), 0, 1) * 4600 : 850;
-      const load = clamp(ds * 0.9, 0, 1);
-      rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 5 : 2.5));
-      peakRpm = Math.max(rpm, peakRpm * 0.995);
-      setRPM(rpm, t, 0.04);
-      const r = (rpm - 850) / 6050;
-      lp.frequency.setTargetAtTime(550 + r * 2600 + load * 1200, t, 0.06);
+      const target = moving ? 1100 + clamp((s - lo) / (hi - lo), 0, 1) * 1700 + gear * 60 : 600;
+      const load = clamp(ds * 0.8, 0, 1);
+      rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 2.2 : 1.6));
+      setRPM(rpm, t, 0.08);
+      const r = (rpm - 600) / 2800;
+      lp.frequency.setTargetAtTime(240 + r * 520 + load * 260, t, 0.12);
       const shifting = t < shiftUntil;
-      engOut.gain.setTargetAtTime(shifting ? 0.03 : 0.07 + r * 0.09 + load * 0.04, t, shifting ? 0.015 : 0.06);
-      whistle.frequency.setTargetAtTime(2400 + rpm * 0.55, t, 0.15);
-      wh.gain.setTargetAtTime(rpm > 2600 ? 0.0035 + load * 0.012 : 0, t, 0.2);
-      // lift off the throttle at high revs: blow-off valve + overrun crackle
-      if (ds < -0.45 && peakRpm > 3400 && t > crackleUntil) {
-        crackleUntil = t + 1.1; peakRpm = rpm;
-        blowOff(t);
-        const n = 4 + Math.floor(Math.random() * 5);
-        for (let k = 0; k < n; k++) pop(t + 0.12 + Math.random() * 0.8, 0.2 + Math.random() * 0.5);
-      }
+      engOut.gain.setTargetAtTime((shifting ? 0.8 : 1) * (0.06 + r * 0.05 + load * 0.03), t, 0.12);
     }
     return { ctx, master, update };
   }
