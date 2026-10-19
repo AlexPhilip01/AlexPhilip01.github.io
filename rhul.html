@@ -3,396 +3,160 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="Drive round Royal Holloway's Egham campus in 3D: Founder's Building, the library, the Students' Union, sports fields and woodland. An unofficial tribute by alumnus Alex Philip.">
+<title>Royal Holloway Campus Drive</title>
+<meta name="description" content="Drive anywhere on Royal Holloway's Egham campus in 3D: Founder's Building, the library, the Students' Union, the sports fields and the woodland. An unofficial tribute by alumnus Alex Philip.">
 <link rel="icon" type="image/png" href="rhul-icon.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta property="og:type" content="website">
-<meta property="og:site_name" content="Alex Philip · SHIELD">
+<meta property="og:site_name" content="Alex Philip">
 <meta property="og:title" content="Royal Holloway Campus Drive">
-<meta property="og:description" content="Drive round the Egham campus in 3D. An unofficial tribute by alumnus Alex Philip.">
+<meta property="og:description" content="Drive anywhere on the Egham campus in 3D. An unofficial tribute by alumnus Alex Philip.">
 <meta property="og:url" content="https://alexphilip01.github.io/rhul.html">
-<meta property="og:image" content="https://alexphilip01.github.io/rhul-og.jpg?v=1">
+<meta property="og:image" content="https://alexphilip01.github.io/rhul-og.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://alexphilip01.github.io/rhul-og.jpg?v=1">
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<meta name="twitter:image" content="https://alexphilip01.github.io/rhul-og.jpg?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Manrope:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+  :root { --slate: #202a30; --orange: #eb641e; --almond: #fff1df; --grey: #b4c4d0; --glass: rgba(32, 42, 48, .9); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #202a30; color: var(--almond); font-family: Manrope, system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+  #scene { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; image-rendering: pixelated; touch-action: none; }
+  .hud-top { position: fixed; top: 0; left: 0; right: 0; display: flex; align-items: center; gap: 10px; padding: max(12px, env(safe-area-inset-top)) 16px 0; z-index: 5; pointer-events: none; }
+  .brand { pointer-events: auto; display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: inherit; background: var(--glass); border: 2px solid var(--orange); padding: 8px 12px; box-shadow: 4px 4px 0 #000; }
+  .brand b { font: 11px/1.4 'Press Start 2P', monospace; color: var(--orange); }
+  .brand span { font: 500 10px/1.2 'JetBrains Mono', monospace; color: var(--grey); letter-spacing: .06em; text-transform: uppercase; }
+  .spacer { flex: 1; }
+  .btn { pointer-events: auto; font: 500 11px/1 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--almond); background: var(--glass); border: 2px solid var(--orange); padding: 10px 12px; cursor: pointer; box-shadow: 4px 4px 0 #000; }
+  .btn[aria-pressed="true"] { background: var(--orange); color: #fff; }
+  .btn:focus-visible { outline: 3px solid var(--almond); outline-offset: 2px; }
+  #card { position: fixed; left: 16px; top: 84px; width: min(380px, calc(100vw - 32px)); max-height: calc(100vh - 220px); overflow: auto; background: var(--glass); border: 2px solid var(--orange); box-shadow: 6px 6px 0 #000; padding: 18px 20px; z-index: 4; transform: translateX(-120%); transition: transform .35s ease; }
+  #card.on { transform: none; }
+  #card .eyebrow { font: 500 10px/1.4 'JetBrains Mono', monospace; letter-spacing: .14em; text-transform: uppercase; color: var(--grey); margin: 0 0 8px; }
+  #card h1, #card h2 { font-family: 'Press Start 2P', monospace; color: var(--orange); line-height: 1.5; margin: 0 0 12px; }
+  #card h1 { font-size: 22px; } #card h1 .line2 { display: block; color: var(--almond); }
+  #card h2 { font-size: 13px; }
+  #card p { font-size: 13.5px; line-height: 1.6; margin: 0 0 10px; color: var(--almond); }
+  #card a { color: var(--orange); }
+  #card .email-row, #card .links { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+  #card .email { font: 500 12px 'JetBrains Mono', monospace; }
+  #card .links a { font: 500 11px 'JetBrains Mono', monospace; text-transform: uppercase; border: 1px solid var(--orange); padding: 6px 8px; text-decoration: none; }
+  #card .btn.solid { background: var(--orange); color: #fff; }
+  #minimap { position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); width: 180px; height: 180px; z-index: 4; }
+  .speed { position: fixed; left: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); z-index: 4; font: 12px 'Press Start 2P', monospace; color: var(--almond); background: var(--glass); border: 2px solid var(--orange); padding: 10px 12px; box-shadow: 4px 4px 0 #000; }
+  #hint { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 4; background: var(--glass); border: 2px solid var(--orange); padding: 10px 14px; font: 500 12px/1.5 'JetBrains Mono', monospace; text-align: center; box-shadow: 4px 4px 0 #000; transition: opacity .4s; max-width: calc(100vw - 32px); }
+  #hint.hide { opacity: 0; pointer-events: none; }
+  #hint kbd { border: 1px solid var(--grey); padding: 1px 5px; font: inherit; }
+  .pad { display: none; position: fixed; z-index: 6; bottom: calc(210px + env(safe-area-inset-bottom)); gap: 10px; }
+  .pad button { width: 64px; height: 64px; font-size: 26px; color: var(--almond); background: var(--glass); border: 2px solid var(--orange); box-shadow: 4px 4px 0 #000; touch-action: none; user-select: none; -webkit-user-select: none; }
+  .pad button.on { background: var(--orange); }
+  .pad.left { left: 16px; } .pad.right { right: 16px; flex-direction: column; }
+  @media (pointer: coarse) { .pad { display: flex; } #hint .keys { display: none; } }
+  @media (max-width: 760px) {
+    #card { top: auto; bottom: calc(100px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 140%); max-height: 30vh; width: calc(100vw - 24px); padding: 14px 16px; }
+    #card.on { transform: translate(-50%, 0); }
+    #minimap { width: 108px; height: 108px; top: 70px; right: 12px; bottom: auto; }
+    .pad { bottom: calc(16px + env(safe-area-inset-bottom)); }
+    .pad.right { right: 16px; }
+    .speed { display: none; }
+    #hint { bottom: auto; top: 70px; left: 12px; transform: none; max-width: calc(100vw - 140px); font-size: 11px; text-align: left; }
+    .brand span { display: none; }
+  }
+  @media (max-width: 760px) and (pointer: coarse) { #card { bottom: calc(170px + env(safe-area-inset-bottom)); } }
+  body.no-webgl #card { transform: none; }
+</style>
 </head>
 <body>
-<title>Royal Holloway Campus Drive</title>
-<meta name="claude:viewport-fit-sides" content="cover">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Unbounded:wght@500;700;800&family=Cinzel:wght@600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
-<style>
-  /* Layout: a fixed WebGL street scene driven by page scroll; one glass card per stop on the left (bottom sheet on phones), HUD at the edges. */
-  :root {
-    --ink: #140d1a;
-    --ink-soft: #5a4a6a;
-    --paper: #fff7ee;
-    --glass: rgba(255, 247, 238, .86);
-    --sun: #ff8a3d;
-    --rose: #a855f7;
-    --rose-text: #7e3ae0;
-    --line: rgba(34, 24, 58, .14);
-    --sky: #f3b08e;
-    --display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
-    --body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
-    color-scheme: light;
-  }
-  html, body { background: var(--sky); color: var(--ink); }
-  body {
-    font-family: var(--body); font-size: 15px; line-height: 1.6;
-    padding-left: max(16px, env(safe-area-inset-left, 0px));
-    padding-right: max(16px, env(safe-area-inset-right, 0px));
-    -webkit-font-smoothing: antialiased;
-  }
-  #scene { position: fixed; inset: 0; width: 100%; height: 100%; display: block; z-index: 0; }
-  #track { height: 900vh; }
-
-  /* ---------- HUD ---------- */
-  .hud-top {
-    position: fixed; z-index: 5; left: 0; right: 0; top: 0;
-    padding: calc(env(safe-area-inset-top, 0px) + 18px) max(24px, calc(env(safe-area-inset-right, 0px) + 16px)) 0 max(24px, calc(env(safe-area-inset-left, 0px) + 16px));
-    display: flex; align-items: center; justify-content: space-between; gap: 12px; pointer-events: none;
-  }
-  .brand { display: flex; align-items: center; gap: 10px; pointer-events: auto; }
-  .mono-mark {
-    width: 38px; height: 38px; border-radius: 50%; background: var(--ink); color: var(--paper);
-    display: grid; place-items: center; font-family: var(--display); font-weight: 700; font-size: 13px; letter-spacing: .02em;
-  }
-  .brand-name { font-family: var(--display); font-weight: 700; font-size: 14px; letter-spacing: .01em; }
-  .live-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #2fb67c; margin-right: 6px; vertical-align: 1px; }
-  a.plain { color: inherit; text-decoration: none; border-bottom: 1.5px solid var(--line); }
-  a.plain:hover { color: var(--rose-text); border-color: var(--rose); }
-  .tags a { color: var(--rose-text); font-weight: 600; text-decoration: none; border-bottom: 1px solid currentColor; }
-  .tags a:hover { color: var(--ink); }
-  .draft {
-    font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
-    padding: 5px 9px; border-radius: 999px; background: var(--glass); color: var(--ink-soft);
-  }
-  .btn {
-    pointer-events: auto; font: 600 12px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase;
-    color: var(--ink); background: var(--glass); border: 1px solid rgba(255, 255, 255, .7);
-    padding: 10px 14px; border-radius: 999px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-  }
-  .btn:hover { background: var(--paper); }
-  .btn:focus-visible, .stop-btn:focus-visible, a:focus-visible { outline: 2px solid var(--rose); outline-offset: 3px; }
-  .bars { display: inline-flex; gap: 2px; align-items: flex-end; height: 12px; }
-  .bars i { width: 2px; background: currentColor; height: 4px; border-radius: 1px; }
-  .sound-on .bars i { animation: eq .9s ease-in-out infinite; }
-  .sound-on .bars i:nth-child(2) { animation-delay: .2s; }
-  .sound-on .bars i:nth-child(3) { animation-delay: .4s; }
-  @keyframes eq { 0%, 100% { height: 3px } 50% { height: 12px } }
-
-  .odo {
-    position: fixed; z-index: 5;
-    left: max(24px, calc(env(safe-area-inset-left, 0px) + 16px));
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
-    font-family: var(--mono); font-size: 12px; letter-spacing: .05em; color: var(--ink);
-    display: flex; align-items: center; gap: 12px; pointer-events: none;
-  }
-  .odo-meter { display: flex; flex-direction: column; gap: 6px; }
-  .odo-read { font-variant-numeric: tabular-nums; }
-  .odo-read b { font-weight: 600; font-size: 15px; }
-  .odo-bar { width: 160px; height: 3px; background: rgba(34, 24, 58, .18); border-radius: 2px; overflow: hidden; }
-  .odo-bar i { display: block; height: 100%; width: 0; background: var(--ink); }
-
-  .stops {
-    position: fixed; z-index: 5; top: 50%; transform: translateY(-50%);
-    right: max(24px, calc(env(safe-area-inset-right, 0px) + 16px));
-    display: flex; flex-direction: column; gap: 2px; list-style: none; margin: 0; padding: 8px 14px;
-    background: var(--glass); border: 1px solid rgba(255, 255, 255, .7); border-radius: 16px;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); align-items: flex-end;
-  }
-  .stop-btn {
-    display: flex; align-items: center; justify-content: flex-end; gap: 10px; width: 100%;
-    background: none; border: 0; cursor: pointer; padding: 6px 0; color: var(--ink);
-    font: 600 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase;
-  }
-  .stop-btn span { opacity: 0; max-width: 0; overflow: hidden; white-space: nowrap; transition: opacity .3s, max-width .3s; }
-  .stop-btn:hover span, .stop-btn:focus-visible span, .stop-btn.active span { max-width: 120px; }
-  .stop-btn i { width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--ink); transition: background .3s, transform .3s; }
-  .stop-btn:hover span, .stop-btn.active span { opacity: 1; }
-  .stop-btn.active i { background: var(--rose); border-color: var(--rose); transform: scale(1.25); }
-
-  .hint {
-    position: fixed; z-index: 4; left: 50%; transform: translateX(-50%);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
-    font: 600 11px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink);
-    display: flex; flex-direction: column; align-items: center; gap: 10px; transition: opacity .4s; pointer-events: none;
-  }
-  .hint .wheel { width: 20px; height: 32px; border: 2px solid var(--ink); border-radius: 12px; position: relative; }
-  .hint .wheel::after { content: ""; position: absolute; left: 50%; top: 6px; width: 3px; height: 7px; margin-left: -1.5px; border-radius: 2px; background: var(--ink); animation: wheel 1.6s ease-in-out infinite; }
-  @keyframes wheel { 0% { transform: translateY(0); opacity: 1 } 80% { transform: translateY(10px); opacity: 0 } 100% { opacity: 0 } }
-  .hint.gone { opacity: 0; }
-
-  /* ---------- Panels ---------- */
-  .panel {
-    position: fixed; z-index: 3;
-    left: max(28px, calc(env(safe-area-inset-left, 0px) + 20px));
-    top: 50%; width: min(440px, 38vw); max-height: calc(100% - 200px); overflow: auto;
-    background: var(--glass); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2);
-    border: 1px solid rgba(255, 255, 255, .7); border-radius: 20px; padding: 28px 28px 26px;
-    box-shadow: 0 24px 60px -24px rgba(70, 20, 60, .5);
-    opacity: 0; visibility: hidden; transform: translateY(-46%);
-    transition: opacity .45s ease, transform .6s cubic-bezier(.2, .8, .2, 1), visibility 0s linear .6s;
-  }
-  .panel.on { opacity: 1; visibility: visible; transform: translateY(-50%); transition-delay: 0s; }
-  .panel.hero { background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; padding: 0; width: min(560px, 46vw); overflow: visible; }
-
-  .hero .eyebrow, .hero .lede { color: var(--ink); text-shadow: 1.5px 0 0 #fff, -1.5px 0 0 #fff, 0 1.5px 0 #fff, 0 -1.5px 0 #fff, 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff; }
-  .hero .eyebrow::before { box-shadow: 0 0 0 1.5px #fff; }
-  .eyebrow { font: 600 11px/1.2 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 14px; display: flex; gap: 10px; align-items: center; }
-  .eyebrow::before { content: ""; width: 18px; height: 2px; background: var(--rose); }
-  h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; letter-spacing: -.01em; }
-  h1 { font-size: clamp(46px, 7.4vw, 104px); line-height: .92; font-weight: 800; letter-spacing: -.035em; }
-  h1 { color: #c8102e; -webkit-text-stroke: 4px #ffffff; paint-order: stroke fill; }
-  h1 .line2 { color: #012169; display: block; }
-  h2 { font-size: 26px; line-height: 1.15; font-weight: 700; margin-bottom: 12px; }
-  h3 { font-size: 15px; font-weight: 700; line-height: 1.3; }
-  p { margin: 0 0 12px; max-width: 62ch; }
-  .lede { font-size: 17px; line-height: 1.55; margin-top: 20px; max-width: 34ch; font-weight: 500; }
-  .facts { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 16px 0 0; font-size: 14px; }
-  .facts dt { font: 600 11px/1.9 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); }
-  .facts dd { margin: 0; }
-
-  .skill-group { margin-top: 14px; }
-  .skill-group h3 { font: 600 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 8px; }
-  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
-  .chip { font-size: 13px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1.5px solid var(--ink); }
-  .chip.hot { background: var(--ink); color: var(--paper); }
-
-  .projects { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; }
-  .project { padding: 14px 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; }
-  .project:last-child { padding-bottom: 0; }
-  .project .yr { font: 500 12px/1.4 var(--mono); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .project p { grid-column: 1 / -1; margin: 0; font-size: 14px; color: var(--ink-soft); }
-  .tags { grid-column: 1 / -1; font: 500 11px/1.4 var(--mono); letter-spacing: .04em; color: var(--rose-text); margin-top: 2px; }
-
-  .timeline { list-style: none; margin: 6px 0 0; padding: 0 0 0 18px; border-left: 2px solid var(--ink); display: flex; flex-direction: column; gap: 16px; }
-  .timeline li { position: relative; }
-  .timeline li::before { content: ""; position: absolute; left: -25px; top: 5px; width: 12px; height: 12px; border-radius: 50%; background: var(--paper); border: 2px solid var(--ink); }
-  .timeline li:first-child::before { background: var(--rose); border-color: var(--rose); }
-  .timeline .when { font: 500 12px/1.4 var(--mono); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-  .timeline p { margin: 2px 0 0; font-size: 14px; color: var(--ink-soft); }
-
-  .email-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 16px 0 18px; }
-  .email { font: 600 15px/1.3 var(--mono); padding: 10px 14px; border-radius: 12px; background: rgba(34, 24, 58, .07); user-select: all; word-break: break-all; }
-  .btn.solid { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .btn.solid:hover { background: var(--rose); border-color: var(--rose); }
-  .links { display: flex; flex-wrap: wrap; gap: 8px 18px; }
-  .links a { color: var(--ink); font-weight: 700; text-decoration: none; border-bottom: 2px solid var(--rose); padding-bottom: 1px; }
-  .links a:hover { color: var(--rose-text); }
-
-  /* ---------- Phone ---------- */
-  @media (max-width: 760px) {
-    .brand-name { display: none; }
-    .draft { font-size: 9.5px; white-space: nowrap; letter-spacing: .04em; }
-    .panel {
-      left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px)); width: auto;
-      top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 64px); max-height: 48%;
-      padding: 20px; transform: translateY(18px); border-radius: 18px;
-    }
-    .panel.on { transform: none; }
-    .panel.hero { width: auto; padding: 20px; background: var(--glass); border: 1px solid rgba(255, 255, 255, .7); box-shadow: 0 24px 60px -24px rgba(70, 20, 60, .5); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
-    h1 { font-size: clamp(44px, 14vw, 64px); }
-    .lede { font-size: 15px; margin-top: 12px; }
-    h2 { font-size: 21px; }
-    .stops { top: auto; transform: none; padding: 2px 8px; border-radius: 999px; bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); flex-direction: row; gap: 2px; }
-    .stop-btn { padding: 6px 5px; }
-    .stop-btn span { display: none; }
-    .odo-bar { width: 90px; }
-    .hint { display: none; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .panel, .panel.on { transition: opacity .2s, visibility 0s; }
-    .hint .wheel::after, .sound-on .bars i { animation: none; }
-  }
-  /* SHIELD-style hero card */
-  .panel.hero { background: rgba(10, 10, 12, .84); border: 1px solid rgba(235, 100, 30, .6); border-radius: 18px; padding: 26px 30px 24px; box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .65); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); width: min(520px, 44vw); }
-  .hero h1, .hero h1 .line2 {
-    font-family: 'Cinzel', 'Trajan Pro', Georgia, 'Times New Roman', serif; font-weight: 600; letter-spacing: .12em; text-transform: uppercase;
-    -webkit-text-stroke: 0; background: linear-gradient(180deg, #fbeea0 0%, #e6c04a 38%, #b8891f 64%, #f2d76a 100%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
-  }
-  .hero h1 { font-size: clamp(40px, 5.4vw, 82px); line-height: 1.04; }
-  .hero .eyebrow { color: #e8e4da; text-shadow: none; letter-spacing: .3em; }
-  .hero .eyebrow::before { background: #eb641e; box-shadow: none; }
-  .hero .lede { color: #d9d4c7; text-shadow: none; margin-top: 16px; }
-  @media (max-width: 760px) {
-    .panel.hero { width: auto; padding: 20px; background: rgba(10, 10, 12, .88); }
-    .hero h1 { font-size: clamp(34px, 11vw, 52px); }
-  }
-  /* ---- SHIELD theme: black glass, gold, warm white ---- */
-  :root {
-    --ink: #fff1df; --ink-soft: #b4c4d0; --paper: #202a30; --glass: rgba(32, 42, 48, .86);
-    --rose: #eb641e; --rose-text: #f7b48a; --line: rgba(235, 100, 30, .28);
-    --display: 'Cinzel', 'Trajan Pro', Georgia, 'Times New Roman', serif;
-  }
-  .panel { border-color: rgba(235, 100, 30, .55); box-shadow: 0 24px 60px -24px rgba(0, 0, 0, .7); }
-  .panel h2, .panel h3 { color: #ff9a5c; letter-spacing: .03em; }
-  .panel h2 { font-weight: 600; }
-  .project h3, .timeline h3 { color: #fff1df; font-family: var(--body); font-weight: 700; letter-spacing: 0; }
-  .eyebrow { color: #c9c3b4; letter-spacing: .2em; }
-  .eyebrow::before { background: var(--rose); }
-  .skill-group h3 { color: #b4c4d0; font-family: var(--mono); }
-  .chip { border-color: rgba(235, 100, 30, .6); color: #fff1df; }
-  .chip.hot { background: linear-gradient(180deg, #ff9a5c, #c99a2e); color: #202a30; border-color: #eb641e; }
-  .facts dt, .project .yr, .timeline .when { color: #b4c4d0; }
-  .timeline { border-left-color: rgba(235, 100, 30, .7); }
-  .timeline li::before { background: #202a30; border-color: #eb641e; }
-  .timeline li:first-child::before { background: #eb641e; border-color: #eb641e; }
-  .project { border-top-color: rgba(235, 100, 30, .22); }
-  .email { background: rgba(235, 100, 30, .1); color: #ff9a5c; }
-  .links a { color: #fff1df; border-bottom-color: #eb641e; }
-  .links a:hover, .tags a:hover, a.plain:hover { color: #ff9a5c; }
-  .btn { background: rgba(32, 42, 48, .86); color: #f7b48a; border-color: rgba(235, 100, 30, .55); }
-  .btn:hover { background: #202a30; border-color: #eb641e; }
-  .btn.solid { background: linear-gradient(180deg, #ff9a5c, #c99a2e); color: #202a30; border-color: #eb641e; }
-  .btn.solid:hover { background: #ff9a5c; }
-  .brand-name { font-family: 'Cinzel', Georgia, serif; color: #ff9a5c; font-weight: 600; letter-spacing: .08em; text-shadow: 0 1px 6px rgba(0, 0, 0, .7); }
-  img.mono-mark { width: 40px; height: 40px; display: block; border-radius: 9px; border: 1.5px solid #eb641e; background: #202a30; box-shadow: 0 4px 14px -4px rgba(0, 0, 0, .7); }
-  .draft { background: rgba(32, 42, 48, .86); color: #f7b48a; border: 1px solid rgba(235, 100, 30, .45); }
-  .stops { background: rgba(32, 42, 48, .86); border-color: rgba(235, 100, 30, .45); }
-  .stop-btn { color: #f7b48a; }
-  .stop-btn i { border-color: #eb641e; }
-  .stop-btn.active i { background: #eb641e; border-color: #eb641e; }
-  .odo { color: #f7b48a; background: rgba(32, 42, 48, .82); border: 1px solid rgba(235, 100, 30, .45); border-radius: 12px; padding: 8px 12px; }
-  .odo-bar { background: rgba(235, 100, 30, .25); }
-  .odo-bar i { background: #eb641e; }
-  .hint { color: #f7b48a; background: rgba(32, 42, 48, .8); border: 1px solid rgba(235, 100, 30, .45); border-radius: 14px; padding: 10px 14px; }
-  .hint .wheel, .hint .wheel::after { border-color: #eb641e; }
-  .hint .wheel::after { background: #eb641e; }
-  ::selection { background: rgba(235, 100, 30, .35); color: #fff; }
-  .btn:focus-visible, .stop-btn:focus-visible, a:focus-visible { outline-color: #eb641e; }
-  .minimap { position: fixed; z-index: 5; right: max(24px, calc(env(safe-area-inset-right, 0px) + 16px)); bottom: calc(env(safe-area-inset-bottom, 0px) + 22px); width: 172px; height: 172px; border-radius: 50%; pointer-events: none; box-shadow: 0 10px 30px -8px rgba(0, 0, 0, .7); }
-  @media (max-width: 760px) { .minimap { width: 92px; height: 92px; bottom: auto; top: calc(env(safe-area-inset-top, 0px) + 66px); right: max(14px, env(safe-area-inset-right, 0px)); } }
-</style>
-
-<style>
-  /* ---- voxel edition ---- */
-  #scene { image-rendering: pixelated; image-rendering: crisp-edges; }
-  *, *::before, *::after { border-radius: 0 !important; }
-  h1, h2, h3, .brand-name { font-family: 'Press Start 2P', 'VT323', monospace !important; letter-spacing: .04em !important; line-height: 1.5 !important; }
-  h2 { font-size: 15px !important; }
-  h1 { font-size: 26px !important; }
-  .brand-name { font-size: 11px !important; }
-  [class*="card"], [class*="panel"], .stop-dots, .counter, .hud, button { box-shadow: 4px 4px 0 #000, inset 0 0 0 2px rgba(212,168,58,.25) !important; }
-</style>
-
-<canvas id="scene" aria-hidden="true"></canvas>
-<div id="track"></div>
+<canvas id="scene" aria-label="3D view of the Royal Holloway campus"></canvas>
 
 <header class="hud-top">
-  <a class="brand" href="index.html" title="Back to the main site" style="color:inherit;text-decoration:none">
-    
-    <span class="brand-name">Royal Holloway · Campus Drive</span>
-    <span class="draft"><i class="live-dot"></i>Unofficial tribute by Alex Philip</span>
-  </a>
-  <button class="btn" id="soundBtn" type="button" aria-pressed="false">
-    <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="soundLabel">Sound off</span>
-  </button>
+  <a class="brand" href="index.html" title="Back to Alex Philip's portfolio"><b>RHUL Campus Drive</b><span>Unofficial tribute by Alex Philip</span></a>
+  <span class="spacer"></span>
+  <button class="btn" id="tourBtn" type="button" aria-pressed="false">Auto tour</button>
+  <button class="btn" id="soundBtn" type="button" aria-pressed="false">Sound off</button>
 </header>
 
-<nav aria-label="Stops on the drive">
-  <ul class="stops" id="stops"></ul>
-</nav>
+<aside id="card" aria-live="polite"><div id="cardBody"></div></aside>
+<canvas id="minimap" role="img" aria-label="Map of the campus around you"></canvas>
+<div class="speed" id="speed">0 mph</div>
+<div id="hint"><span class="keys">Drive with <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> · </span>Drive up to a building to learn about it · or press <b>Auto tour</b></div>
 
-<div class="odo" aria-live="off">
-  <div class="odo-meter">
-    <span class="odo-read"><b id="odoM">0</b> m / <span id="odoTotal">0</span> m</span>
-    <div class="odo-bar"><i id="odoBar"></i></div>
-  </div>
-</div>
+<div class="pad left" aria-hidden="true"><button data-pad="left" type="button">◀</button><button data-pad="right" type="button">▶</button></div>
+<div class="pad right" aria-hidden="true"><button data-pad="up" type="button">▲</button><button data-pad="down" type="button">▼</button></div>
 
-<div class="hint" id="hint"><span class="wheel"></span>Scroll to drive · drag to look around</div>
-
-<main>
-  <section class="panel hero on" data-from="0" data-to="0.06" data-label="Start" id="start">
+<template id="tpl-start">
     <p class="eyebrow">Egham, Surrey · Campus drive</p>
     <h1>Royal<span class="line2">Holloway</span></h1>
-    <p class="lede">Scroll to drive round the Egham campus, from Founder's Building to the woodland. Every building sits where it really is on the campus map.</p>
+    <p class="lede">Drive anywhere on the Egham campus: the real roads, with every building where it stands on the campus map. Drive up to a building and its story appears here, or press <b>Auto tour</b>.</p>
     <p class="lede" style="font-size:13px;opacity:.85">An unofficial tribute by alumnus Alex Philip (MSc Information Security, 2022–2024). Not affiliated with or endorsed by Royal Holloway, University of London.</p>
-  </section>
-
-  <section class="panel" data-from="0.065" data-to="0.12" data-label="Founder's" id="founders">
+  </template>
+<template id="tpl-founders">
     <p class="eyebrow">Stop 1 · Founder's Building</p>
     <h2>A French château in Surrey</h2>
     <p>Designed by William Henry Crossland and inspired by the Château de Chambord in the Loire Valley, the red-brick Founder's Building was opened by Queen Victoria in 1886. It is Grade I listed.</p>
     <p>Thomas Holloway, a Victorian entrepreneur and philanthropist, founded the college here on the Mount Lee estate in 1879.</p>
     <p style="font-size:13px"><b style="color:#eb641e">Inside:</b> Student rooms, the dining hall, chapel, picture gallery and a lecture theatre</p>
     <p style="font-size:13px"><b style="color:#eb641e">Quads:</b> Queen Victoria's statue in the North Quad; Thomas and Jane Holloway in the South Quad</p>
-  </section>
-
-  <section class="panel" data-from="0.125" data-to="0.19" data-label="Chapel" id="chapel">
+  </template>
+<template id="tpl-chapel">
     <p class="eyebrow">Stop 2 · Chapel &amp; Picture Gallery</p>
     <h2>Art and evensong</h2>
     <p>The Victorian chapel hosts Choral Evensong, Compline and Catholic Masses, and is known for daily sung morning services, which are rare at UK universities. The Chapel Choir gives around 50 concerts a year.</p>
     <p>Holloway bought 77 paintings for the Picture Gallery between 1881 and 1883, including works by Millais, Burne-Jones and Frith.</p>
     <p style="font-size:13px"><b style="color:#eb641e">Gallery:</b> Open to visitors on Wednesdays in term time</p>
-  </section>
-
-  <section class="panel" data-from="0.23" data-to="0.30" data-label="Library" id="library">
+  </template>
+<template id="tpl-library">
     <p class="eyebrow">Stop 3 · Emily Wilding Davison Building</p>
     <h2>The library on Founder's Square</h2>
     <p>Opened in 2017 and named after alumna and suffragette Emily Wilding Davison, it holds the Library, the Student Services Centre, the Careers and Enterprise Hub and an exhibition space.</p>
     <p>Its roof terrace looks out over the campus towards London and Heathrow.</p>
     <p style="font-size:13px"><b style="color:#eb641e">Opened:</b> 18 October 2017, by The Princess Royal</p>
     <p style="font-size:13px"><b style="color:#eb641e">Outside:</b> Founder's Square, a paved courtyard for events</p>
-  </section>
-
-  <section class="panel" data-from="0.31" data-to="0.385" data-label="Academic" id="academic">
+  </template>
+<template id="tpl-academic">
     <p class="eyebrow">Stop 4 · The academic quarter</p>
     <h2>Bedford, McCrea and Moore</h2>
     <p>The Bedford Building is home to the School of Engineering, Physical and Mathematical Sciences. The McCrea Building houses Law and Social Sciences, and the Moore Building the School of Business and Management.</p>
     <p>The name Bedford comes from Bedford College, founded in 1849 by Elizabeth Jesser Reid, which merged with Royal Holloway in 1985.</p>
     <p style="font-size:13px"><b style="color:#eb641e">Cyber:</b> The Information Security Group launched its MSc in Information Security in 1992, reportedly the first postgraduate course of its kind</p>
-  </section>
-
-  <section class="panel" data-from="0.39" data-to="0.46" data-label="Boilerhouse" id="north">
+  </template>
+<template id="tpl-north">
     <p class="eyebrow">Stop 5 · Boilerhouse &amp; George Eliot</p>
     <h2>Coffee in a Victorian boiler house</h2>
     <p>The Boilerhouse Café sits in a historic Victorian building with a cobbled courtyard, and gives its coffee grounds away for composting.</p>
     <p>George Eliot Halls, on the northern side of campus, are self-catered townhouses with shared kitchens and lounges.</p>
-  </section>
-
-  <section class="panel" data-from="0.47" data-to="0.55" data-label="Union" id="union">
+  </template>
+<template id="tpl-union">
     <p class="eyebrow">Stop 6 · Students' Union &amp; Katharine Worth</p>
     <h2>Union Plaza</h2>
     <p>The Students' Union has a large function hall, two bars and Tommy's Kitchen. Union Plaza out front has a permanent canopy, benches and food vans, with a weekly street-food market.</p>
     <p>The student-run Insanity Radio broadcasts from campus on 103.2FM. Nearby, the Katharine Worth Building is home to the School of Performing and Digital Arts.</p>
-  </section>
-
-  <section class="panel" data-from="0.57" data-to="0.66" data-label="Science" id="science">
+  </template>
+<template id="tpl-science">
     <p class="eyebrow">Stop 7 · Wolfson &amp; Beatrice Shilling</p>
     <h2>Labs with a wind turbine</h2>
     <p>The Wolfson Building houses the School of Life Sciences and the Environment.</p>
     <p>The Beatrice Shilling Building, opened in 2018–19, is home to Electronic Engineering. Its rooftop field laboratory has solar panels and a wind turbine. It is named after the engineer whose fix to British fighter engines mattered early in the Second World War.</p>
-  </section>
-
-  <section class="panel" data-from="0.67" data-to="0.73" data-label="The Hub" id="hub">
+  </template>
+<template id="tpl-hub">
     <p class="eyebrow">Stop 8 · The Hub</p>
     <h2>Food and hangouts</h2>
     <p>The Hub serves hot dishes, burgers, vegetarian and vegan meals and the Kimiko Japanese Kitchen. Downstairs, Imagine is a quieter spot for bubble tea or ice cream.</p>
-  </section>
-
-  <section class="panel" data-from="0.74" data-to="0.84" data-label="Sports" id="sports">
+  </template>
+<template id="tpl-sports">
     <p class="eyebrow">Stop 9 · Sports Centre &amp; halls</p>
     <h2>Pitches under floodlights</h2>
     <p>The Sports Centre was refurbished in 2013 and its floodlit pitches opened for the 2014/15 season. The hockey club, the largest sports club on campus, plays on the hockey pitch, and the all-weather 3G pitch is FA-accredited for 11-a-side games.</p>
     <p>Gowar and Wedderburn halls, at the southern end of campus, opened in September 2004 with 570 en-suite rooms.</p>
-  </section>
-
-  <section class="panel" data-from="0.85" data-to="0.95" data-label="Woodland" id="woodland">
+  </template>
+<template id="tpl-woodland">
     <p class="eyebrow">Stop 10 · Woodland Walk &amp; Meadow</p>
     <h2>A living campus</h2>
     <p>Much of the campus is woodland and green space managed for wildlife. The Woodland Walk passes a wooden bridge over a pond, and the Meadow, beyond Jane Holloway Hall, is part of the Bee Walk past a beehive.</p>
-  </section>
-
-  <section class="panel" data-from="0.96" data-to="1.01" data-label="Thanks" id="contact">
+  </template>
+<template id="tpl-about">
     <p class="eyebrow">End of the tour</p>
     <h2>Thanks for visiting.</h2>
     <p>Made with affection by Alex Philip, MSc Information Security 2022–2024. For official information about the university, visit <a href="https://www.royalholloway.ac.uk" target="_blank" rel="noopener">royalholloway.ac.uk</a>.</p>
@@ -405,9 +169,7 @@
       <a href="drive.html">The London drive</a>
       <a href="https://www.linkedin.com/in/alexphilip170803/" target="_blank" rel="noopener">LinkedIn</a>
     </div>
-  </section>
-</main>
-
+  </template>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -421,63 +183,12 @@
   const rand = mulberry32(11);
   const pick = arr => arr[Math.floor(rand() * arr.length)];
 
-  // ---------- Panels & nav (works even if WebGL fails) ----------
-  const panels = [...document.querySelectorAll('.panel')].map(el => ({ el, from: +el.dataset.from, to: +el.dataset.to, label: el.dataset.label }));
-  const stopsEl = document.getElementById('stops');
-  panels.forEach((p, i) => {
-    const li = document.createElement('li');
-    const b = document.createElement('button');
-    b.className = 'stop-btn'; b.type = 'button';
-    b.innerHTML = '<span>' + p.label + '</span><i></i>';
-    b.setAttribute('aria-label', 'Ride to ' + p.label);
-    b.addEventListener('click', () => {
-      const target = i === 0 ? 0 : (p.from + Math.min(p.to, 1)) / 2;
-      const max = document.documentElement.scrollHeight - innerHeight;
-      window.scrollTo({ top: target * max, behavior: reduceMotion ? 'auto' : 'smooth' });
-    });
-    li.appendChild(b); stopsEl.appendChild(li); p.btn = b;
-  });
-
-  const copyBtn = document.getElementById('copyBtn');
-  copyBtn.addEventListener('click', () => {
-    const text = document.getElementById('email').textContent.trim();
-    const done = () => { copyBtn.textContent = 'Copied'; setTimeout(() => copyBtn.textContent = 'Copy email', 1600); };
-    const fallback = () => { const r = document.createRange(); r.selectNodeContents(document.getElementById('email')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); copyBtn.textContent = 'Press Ctrl+C'; setTimeout(() => copyBtn.textContent = 'Copy email', 2200); };
-    try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
-  });
-
-  function scrollProgress() {
-    const max = document.documentElement.scrollHeight - innerHeight;
-    return max > 0 ? clamp(scrollY / max, 0, 1) : 0;
-  }
-  let activePanel = -1;
-  function updatePanels(prog) {
-    let idx = panels.findIndex(p => prog >= p.from && prog <= p.to);
-    if (idx !== activePanel) {
-      panels.forEach((p, i) => { p.el.classList.toggle('on', i === idx); p.el.setAttribute('aria-hidden', i === idx ? 'false' : 'true'); });
-      activePanel = idx;
-    }
-    let near = 0; panels.forEach((p, i) => { if (prog >= p.from - 0.03) near = i; });
-    panels.forEach((p, i) => p.btn.classList.toggle('active', i === near));
-    document.getElementById('hint').classList.toggle('gone', prog > 0.015);
-  }
-  updatePanels(scrollProgress());
-
-  if (!window.THREE) { addEventListener('scroll', () => updatePanels(scrollProgress()), { passive: true }); return; }
-
-  try {
-    await Promise.race([
-      Promise.all([document.fonts.load('800 80px Unbounded'), document.fonts.load('600 40px "JetBrains Mono"')]),
-      new Promise(r => setTimeout(r, 1800))
-    ]);
-  } catch (e) { /* fallback fonts are fine */ }
-
   // ---------- Renderer ----------
   const canvas = document.getElementById('scene');
   let renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-  } catch (e) { addEventListener('scroll', () => updatePanels(scrollProgress()), { passive: true }); return; }
+  } catch (e) { document.body.classList.add('no-webgl'); return; }
   const MAX_PR = Math.min(devicePixelRatio || 1, 2);
   let curPR = Math.min(MAX_PR, isPhone ? 1.5 : 2);
   renderer.setPixelRatio(curPR);
@@ -524,42 +235,6 @@
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), M('#77a058'));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
   scene.add(ground);
-
-  // ---------- Road ----------
-  // a closed circuit round the city, so you can keep driving lap after lap
-  // the campus loop: waypoints laid out from the real map positions of the buildings (metres, x east, z south)
-  const pts = [[-150.0, 195.0], [-217.5, 142.5], [-202.5, 67.5], [-206.2, 0.0], [-187.5, -60.0], [-127.5, -30.0], [-67.5, -26.2], [0.0, -18.8], [15.0, -82.5], [-7.5, -150.0], [-22.5, -206.2], [30.0, -225.0], [82.5, -210.0], [131.2, -150.0], [153.8, -90.0], [165.0, -15.0], [176.2, 52.5], [183.8, 127.5], [176.2, 198.8], [97.5, 225.0], [15.0, 217.5], [-67.5, 225.0]].map(([x, z]) => new THREE.Vector3(x, 0, z));
-  const curve = new THREE.CatmullRomCurve3(pts, true, 'centripetal');
-  const LEN = curve.getLength();
-  const ROAD_W = 4.2;
-  const SEG = 1200;
-  const frames = [];
-  for (let i = 0; i <= SEG; i++) {
-    const u = i / SEG; const p = curve.getPointAt(u); const t = curve.getTangentAt(u);
-    frames.push({ p, t, n: new THREE.Vector3(-t.z, 0, t.x) });
-  }
-  function frameAt(u) {
-    const w = ((u % 1) + 1) % 1; const p = curve.getPointAt(w); const t = curve.getTangentAt(w);
-    return { p, t, n: new THREE.Vector3(-t.z, 0, t.x) };
-  }
-  function ribbon(halfW, y, color, off = 0) {
-    const pos = [], idx = [];
-    frames.forEach((f, i) => {
-      const a = off + halfW, b = off - halfW;
-      pos.push(f.p.x + f.n.x * a, y, f.p.z + f.n.z * a, f.p.x + f.n.x * b, y, f.p.z + f.n.z * b);
-      if (i < SEG) { const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
-    });
-    const g = new THREE.BufferGeometry();
-    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
-    const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide }));
-    m.receiveShadow = true; scene.add(m); return m;
-  }
-  ribbon(ROAD_W + 2.2, 0.02, '#cdc6bb');
-  ribbon(ROAD_W + 0.35, 0.04, '#e6e0d6');
-  ribbon(ROAD_W, 0.06, '#3a3741');
-  // double yellow lines along both kerbs
-  [-1, 1].forEach(s => [0.35, 0.6].forEach(o => ribbon(0.07, 0.075, '#f0c02e', s * (ROAD_W - o))));
-
   const dummy = new THREE.Object3D();
   function instanced(geo, mat, list, colorFn) {
     const im = new THREE.InstancedMesh(geo, mat, Math.max(1, list.length));
@@ -573,130 +248,62 @@
     im.count = list.length; im.castShadow = true; im.receiveShadow = true;
     scene.add(im); return im;
   }
-
-  // Lane dashes
-  const dashes = [];
-  for (let d = 4; d < LEN; d += 6) {
-    const f = frameAt(d / LEN);
-    dashes.push({ x: f.p.x, y: 0.08, z: f.p.z, ry: Math.atan2(f.t.x, f.t.z) });
+  // ================= Free-drive controller for the Royal Holloway campus =================
+  // ---------- Road network (traced from the campus map, in metres: x east, z south) ----------
+  const ROADS = {"A30": [[-477.2, 83.5], [-301.2, -18.9], [-141.2, -121.3], [2.8, -210.9], [121.2, -281.3], [242.8, -377.3], [345.2, -447.7]], "inner": [[-186, 8.5], [-93.2, -76.5], [18.8, -130.9], [130.8, -201.3]], "east": [[130.8, -201.3], [108.4, -146.9], [98.8, 13.1], [89.2, 141.1], [130.8, 237.1], [242.8, 278.7], [332.4, 301.1]], "prune": [[345.2, -447.7], [377.2, -306.9], [396.4, -146.9], [370.8, 13.1], [332.4, 141.1], [332.4, 349.1]], "south": [[-186, 158.5], [-77.2, 230.7], [18.8, 205.1], [130.8, 237.1]], "chestnut": [[-96.4, -159.7], [-86.8, -258.9], [-38.8, -313.3]], "kw": [[121.2, -281.3], [108.4, -354.9]], "ring": [[-186, 8.5], [-111, 83.5], [-186, 158.5], [-261, 83.5], [-186, 8.5]], "west": [[-261, 83.5], [-301, -19]]};
+  const ROAD_STYLE = { A30: { w: 9, col: '#3a3741', lines: true }, east: { w: 7, col: '#3a3741', lines: true }, prune: { w: 7, col: '#3a3741', lines: true }, inner: { w: 7, col: '#3a3741', lines: true }, ring: { w: 6.5, col: '#3a3741', lines: false }, west: { w: 6.5, col: '#3a3741', lines: false }, chestnut: { w: 6, col: '#3a3741', lines: false }, kw: { w: 6, col: '#3a3741', lines: false }, south: { w: 5, col: '#8d8576', lines: false } };
+  const SEGS = [];
+  Object.entries(ROADS).forEach(([name, pts]) => { const st = ROAD_STYLE[name] || { w: 6, col: '#3a3741' }; for (let i = 0; i < pts.length - 1; i++) SEGS.push({ a: pts[i], b: pts[i + 1], w: st.w, name }); });
+  // smooth each road into a dense polyline so bends are curves, not corners
+  function densify(pts, closed) {
+    const v = pts.map(([x, z]) => new THREE.Vector3(x, 0, z));
+    if (closed) v.pop();
+    const c = new THREE.CatmullRomCurve3(v, !!closed, 'centripetal', 0.5);
+    const n = Math.max(8, Math.round(c.getLength() / 3));
+    return c.getSpacedPoints(n).map(p => [p.x, p.z]);
   }
-  const dashMesh = instanced(new THREE.BoxGeometry(0.2, 0.02, 2.4), new THREE.MeshBasicMaterial({ color: '#f3efe6' }), dashes);
-  dashMesh.castShadow = false;
-
-  // ---------- Placement helpers ----------
-  const coarse = curve.getSpacedPoints(Math.ceil(LEN / 2));
-  function roadDist(x, z) {
-    let m = Infinity;
-    for (const p of coarse) { const dx = p.x - x, dz = p.z - z; const d = dx * dx + dz * dz; if (d < m) m = d; }
-    return Math.sqrt(m);
-  }
-  const occupied = []; // {x,z,r}
-  function free(x, z, r) {
-    if (inRiver(x, z, r)) return false;
-    for (const o of occupied) { const dx = o.x - x, dz = o.z - z; if (dx * dx + dz * dz < (o.r + r) * (o.r + r)) return false; }
-    return true;
-  }
-
-  // ---------- Path mapping & stops ----------
-  const U0 = 0, U1 = 1; // the whole loop
-  const uOf = prog => U0 + prog * (U1 - U0);
-
-  // ---------- River crossing: pick the straightest stretch during the Journey stop ----------
-  const RIVER_HALF = 0.01, RIVER_LEN = 0.01; // no river on campus
-  const RIVER_U = (() => {
-    let best = uOf(0.7), bestDev = Infinity;
-    for (let pr = 0.685; pr <= 0.72; pr += 0.0025) {
-      const u = uOf(pr), f = frameAt(u); let dev = 0;
-      for (let d = -34; d <= 34; d += 4) { const q = frameAt(u + d / LEN).p; dev = Math.max(dev, Math.abs((q.x - f.p.x) * f.n.x + (q.z - f.p.z) * f.n.z)); }
-      if (dev < bestDev) { bestDev = dev; best = u; }
-    }
+  const DENSE = {};
+  Object.entries(ROADS).forEach(([name, pts]) => { DENSE[name] = densify(pts, name === 'ring'); });
+  function nearestOnRoads(x, z) {
+    let best = null, bd = Infinity;
+    Object.entries(DENSE).forEach(([name, pts]) => {
+      const hw = (ROAD_STYLE[name] || { w: 6 }).w / 2;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const [ax, az] = pts[i], [bx, bz] = pts[i + 1], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1;
+        const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)), px = ax + dx * t, pz = az + dz * t, d = Math.hypot(x - px, z - pz);
+        if (d < bd) { bd = d; best = { x: px, z: pz, d, hw, tx: dx / Math.sqrt(L2), tz: dz / Math.sqrt(L2), name }; }
+      }
+    });
     return best;
-  })();
-  const RIV = (() => { const f = frameAt(RIVER_U); return { p: f.p.clone(), t: f.t.clone(), n: f.n.clone(), heading: Math.atan2(f.t.x, f.t.z) }; })();
-  function inRiver(x, z, r = 0) {
-    const dx = x - RIV.p.x, dz = z - RIV.p.z;
-    return Math.abs(dx * RIV.t.x + dz * RIV.t.z) < RIVER_HALF + 2.5 + r && Math.abs(dx * RIV.n.x + dz * RIV.n.z) < RIVER_LEN / 2 + r;
   }
-
-  // ---------- Text textures ----------
-  function fitFont(ctx, text, weight, family, size, maxW) {
-    let s = size;
-    do { ctx.font = weight + ' ' + s + 'px ' + family; s -= 4; } while (ctx.measureText(text).width > maxW && s > 20);
-  }
-  function signTexture(top, title, bg, fg, w = 1024, h = 512, code = '') {
-    const c = document.createElement('canvas'); c.width = w; c.height = h;
-    const x = c.getContext('2d');
-    x.fillStyle = '#eb641e'; x.fillRect(0, 0, w, h);
-    const m = Math.round(h * 0.05); x.fillStyle = '#202a30'; x.fillRect(m, m, w - 2 * m, h - 2 * m);
-    x.strokeStyle = '#eb641e'; x.lineWidth = Math.max(4, h * 0.014); x.strokeRect(m * 1.8, m * 1.8, w - m * 3.6, h - m * 3.6);
-    x.fillStyle = '#fff1df'; x.textBaseline = 'alphabetic'; x.textAlign = 'center';
-    x.font = '700 ' + Math.round(h * 0.085) + 'px Arial, Helvetica, sans-serif';
-    x.fillText(code ? top + '   ·   ' + code : top, w / 2, h * 0.27);
-    x.fillStyle = '#eb641e';
-    fitFont(x, title, '700', 'Arial, Helvetica, sans-serif', Math.round(h * 0.36), w - m * 6.4);
-    x.fillText(title, w / 2, h * 0.7);
-    const rw = Math.min(w - m * 6.4, x.measureText(title).width + m * 3);
-    x.fillRect((w - rw) / 2, h * 0.77, rw, Math.max(5, h * 0.022));
-    const tx = new THREE.CanvasTexture(c);
-    tx.anisotropy = renderer.capabilities.getMaxAnisotropy();
-    return tx;
-  }
-
-  // ---------- Billboards at each stop ----------
-  const signColors = [['#202a30', '#fff1df'], ['#eb641e', '#ffffff']];
-  const signBoards = [];
-  // Overhead gantry signs: centred over the road so they are always in view as you approach
-  panels.slice(1).forEach((p, i) => {
-    // pick the spot (35-60 m ahead of where the stop begins) that sits most squarely in front of the driver
-    const uStart = uOf(p.from), fs = frameAt(uStart);
-    let bestU = uStart + 0.045, bestA = Infinity;
-    for (let du = 0.033; du <= 0.058; du += 0.0025) {
-      if (Math.abs(uStart + du - RIVER_U) < 0.036) continue;
-      const c = frameAt(uStart + du);
-      const v = c.p.clone().sub(fs.p).normalize();
-      const a = Math.acos(clamp(v.dot(fs.t), -1, 1));
-      if (a < bestA) { bestA = a; bestU = uStart + du; }
+  // ribbons for every road, with kerbs, pavements and centre dashes on the main roads
+  function ribbon(pts, w, y, col, closed) {
+    const pos = [], idx = [];
+    const n = pts.length;
+    for (let i = 0; i < n; i++) {
+      const p = pts[i], q = pts[Math.min(n - 1, i + 1)], o = pts[Math.max(0, i - 1)];
+      let tx = q[0] - o[0], tz = q[1] - o[1]; const l = Math.hypot(tx, tz) || 1; tx /= l; tz /= l;
+      const nx = -tz, nz = tx;
+      pos.push(p[0] + nx * w / 2, y, p[1] + nz * w / 2, p[0] - nx * w / 2, y, p[1] - nz * w / 2);
+      if (i < n - 1) { const k = i * 2; idx.push(k, k + 2, k + 1, k + 1, k + 2, k + 3); }
     }
-    const f = frameAt(bestU);
-    const g = new THREE.Group();
-    const span = ROAD_W + 1.4;
-    const postGeo = new THREE.BoxGeometry(0.5, 9.4, 0.5);
-    [-1, 1].forEach(s => { const post = shadowy(new THREE.Mesh(postGeo, M('#15151a'))); post.position.set(s * span, 4.7, 0); g.add(post); const cap = new THREE.Mesh(new THREE.SphereGeometry(0.42, 10, 8), M('#d4a83a')); cap.position.set(s * span, 9.55, 0); g.add(cap); });
-    const beam = shadowy(new THREE.Mesh(new THREE.BoxGeometry(2 * span + 0.5, 0.45, 0.45), M('#15151a')));
-    beam.position.set(0, 9.0, 0); g.add(beam);
-    const [bg, fg] = signColors[i % signColors.length];
-    const meters = Math.round((bestU - U0) * LEN);
-    const board = new THREE.Group(); board.position.y = 6.3; g.add(board);
-    const back = shadowy(new THREE.Mesh(new THREE.BoxGeometry(10.4, 5.4, 0.3), M('#15151a')));
-    back.position.set(0, 0, -0.1); board.add(back);
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(10, 5), new THREE.MeshBasicMaterial({ map: signTexture('STOP ' + (i + 1) + ' · ' + meters + ' M', p.label.toUpperCase(), bg, fg, 1024, 512, 'TW20 0EX'), fog: false }));
-    face.position.set(0, 0, 0.07); board.add(face);
-    g.position.copy(f.p);
-    g.rotation.y = Math.atan2(-f.t.x, -f.t.z);
-    scene.add(g);
-    signBoards.push({ g, board });
-    [-1, 1].forEach(s => occupied.push({ x: f.p.x + f.n.x * s * span, z: f.p.z + f.n.z * s * span, r: 2 }));
-  });
-
-  // ---------- Gates (start + finish) ----------
-  function gate(u, top, title, bg, fg) {
-    const f = frameAt(u);
-    const g = new THREE.Group();
-    const pillarGeo = new THREE.BoxGeometry(1.1, 9, 1.1);
-    [-1, 1].forEach(s => { const pl = shadowy(new THREE.Mesh(pillarGeo, M('#15151a'))); pl.position.set(s * (ROAD_W + 1.6), 4.5, 0); g.add(pl); const cap = new THREE.Mesh(new THREE.SphereGeometry(0.6, 10, 8), M('#d4a83a')); cap.position.set(s * (ROAD_W + 1.6), 9.4, 0); g.add(cap); });
-    const beam = shadowy(new THREE.Mesh(new THREE.BoxGeometry(2 * (ROAD_W + 2.2), 2.9, 0.5), M('#15151a')));
-    beam.position.set(0, 8.4, 0); g.add(beam);
-    const face = new THREE.Mesh(new THREE.PlaneGeometry(2 * (ROAD_W + 0.95), 2.5), new THREE.MeshBasicMaterial({ map: signTexture(top, title, bg, fg, 1536, 384) }));
-    face.position.set(0, 8.4, 0.26); g.add(face);
-    const face2 = face.clone(); face2.rotation.y = Math.PI; face2.position.z = -0.26; g.add(face2);
-    g.position.copy(f.p);
-    g.rotation.y = Math.atan2(-f.t.x, -f.t.z);
-    scene.add(g);
-    occupied.push({ x: f.p.x + f.n.x * (ROAD_W + 1.6), z: f.p.z + f.n.z * (ROAD_W + 1.6), r: 3 });
-    occupied.push({ x: f.p.x - f.n.x * (ROAD_W + 1.6), z: f.p.z - f.n.z * (ROAD_W + 1.6), r: 3 });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+    const m = new THREE.Mesh(g, M(col)); m.receiveShadow = true; scene.add(m); return m;
   }
-  gate(uOf(0) + 0.022, 'AN UNOFFICIAL TRIBUTE BY ALEX PHILIP', 'ROYAL HOLLOWAY', '#202a30', '#fff1df');
+  Object.entries(DENSE).forEach(([name, pts]) => {
+    const st = ROAD_STYLE[name] || { w: 6, col: '#3a3741' };
+    if (st.col !== '#8d8576') { ribbon(pts, st.w + 4.4, 0.02, '#cdc6bb'); ribbon(pts, st.w + 0.7, 0.04, '#e6e0d6'); }
+    ribbon(pts, st.w, 0.06, st.col);
+    if (st.lines) { const d = []; for (let i = 0; i < pts.length - 1; i += 2) d.push(pts[i], pts[i + 1]); for (let i = 0; i + 1 < d.length; i += 2) ribbon([d[i], d[i + 1]], 0.18, 0.075, '#f4f2ec'); }
+  });
+  // junction patches so roads meet cleanly
+  const ends = []; Object.values(DENSE).forEach(p => { ends.push(p[0], p[p.length - 1]); });
+  ends.forEach(([x, z]) => { const m = new THREE.Mesh(new THREE.CircleGeometry(5, 20), M('#3a3741')); m.rotation.x = -Math.PI / 2; m.position.set(x, 0.059, z); m.receiveShadow = true; scene.add(m); });
 
+  // ---------- Campus buildings: each sits at its real position, turned to face its nearest road ----------
+  const occupied = [];
+  function free(x, z, r) { return occupied.every(o => Math.hypot(o.x - x, o.z - z) > o.r + r); }
+  const ROAD_W = 4.2;
   // ---------- London: landmarks ----------
   const spinners = [];
   const STONE = '#d8cdb4', PORTLAND = '#e7e0d1', SLATE = '#4d5866', GOLD = '#d4a83a', RED = '#c8102e', BLUE_STEEL = '#6d9ac4';
@@ -771,44 +378,21 @@
     return g;
   }
 
-  // boxy ambulance in yellow-and-green chequers with flashing blue lights (generic, no organisation's logo)
-  const ambBlink = [];
-  function ambulance() {
-    const g = new THREE.Group(); g.userData.keepSmooth = true;
-    const chk = canvasTex(256, 64, (x, w, h) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { x.fillStyle = (i + j) % 2 ? '#f6e900' : '#1b8a3a'; x.fillRect(i * 16, j * 32, 16, 32); } });
-    const body = new THREE.MeshLambertMaterial({ color: '#f7f7f2' });
-    const box = new THREE.Mesh(new THREE.BoxGeometry(2.1, 2.3, 4.2), body); box.position.set(0, 1.55, -0.6); g.add(box);
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 1.4), body); cab.position.set(0, 1.1, 2.1); g.add(cab);
-    const ws = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.06), new THREE.MeshPhongMaterial({ color: '#2a3442', shininess: 90 })); ws.position.set(0, 1.45, 2.81); ws.rotation.x = -0.3; g.add(ws);
-    [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 0.5), new THREE.MeshBasicMaterial({ map: chk })); b.position.set(sd * 1.06, 0.9, 0.1); b.rotation.y = sd * Math.PI / 2; g.add(b); });
-    const word = canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#f7f7f2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b8a3a'; x.font = '900 34px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('AMBULANCE', w / 2, h / 2 + 2); });
-    [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.6), new THREE.MeshBasicMaterial({ map: word })); b.position.set(sd * 1.06, 2.2, -0.6); b.rotation.y = sd * Math.PI / 2; g.add(b); });
-    const lights = [-0.6, 0.6].map(x => { const m = new THREE.MeshBasicMaterial({ color: '#1e5bff' }); const l = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.3), m); l.position.set(x, 2.8, 1.35); g.add(l); return m; });
-    ambBlink.push(lights);
-    [[-0.92, 1.8], [0.92, 1.8], [-0.92, -1.8], [0.92, -1.8]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.42, z); g.add(w); });
-    return g;
-  }
-  spinners.push((dt, now) => { const on = Math.floor(now / 180) % 2 === 0; ambBlink.forEach(([a, b]) => { a.color.set(on ? '#2f6bff' : '#0b1a44'); b.color.set(on ? '#0b1a44' : '#2f6bff'); }); });
   // ================= Royal Holloway, Egham campus (an unofficial tribute) =================
   // Building positions come from their real map coordinates (metres east/south of the campus centre, scaled to the drive),
   // set back from the loop road in their true direction so the campus keeps its real shape.
-  const CS = 0.75; // campus scale
+  const CS = 1; // true scale
   const RH = { brick: '#b0503a', brickD: '#94402e', stone: '#e9dfcb', slate: '#202a30', orange: '#eb641e', almond: '#fff1df', grey: '#b4c4d0', glass: '#5d7f99' };
-  function nearestU(x, z) {
-    let best = 0, bd = Infinity;
-    for (let i = 0; i < SEG; i++) { const p = frames[i].p, d = (p.x - x) ** 2 + (p.z - z) ** 2; if (d < bd) { bd = d; best = i; } }
-    const u = best / SEG, f = frameAt(u), side = Math.sign((x - f.p.x) * f.n.x + (z - f.p.z) * f.n.z) || 1;
-    return { u, side, dist: Math.sqrt(bd) };
-  }
-  // a site beside the road: local +x faces the road, local z runs along it (towards approaching drivers on the left side)
-  function campusSite(rx, rz, minOff = ROAD_W + 9, maxOff = ROAD_W + 26) {
-    const x = rx * CS, z = rz * CS, n = nearestU(x, z);
-    const off = ROAD_W + 3.2; // sites start at the back of the pavement so nothing stands between them and the road
-    const { pos, heading } = placeAt(n.u, n.side, off);
-    const rot = n.side < 0 ? heading + Math.PI : heading;
+  function campusSite(rx, rz) { // a site at the road edge nearest the real building, its local +x pointing at the road
+    const n = nearestOnRoads(rx, rz);
+    let dx = rx - n.x, dz = rz - n.z, d = Math.hypot(dx, dz);
+    if (d < 1) { dx = -n.tz; dz = n.tx; d = 1; }
+    dx /= d; dz /= d;
+    const pos = new THREE.Vector3(n.x + dx * (n.hw + 3.2), 0, n.z + dz * (n.hw + 3.2));
+    const rot = Math.atan2(dz, -dx);
     const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = rot; scene.add(g);
     const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, rot).add(pos);
-    return { g, toW, u: n.u, side: n.side, off, rot, pos };
+    return { g, toW, rot, pos, side: 1 };
   }
   const reserveC = (toW, x0, x1, z0, z1) => { for (let x = x0; x >= x1; x -= 6) for (let z = z0; z <= z1; z += 6) { const w = toW(x, z); occupied.push({ x: w.x, z: w.z, r: 4.5 }); } };
   let cLayer = 0;
@@ -850,18 +434,13 @@
   // ---------- Founder's Building, with its entrance, chapel and picture gallery wings ----------
   // ---------- Tribute: Royal Holloway entrance and Founder's Building ----------
   (function () {
-    const FN = nearestU(-186 * CS, 83.5 * CS); const { pos, heading } = placeAt(FN.u, FN.side, ROAD_W + 3.0); // at the real Founder's Building
-    const rotR = FN.side < 0 ? heading + Math.PI : heading;
+    const pos = new THREE.Vector3(-186 - 0.7071 * 47, 0, 83.5 - 0.7071 * 47), heading = 0; // inside the ring road, facing Egham Hill
+    const rotR = 3 * Math.PI / 4;
     const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = rotR; scene.add(g); // local +x faces the road, +z points back towards approaching drivers
     const BRICK = '#c25b3c', BRICK_D = '#a84a30', DRESS = '#e9dfcb', SLATE_R = '#4d5560', LEAD = '#5d6670', IRON = '#15151a';
     const toW = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, rotR).add(pos);
     for (let lx = -2; lx >= -60; lx -= 7) for (let lz = -40; lz <= 40; lz += 7) { const w = toW(lx, lz); occupied.push({ x: w.x, z: w.z, r: 5 }); }
 
-    { // traffic turns in from the far lane, loops round the forecourt and drives back out
-      const lane = ROAD_W + 3.0 + 2.0, L = (x, z) => toW(x, z).setY(0);
-      const pts = [L(lane, -30), L(lane, -16), L(lane - 2.5, -8), L(3, -2.2), L(-4, -1.6), L(-12, -1.6), L(-18, -2.2), L(-22.5, 1), L(-21, 7), L(-17, 9), L(-16, 4), L(-12, 1.6), L(-4, 1.6), L(3, 2.4), L(lane - 2.5, 8), L(lane, 16), L(lane, 30)];
-      DETOURS.push({ pts, uStart: FN.u + 30 / LEN, uEnd: FN.u - 30 / LEN, name: 'RHUL' });
-    }
     // grounds: lawn, gravel drive, cedars
     const lawn = new THREE.Mesh(new THREE.PlaneGeometry(36, 80), M('#5f8f4a')); lawn.rotation.x = -Math.PI / 2; lawn.position.set(-18, 0.045, 0); lawn.receiveShadow = true; g.add(lawn);
     const drive = new THREE.Mesh(new THREE.PlaneGeometry(24, 7), M('#d6ccb6')); drive.rotation.x = -Math.PI / 2; drive.position.set(-12, 0.05, 0); drive.receiveShadow = true; g.add(drive);
@@ -906,7 +485,7 @@
     const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: plaque })); pl.position.set(0.87, 2.4, 4.6); pl.rotation.y = Math.PI / 2; g.add(pl);
 
     // ---- Founder's Building (angled a little towards oncoming drivers) ----
-    const bg = new THREE.Group(); bg.rotation.y = FN.side < 0 ? -0.46 : 0.46; g.add(bg); MAP_MARKS.push({ p: toW(-30, 0), icon: 'castle', tag: "Founder's" });
+    const bg = new THREE.Group(); g.add(bg);
     function facadeTex(widthM, floors) {
       const t = canvasTex(256, 384, (x, w, h) => {
         x.fillStyle = BRICK; x.fillRect(0, 0, w, h);
@@ -1107,794 +686,31 @@
     spinners.push((dt, now) => bees.forEach(o => { const a = now * 0.004 + o.ph; o.b.position.set(-21 + Math.cos(a) * o.r, 1.4 + Math.sin(a * 2.3) * 0.4, 7 + Math.sin(a) * o.r); }));
     nameBoard(m.g, 'THE MEADOW', 'Wild grassland on the Bee Walk', 15);
   }
-  (function () {
-    function onPavement(prog, side, off, along = 0) {
-      const f = frameAt(uOf(prog) + along / LEN), pos = f.p.clone().addScaledVector(f.n, side * off);
-      const heading = Math.atan2(f.t.x, f.t.z), g = new THREE.Group(); g.position.copy(pos); g.rotation.y = side < 0 ? heading + Math.PI : heading; scene.add(g);
-      return { g, pos, f, heading };
-    }
-    // bus shelters with a stop flag
-    const stopFlag = canvasTex(64, 96, (x, w, h) => { x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h); x.fillStyle = '#c8102e'; x.beginPath(); x.arc(32, 34, 22, 0, Math.PI * 2); x.fill(); x.fillStyle = '#ffffff'; x.beginPath(); x.arc(32, 34, 13, 0, Math.PI * 2); x.fill(); x.fillStyle = '#1b2b4a'; x.fillRect(4, 28, 56, 12); x.fillStyle = '#fff'; x.font = '700 9px Arial'; x.textAlign = 'center'; x.fillText('BUS STOP', 32, 37); x.fillStyle = '#c8102e'; x.font = '800 18px Arial'; x.fillText('11  24', 32, 82); });
-    const adT = canvasTex(64, 128, (x, w, h) => { const gr = x.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, '#111114'); gr.addColorStop(1, '#3a2d12'); x.fillStyle = gr; x.fillRect(0, 0, w, h); x.fillStyle = '#d4a83a'; x.font = '800 13px Arial'; x.textAlign = 'center'; x.fillText('ALEX', 32, 50); x.fillText('PHILIP', 32, 66); x.font = '600 7px Arial'; x.fillText('CYBERSECURITY', 32, 84); });
-    BUS_STOP_PROGS.forEach(prog => { const side = 1; // every shelter is on the buses' side of the road
-      const { g, pos } = onPavement(prog, side, ROAD_W + 1.6);
-      // local +x faces the road, z runs along the pavement
-      mk(new THREE.BoxGeometry(1.5, 0.1, 3.6), '#2b2f3a', -0.5, 2.5, 0, g);
-      const glassM = new THREE.MeshPhongMaterial({ color: '#cfe0ea', transparent: true, opacity: 0.35, shininess: 90 });
-      const back = new THREE.Mesh(new THREE.BoxGeometry(0.05, 2.2, 3.4), glassM); back.position.set(-1.15, 1.3, 0); g.add(back);
-      [-1.7, 1.7].forEach(z => { const sideP = new THREE.Mesh(new THREE.BoxGeometry(1.2, 2.2, 0.05), glassM); sideP.position.set(-0.6, 1.3, z); g.add(sideP); mk(new THREE.BoxGeometry(0.08, 2.5, 0.08), '#2b2f3a', -1.15, 1.25, z, g); mk(new THREE.BoxGeometry(0.08, 2.5, 0.08), '#2b2f3a', 0.15, 1.25, z, g); });
-      mk(new THREE.BoxGeometry(0.4, 0.08, 2.2), '#8a8f99', -0.9, 0.55, 0, g);
-      const ad = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 2.0), new THREE.MeshBasicMaterial({ map: adT, side: THREE.DoubleSide })); ad.position.set(-0.6, 1.3, 1.73); g.add(ad);
-      mk(new THREE.CylinderGeometry(0.05, 0.05, 3.2, 6), '#2b2f3a', 0.6, 1.6, -2.4, g);
-      const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.75), new THREE.MeshBasicMaterial({ map: stopFlag, side: THREE.DoubleSide })); flag.position.set(0.6, 2.85, -2.4); flag.rotation.y = Math.PI / 2; g.add(flag);
-      occupied.push({ x: pos.x, z: pos.z, r: 2.4 });
-    });
-    // cycle stands at the kerb, some with bikes locked to them
-    const standMat = M('#2b2f36');
-    function bikeAt(parent, x, y, z) {
-      const b = new THREE.Group(); b.position.set(x, y, z); parent.add(b);
-      const col = pick(['#c8102e', '#1b4f9c', '#2e7d4f', '#111114', '#d4a83a', '#e8e8e8']);
-      [-0.55, 0.55].forEach(zz => { const w = new THREE.Mesh(new THREE.TorusGeometry(0.33, 0.035, 6, 18), M('#1a1a1e')); w.position.set(0, 0.34, zz); w.rotation.y = Math.PI / 2; b.add(w); });
-      beam(new THREE.Vector3(0, 0.34, -0.55), new THREE.Vector3(0, 0.75, 0.05), 0.05, col, b);
-      beam(new THREE.Vector3(0, 0.34, 0.55), new THREE.Vector3(0, 0.8, 0.4), 0.05, col, b);
-      beam(new THREE.Vector3(0, 0.75, 0.05), new THREE.Vector3(0, 0.8, 0.4), 0.05, col, b);
-      beam(new THREE.Vector3(0, 0.34, -0.1), new THREE.Vector3(0, 0.75, 0.05), 0.05, col, b);
-      mk(new THREE.BoxGeometry(0.1, 0.05, 0.24), '#111', 0, 0.82, -0.05, b);
-      mk(new THREE.BoxGeometry(0.5, 0.04, 0.04), '#222', 0, 0.92, 0.42, b);
-      b.rotation.z = 0.06;
-    }
-    [[0.045, 1], [0.135, -1], [0.19, 1], [0.215, -1], [0.38, 1], [0.43, -1], [0.475, 1], [0.505, -1], [0.598, -1], [0.785, 1], [0.825, -1], [0.885, -1], [0.92, 1]].forEach(([prog, side]) => {
-      const { g, pos } = onPavement(prog, side, ROAD_W + 0.75); // local +x faces the road, z runs along the kerb
-      for (let k = 0; k < 4; k++) {
-        const z = -2.4 + k * 1.6;
-        [-0.36, 0.36].forEach(dz => mk(new THREE.BoxGeometry(0.07, 0.8, 0.07), standMat, 0, 0.4, z + dz, g));
-        mk(new THREE.BoxGeometry(0.07, 0.07, 0.79), standMat, 0, 0.82, z, g);
-        if (rand() < 0.6) bikeAt(g, 0.22, 0, z);
-      }
-      occupied.push({ x: pos.x, z: pos.z, r: 3.2 });
-    });
-    // red pillar post boxes here and there (classic design, no company logo)
-    const postPlate = canvasTex(64, 48, (x, w, h) => { x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h); x.fillStyle = '#c8102e'; x.font = '800 13px Arial'; x.textAlign = 'center'; x.fillText('POST BOX', w / 2, 16); x.fillStyle = '#222'; x.font = '600 9px Arial'; x.fillText('LAST COLLECTION', w / 2, 30); x.fillText('MON–FRI 5.30PM', w / 2, 42); });
-    [[0.06, -1], [0.165, 1], [0.225, -1], [0.345, 1], [0.39, -1], [0.485, 1], [0.545, -1], [0.615, 1], [0.76, -1], [0.85, 1], [0.905, -1], [0.975, 1]].forEach(([prog, side]) => {
-      const { g, pos } = onPavement(prog, side, ROAD_W + 1.0);
-      mk(new THREE.CylinderGeometry(0.34, 0.36, 1.35, 16), '#c8102e', 0, 0.9, 0, g);
-      mk(new THREE.CylinderGeometry(0.4, 0.4, 0.25, 16), '#15151a', 0, 0.12, 0, g);
-      mk(new THREE.SphereGeometry(0.37, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), '#c8102e', 0, 1.6, 0, g);
-      mk(new THREE.CylinderGeometry(0.38, 0.38, 0.06, 16), '#a50d24', 0, 1.6, 0, g);
-      mk(new THREE.BoxGeometry(0.05, 0.05, 0.36), '#111', 0.35, 1.42, 0, g); // slot
-      const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.26), new THREE.MeshBasicMaterial({ map: postPlate })); pl.position.set(0.36, 1.05, 0); pl.rotation.y = Math.PI / 2; g.add(pl);
-      occupied.push({ x: pos.x, z: pos.z, r: 0.7 });
-    });
-    // zebra crossings with flashing Belisha beacons
-    const beacons = [];
-    const stripeM = new THREE.MeshBasicMaterial({ color: '#f4f2ec' });
-    [0.17, 0.44, 0.78].forEach(prog => {
-      const f = frameAt(uOf(prog)), ry = Math.atan2(f.t.x, f.t.z);
-      for (let k = -3.5; k <= 3.5; k += 1) {
-        const p = f.p.clone().addScaledVector(f.n, k);
-        const st = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.02, 3.0), stripeM); st.position.set(p.x, 0.085, p.z); st.rotation.y = ry; scene.add(st);
-      }
-      [-1, 1].forEach(side => {
-        const p = f.p.clone().addScaledVector(f.n, side * (ROAD_W + 0.7)).addScaledVector(f.t, side * 1.8);
-        const b = new THREE.Group(); b.position.copy(p); scene.add(b);
-        for (let k = 0; k < 7; k++) mk(new THREE.CylinderGeometry(0.07, 0.07, 0.4, 8), k % 2 ? '#f4f4f4' : '#15151a', 0, 0.2 + k * 0.4, 0, b);
-        const globe = new THREE.Mesh(new THREE.SphereGeometry(0.24, 14, 10), new THREE.MeshBasicMaterial({ color: '#ff9d1c' })); globe.position.y = 3.0; b.add(globe);
-        beacons.push(globe.material);
-        occupied.push({ x: p.x, z: p.z, r: 0.6 });
-      });
-    });
-    spinners.push((dt, now) => { const on = Math.floor(now / 550) % 2 === 0; beacons.forEach(m => m.color.set(on ? '#ffb02e' : '#7a4a10')); });
-  })();
-  // ---------- London: terraces and offices ----------
-  function windowTexture() {
-    const c = document.createElement('canvas'); c.width = 128; c.height = 64;
-    const x = c.getContext('2d');
-    x.fillStyle = '#ffffff'; x.fillRect(0, 0, 128, 64);
-    x.fillStyle = 'rgba(0,0,0,0.10)'; x.fillRect(0, 58, 128, 4);
-    for (let k = 0; k < 3; k++) {
-      x.fillStyle = 'rgba(0,0,0,0.18)'; x.fillRect(14 + k * 38, 8, 26, 4);
-      x.fillStyle = 'rgba(34,38,52,0.78)'; x.fillRect(16 + k * 38, 14, 22, 38);
-    }
-    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; return t;
-  }
-  const winTex = windowTexture();
-  const brick = ['#a9583f', '#b5654a', '#9a4e3c', '#c7845f'], stucco = ['#efe9df', '#f2ede4', '#e6dfd2', '#e9e1cf'], stock = ['#d8c28f', '#cdb27e', '#c9b58e'];
-  const classes = [{ max: 8, rows: 2, list: [] }, { max: 14, rows: 4, list: [] }, { max: 22, rows: 7, list: [] }, { max: 999, rows: 16, list: [] }];
-  const roofs = [], peaks = [];
-  for (let d = 6; d < LEN - 2; d += 6) {
-    const f = frameAt(d / LEN);
-    for (const side of [-1, 1]) {
-      for (let row = 0; row < 3; row++) {
-        if (rand() < (row === 0 ? 0.92 : 0.86)) continue;
-        const w = 5 + rand() * 3, dd = 6 + rand() * 4;
-        const off = ROAD_W + 6.5 + row * 12 + rand() * 2 + dd / 2;
-        const along = (rand() - 0.5) * 1.5;
-        const x = f.p.x + f.n.x * side * off + f.t.x * along, z = f.p.z + f.n.z * side * off + f.t.z * along;
-        const r = Math.max(w, dd) * 0.6;
-        if (roadDist(x, z) < ROAD_W + 3.5 + r) continue;
-        if (!free(x, z, r)) continue;
-        occupied.push({ x, z, r });
-        const tower = false;
-        const h = tower ? 30 + rand() * 40 : 8 + rand() * 7 + row * 1.5;
-        const ry = Math.atan2(f.t.x, f.t.z);
-        const color = new THREE.Color(tower ? '#a7b7c7' : pick(rand() < 0.75 ? brick : stock));
-        const cls = classes.find(c => h <= c.max);
-        cls.list.push({ x, z, sx: w, sy: h, sz: dd, ry, color });
-        if (!tower && rand() < 0.45) {
-          peaks.push({ x, y: h + 1.3, z, sx: w * 0.72, sy: 2.6, sz: dd * 0.72, ry: ry + Math.PI / 4, color: new THREE.Color(pick(['#4a4f5a', '#555b66', '#3e434d'])) });
-        } else {
-          roofs.push({ x, y: h, z, sx: w + 0.4, sy: 0.5, sz: dd + 0.4, ry, color: color.clone().multiplyScalar(0.8) });
-        }
-        if (!tower) [-1, 1].forEach(e => { if (rand() < 0.7) roofs.push({ x: x + f.n.x * side * e * dd * 0.35, y: h + (peaks.length && rand() < 0.5 ? 0.6 : 0.5), z: z + f.n.z * side * e * dd * 0.35, sx: 2.2, sy: 2.2, sz: 0.7, ry, color: new THREE.Color('#8f4a3a') }); });
-      }
-    }
-  }
-  const boxGeo = new THREE.BoxGeometry(1, 1, 1); boxGeo.translate(0, 0.5, 0);
-  const topMat = new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 });
-  // windows: a tall tile of 3 x 8 windows, some lit warm (a few with TV-blue), different for every height class
-  function litTiles() {
-    const map = document.createElement('canvas'), glow = document.createElement('canvas');
-    map.width = glow.width = 128; map.height = glow.height = 512;
-    const m = map.getContext('2d'), e = glow.getContext('2d');
-    m.fillStyle = '#ffffff'; m.fillRect(0, 0, 128, 512); e.fillStyle = '#000000'; e.fillRect(0, 0, 128, 512);
-    for (let row = 0; row < 8; row++) {
-      const y = row * 64;
-      m.fillStyle = 'rgba(0,0,0,0.10)'; m.fillRect(0, y + 58, 128, 4);
-      for (let k = 0; k < 3; k++) {
-        const x = 16 + k * 38;
-        m.fillStyle = 'rgba(0,0,0,0.18)'; m.fillRect(x - 2, y + 8, 26, 4);
-        const lit = rand() < 0.42, tv = lit && rand() < 0.12;
-        const warm = tv ? '#9fc4ff' : pick(['#ffd27a', '#ffc861', '#ffe3a3', '#ffb85c']);
-        m.fillStyle = lit ? warm : 'rgba(34,38,52,0.78)'; m.fillRect(x, y + 14, 22, 38);
-        if (lit) {
-          e.fillStyle = warm; e.fillRect(x, y + 14, 22, 38);
-          if (rand() < 0.5) { m.fillStyle = 'rgba(120,60,40,0.35)'; m.fillRect(x, y + 14, 22, 14); e.fillStyle = 'rgba(0,0,0,0.45)'; e.fillRect(x, y + 14, 22, 14); } // half-drawn curtain
-        }
-        m.fillStyle = 'rgba(255,255,255,0.5)'; m.fillRect(x + 10, y + 14, 2, 38); m.fillRect(x, y + 32, 22, 2); // sash bars
-      }
-    }
-    const tm = new THREE.CanvasTexture(map), te = new THREE.CanvasTexture(glow);
-    [tm, te].forEach(t => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
-    return [tm, te];
-  }
-  classes.forEach(c => {
-    if (!c.list.length) return;
-    const [tm, te] = litTiles();
-    [tm, te].forEach(t => t.repeat.set(1, c.rows / 8));
-    const side = new THREE.MeshPhongMaterial({ color: '#ffffff', map: tm, emissive: '#ffffff', emissiveMap: te, emissiveIntensity: 0.95, flatShading: true, shininess: 4 });
-    instanced(boxGeo, [side, side, topMat, topMat, side, side], c.list, it => it.color);
-  });
-  instanced(boxGeo, new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 }), roofs, it => it.color);
-  const peakGeo = new THREE.ConeGeometry(0.75, 1, 4);
-  instanced(peakGeo, new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 }), peaks, it => it.color);
 
-  // ---------- Plane trees & Victorian lamps ----------
-  const trunks = [], crowns = [];
-  const greens = ['#4f7f4a', '#5f8f55', '#6b9a5c', '#3f6e45'];
-  for (let d = 3; d < LEN; d += 8) {
-    const f = frameAt(d / LEN);
-    for (const side of [-1, 1]) {
-      if (rand() < 0.5) continue;
-      const off = ROAD_W + 3.6 + rand() * 0.8;
-      const x = f.p.x + f.n.x * side * off, z = f.p.z + f.n.z * side * off;
-      if (roadDist(x, z) < ROAD_W + 2.6 || !free(x, z, 1.4)) continue;
-      occupied.push({ x, z, r: 1.4 });
-      const s = 0.9 + rand() * 0.5;
+  // ---------- Trees, lawns and lamps ----------
+  const roadClear = (x, z, m) => { const n = nearestOnRoads(x, z); return !n || n.d > n.hw + m; };
+  {
+    const trunks = [], crowns = [], greens = ['#4f7f4a', '#5f8f55', '#6b9a5c', '#3f6e45'];
+    for (let k = 0; k < (isPhone ? 500 : 900); k++) {
+      const x = -520 + rand() * 960, z = -480 + rand() * 900;
+      if (!roadClear(x, z, 4) || !free(x, z, 2)) continue;
+      occupied.push({ x, z, r: 1.2 });
+      const s = 1 + rand() * 0.9;
       trunks.push({ x, z, sx: s, sy: s, sz: s });
       crowns.push({ x, y: 2.6 * s, z, sx: s, sy: s * (1 + rand() * 0.4), sz: s, ry: rand() * 3, color: new THREE.Color(pick(greens)) });
     }
+    const trunkGeo = new THREE.CylinderGeometry(0.18, 0.26, 2.2, 6); trunkGeo.translate(0, 1.1, 0);
+    instanced(trunkGeo, M('#6b5a4a'), trunks);
+    instanced(new THREE.IcosahedronGeometry(1.5, 1), new THREE.MeshPhongMaterial({ color: '#ffffff', shininess: 4 }), crowns, it => it.color);
+    // Victorian lamps along the main roads
+    const posts = [], bulbs = [];
+    ['A30', 'inner', 'east', 'ring', 'prune'].forEach(name => { const pts = DENSE[name]; for (let i = 3; i < pts.length - 1; i += 9) { const [ax, az] = pts[i], [bx, bz] = pts[i + 1]; const l = Math.hypot(bx - ax, bz - az) || 1, nx = -(bz - az) / l, nz = (bx - ax) / l, s = i % 18 < 9 ? 1 : -1, off = ROAD_STYLE[name].w / 2 + 1.6; const x = ax + nx * off * s, z = az + nz * off * s; posts.push({ x, z }); bulbs.push({ x, y: 4.7, z }); } });
+    const postGeo = new THREE.CylinderGeometry(0.09, 0.16, 4.6, 8); postGeo.translate(0, 2.3, 0);
+    instanced(postGeo, M('#1d1d22'), posts);
+    const bm = instanced(new THREE.CylinderGeometry(0.34, 0.2, 0.7, 4), BasicM('#ffe2a6'), bulbs); bm.castShadow = false;
   }
-  for (let k = 0; k < 650; k++) { // a wooded campus
-    const f = frameAt(rand()); const side = rand() < 0.5 ? -1 : 1; const off = ROAD_W + 14 + rand() * 50;
-    const x = f.p.x + f.n.x * side * off + (rand() - 0.5) * 10, z = f.p.z + f.n.z * side * off + (rand() - 0.5) * 10;
-    if (roadDist(x, z) < ROAD_W + 4 || !free(x, z, 1.6)) continue;
-    occupied.push({ x, z, r: 1.6 });
-    const s = 1 + rand() * 0.9;
-    trunks.push({ x, z, sx: s, sy: s, sz: s });
-    crowns.push({ x, y: 2.6 * s, z, sx: s, sy: s * (1 + rand() * 0.4), sz: s, ry: rand() * 3, color: new THREE.Color(pick(greens)) });
-  }
-  const trunkGeo = new THREE.CylinderGeometry(0.18, 0.26, 2.2, 6); trunkGeo.translate(0, 1.1, 0);
-  instanced(trunkGeo, M('#6b5a4a'), trunks);
-  instanced(new THREE.IcosahedronGeometry(1.5, 1), new THREE.MeshPhongMaterial({ color: '#ffffff', shininess: 4 }), crowns, it => it.color);
 
-  const posts = [], bulbs = [];
-  let lampSide = 1;
-  for (let d = 10; d < LEN; d += 24) {
-    const f = frameAt(d / LEN); lampSide *= -1;
-    const off = ROAD_W + 1.2;
-    const x = f.p.x + f.n.x * lampSide * off, z = f.p.z + f.n.z * lampSide * off;
-    if (!free(x, z, 0.4)) continue;
-    posts.push({ x, z });
-    bulbs.push({ x, y: 4.9, z });
-  }
-  const postGeo = new THREE.CylinderGeometry(0.09, 0.16, 4.6, 8); postGeo.translate(0, 2.3, 0);
-  instanced(postGeo, M('#1d1d22'), posts);
-  const lanternGeo = new THREE.CylinderGeometry(0.34, 0.2, 0.7, 4);
-  const bulbMesh = instanced(lanternGeo, BasicM('#ffe2a6'), bulbs); bulbMesh.castShadow = false;
-  instanced(new THREE.ConeGeometry(0.42, 0.35, 4), M('#1d1d22'), bulbs.map(b => ({ x: b.x, y: 5.4, z: b.z })));
-
-  const STATIC_COUNT = scene.children.length; // everything up to here stays put: drones use it to see obstacles
-  const trafficRef = { list: [] };
-  // ---------- Traffic: red double-deckers and black cabs (oncoming lane) ----------
-  (function () {
-    function wheelSet(parent, xs, zs, r) {
-      const geo = new THREE.CylinderGeometry(r, r, 0.3, 14); geo.rotateZ(Math.PI / 2);
-      xs.forEach(x => zs.forEach(z => mk(geo, '#151519', x, r, z, parent)));
-    }
-    // SHIELD adverts: a big panel along the lower deck and a gold band between the decks
-    function shieldAd(w, h, draw) {
-      const c = document.createElement('canvas'); c.width = w; c.height = h;
-      const x = c.getContext('2d'); x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, w, h);
-      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8;
-      const img = new Image(); img.onload = () => { draw(x, img); tex.needsUpdate = true; }; img.src = SHIELD_LOGO;
-      return new THREE.MeshBasicMaterial({ map: tex });
-    }
-    const sideAdMat = shieldAd(1536, 160, (x, img) => {
-      x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 1536, 160);
-      x.strokeStyle = '#e2b84a'; x.lineWidth = 7; x.strokeRect(6, 6, 1524, 148);
-      x.drawImage(img, 150, 18, 212, 272, 26, 12, 106, 136);
-      x.fillStyle = '#f0c94f'; x.font = '700 104px Cinzel, Georgia, "Times New Roman", serif'; x.textBaseline = 'middle';
-      x.fillText('SHIELD', 158, 86);
-      x.fillStyle = '#f2efe6'; x.font = '700 40px Arial, Helvetica, sans-serif';
-      x.fillText('DETECT · DEFEND · DETER', 640, 62);
-      x.fillStyle = '#e2b84a'; x.font = '700 30px Arial, Helvetica, sans-serif';
-      x.fillText('CYBERSECURITY BY ALEX PHILIP', 640, 112);
-    });
-    const bandAdMat = shieldAd(1536, 72, (x, img) => {
-      x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 1536, 72);
-      x.drawImage(img, 150, 18, 212, 272, 20, 6, 48, 62);
-      x.fillStyle = '#f0c94f'; x.font = '700 46px Cinzel, Georgia, serif'; x.textBaseline = 'middle'; x.fillText('S H I E L D', 90, 40);
-      x.fillStyle = '#f2efe6'; x.font = '700 30px Arial'; x.fillText('DETECT  ·  DEFEND  ·  DETER', 560, 38);
-    });
-    const glassM = new THREE.MeshPhongMaterial({ color: '#3a4a64', transparent: true, opacity: 0.38, shininess: 90, specular: '#ffffff', depthWrite: false });
-    const coats = ['#2b2f3a', '#6b2737', '#36495e', '#7a6a55', '#1f3b2e', '#8c8c8c', '#b0753c', '#c8102e', '#3e3a5a', '#d9d2c3', '#d7f22e'];
-    const skinTones = ['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e', '#e8b893'];
-    function seated(parent, x, y, z) {
-      const p = new THREE.Group(); p.position.set(x, y, z); parent.add(p);
-      const t = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.44, 0.3), M(pick(coats))); t.position.y = 0.3; p.add(t);
-      const h = new THREE.Mesh(new THREE.SphereGeometry(0.13, 10, 8), M(pick(skinTones))); h.position.y = 0.64; p.add(h);
-      if (rand() < 0.7) { const hair = new THREE.Mesh(new THREE.SphereGeometry(0.135, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), M(pick(['#2a1d14', '#141414', '#6b4a2b', '#c9a46a', '#8a8a8a']))); hair.position.y = 0.66; p.add(hair); }
-      p.rotation.y = rand() < 0.15 ? (rand() < 0.5 ? 1 : -1) * 0.8 : 0; // a few looking out of the window
-    }
-    function bus(destText = '441  STAINES', express = false) {
-      const g = new THREE.Group();
-      // lower deck: solid skirt, then see-through windows between red pillars
-      mk(new THREE.BoxGeometry(2.5, 1.05, 10), RED, 0, 0.93, 0, g);
-      mk(new THREE.BoxGeometry(2.4, 0.06, 9.7), '#4a3c32', 0, 1.46, 0, g);
-      { const gl = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.8, 9.6), glassM); gl.position.set(0, 1.85, 0); gl.renderOrder = 2; g.add(gl); }
-      [-4.85, -2.4, 0, 2.4].forEach(z => mk(new THREE.BoxGeometry(2.52, 0.8, 0.16), RED, 0, 1.85, z, g));
-      mk(new THREE.BoxGeometry(2.52, 0.12, 10.02), '#efe4c8', 0, 2.29, 0, g);
-      // upper deck
-      mk(new THREE.BoxGeometry(2.5, 0.5, 9.8), RED, 0, 2.6, -0.05, g);
-      { const gl = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.8, 9.6), glassM); gl.position.set(0, 3.25, -0.05); gl.renderOrder = 2; g.add(gl); }
-      [-4.85, -2.4, 0, 2.4].forEach(z => mk(new THREE.BoxGeometry(2.52, 0.8, 0.16), RED, 0, 3.25, z, g));
-      mk(new THREE.BoxGeometry(2.5, 0.42, 9.8), express ? '#6a6f78' : RED, 0, 3.86, -0.05, g);
-      mk(new THREE.BoxGeometry(2.4, 0.12, 9.6), express ? '#5a5f68' : '#b30e28', 0, 4.12, -0.05, g);
-      // warm interior lights and passengers on both decks
-      [2.22, 3.62].forEach(y => { const l = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.04, 9.0), BasicM('#ffe7b0')); l.position.set(0, y, -0.05); g.add(l); });
-      for (let z = -4.2; z <= 3.9; z += 1.05) [-0.62, 0.62].forEach(x => {
-        if (rand() < 0.55) seated(g, x, 1.46, z);
-        if (rand() < 0.6) seated(g, x, 2.86, z - 0.05);
-      });
-      seated(g, -0.55, 1.46, 4.3); // the driver
-      // destination blind, adverts, lights, wheels
-      const dest = new THREE.Mesh(new THREE.PlaneGeometry(1.7, 0.34), new THREE.MeshBasicMaterial({ map: canvasTex(170, 34, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffcf33'; x.font = '700 21px Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(destText, w / 2, h / 2 + 1); }) }));
-      dest.position.set(0, 2.6, 4.88); g.add(dest);
-      [-1, 1].forEach(sd => {
-        const ad = new THREE.Mesh(new THREE.PlaneGeometry(8.6, 0.92), sideAdMat); ad.position.set(sd * 1.262, 0.93, -0.3); ad.rotation.y = sd * Math.PI / 2; g.add(ad);
-        const band = new THREE.Mesh(new THREE.PlaneGeometry(9.4, 0.4), bandAdMat); band.position.set(sd * 1.262, 2.6, -0.1); band.rotation.y = sd * Math.PI / 2; g.add(band);
-      });
-      const backAd = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 0.4), bandAdMat); backAd.position.set(0, 2.6, -4.96); backAd.rotation.y = Math.PI; g.add(backAd);
-      if (express) mk(new THREE.BoxGeometry(2.54, 0.12, 10.04), '#6a6f78', 0, 0.45, 0, g);
-      [-0.75, 0.75].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.18, 0.05), BasicM('#fff4d0')); l.position.set(x, 0.75, 5.02); g.add(l); });
-      [-0.8, 0.8].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.16, 0.05), BasicM('#ff2a4a')); l.position.set(x, 0.75, -5.02); g.add(l); });
-      wheelSet(g, [-1.15, 1.15], [3.2, -3.3], 0.55);
-      g.scale.setScalar(1.2); // a little bigger than the cars, like the real thing
-      g.userData.isBus = true;
-      return g;
-    }
-    // SHIELD-liveried SUVs and sedans
-    // round SHIELD badge, the same design as the badge on Alex's car
-    const emblemMat = (() => {
-      const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
-      const tex = new THREE.CanvasTexture(c); tex.anisotropy = 8;
-      const ring = () => {
-        x.clearRect(0, 0, 256, 256);
-        x.fillStyle = '#22183a'; x.beginPath(); x.arc(128, 128, 124, 0, Math.PI * 2); x.fill();
-        x.strokeStyle = '#d7dae2'; x.lineWidth = 10; x.beginPath(); x.arc(128, 128, 112, 0, Math.PI * 2); x.stroke();
-        x.strokeStyle = '#d4a83a'; x.lineWidth = 8; x.beginPath(); x.arc(128, 128, 96, 0, Math.PI * 2); x.stroke();
-      };
-      ring();
-      const img = new Image(); img.onload = () => { ring(); x.save(); x.beginPath(); x.arc(128, 128, 90, 0, Math.PI * 2); x.clip(); x.fillStyle = '#0b0b0d'; x.fillRect(0, 0, 256, 256); x.drawImage(img, 150, 18, 212, 272, 76, 60, 104, 134); x.restore(); tex.needsUpdate = true; };
-      img.src = SHIELD_LOGO;
-      return new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.5 });
-    })();
-    function decals(g, x, y, z, w, h) {
-      [-1, 1].forEach(sd => { const d = new THREE.Mesh(new THREE.PlaneGeometry(w, h), emblemMat); d.position.set(sd * x, y, z); d.rotation.y = sd * Math.PI / 2; g.add(d); });
-    }
-    function lamps(g, y, zf, zb, xs) {
-      xs.forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), BasicM('#f4fbff')); l.position.set(x, y, zf); g.add(l); const t = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.12, 0.05), BasicM('#ff2a4a')); t.position.set(x, y, zb); g.add(t); });
-    }
-    // boxy luxury off-roader: upright glasshouse, flat bonnet, flared arches, roof rails and side steps
-    function suv(col) {
-      const g = new THREE.Group(), trim = '#1c1c21', chrome = '#c9ced6';
-      mk(new THREE.BoxGeometry(2.0, 1.0, 4.75), col, 0, 0.98, 0, g);                 // body
-      mk(new THREE.BoxGeometry(2.02, 0.22, 4.8), trim, 0, 0.5, 0, g);                 // lower cladding
-      mk(new THREE.BoxGeometry(2.06, 0.26, 4.86), trim, 0, 0.56, 2.32, g).scale.set(1, 1, 0.04); // front bumper bar
-      mk(new THREE.BoxGeometry(2.06, 0.26, 0.2), trim, 0, 0.56, -2.42, g);
-      [-1, 1].forEach(sx => [1.48, -1.48].forEach(z => mk(new THREE.BoxGeometry(0.16, 0.42, 1.3), trim, sx * 1.04, 0.86, z, g))); // wheel-arch flares
-      [-1, 1].forEach(sx => mk(new THREE.BoxGeometry(0.22, 0.06, 1.7), '#2b2b31', sx * 1.08, 0.42, 0, g)); // side steps
-      { const gl = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.86, 2.85), glassM); gl.position.set(0, 1.91, -0.35); gl.renderOrder = 2; g.add(gl); }
-      seated(g, -0.45, 1.06, 0.3); if (rand() < 0.7) seated(g, 0.45, 1.06, 0.3); [-0.45, 0.45].forEach(x => { if (rand() < 0.5) seated(g, x, 1.06, -0.9); });
-      mk(new THREE.BoxGeometry(1.98, 0.1, 2.95), col, 0, 2.38, -0.35, g);              // flat roof
-      [-0.98, 0.98].forEach(x => { [1.06, -0.2, -1.76].forEach(z => mk(new THREE.BoxGeometry(0.07, 0.86, 0.12), col, x, 1.91, z, g)); }); // pillars
-      mk(new THREE.BoxGeometry(1.94, 0.86, 0.08), col, 0, 1.91, -1.8, g).scale.set(1, 0.32, 1);
-      [-0.8, 0.8].forEach(x => mk(new THREE.BoxGeometry(0.07, 0.08, 2.6), '#2b2b31', x, 2.47, -0.35, g)); // roof rails
-      mk(new THREE.BoxGeometry(1.94, 0.04, 1.2), col, 0, 1.49, 1.75, g);               // flat bonnet
-      // upright grille with horizontal slats and slim LED light bars
-      mk(new THREE.BoxGeometry(1.1, 0.46, 0.05), '#121216', 0, 1.1, 2.39, g);
-      for (let k = 0; k < 4; k++) mk(new THREE.BoxGeometry(1.06, 0.035, 0.06), chrome, 0, 0.94 + k * 0.11, 2.41, g);
-      [-0.78, 0.78].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.09, 0.05), BasicM('#f4fbff')); l.position.set(x, 1.24, 2.39); g.add(l); });
-      [-0.84, 0.84].forEach(x => { const t = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.05), BasicM('#ff2a4a')); t.position.set(x, 1.15, -2.39); g.add(t); });
-      mk(new THREE.BoxGeometry(1.4, 0.05, 0.05), chrome, 0, 1.42, -2.4, g);
-      decals(g, 1.006, 1.02, 0.3, 0.74, 0.74);
-      const hood = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.5), emblemMat); hood.rotation.x = -Math.PI / 2; hood.position.set(0, 1.52, 1.75); g.add(hood);
-      const tail = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42), emblemMat); tail.rotation.y = Math.PI; tail.position.set(0, 1.0, -2.41); g.add(tail);
-      wheelSet(g, [-0.96, 0.96], [1.48, -1.48], 0.47);
-      return g;
-    }
-    // long-wheelbase executive saloon: long bonnet, flowing roofline, chrome window line and grille
-    function sedan(col) {
-      const g = new THREE.Group(), chrome = '#d3d7de';
-      const prof = new THREE.Shape(); // side profile (z along the car, y up), extruded across its width
-      [[-2.6, 0.32], [2.62, 0.32], [2.66, 0.62], [2.5, 0.86], [1.25, 0.95], [-2.2, 0.95], [-2.6, 0.82]].forEach(([z, y], i) => i ? prof.lineTo(z, y) : prof.moveTo(z, y));
-      prof.closePath();
-      const bodyGeo = new THREE.ExtrudeGeometry(prof, { depth: 1.9, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.04, bevelSegments: 2 });
-      bodyGeo.translate(0, 0, -0.95); bodyGeo.rotateY(-Math.PI / 2);
-      mk(bodyGeo, col, 0, 0, 0, g);
-      const cabin = new THREE.Shape();
-      [[1.2, 0.95], [-2.1, 0.95], [-1.4, 1.46], [0.25, 1.52]].forEach(([z, y], i) => i ? cabin.lineTo(z, y) : cabin.moveTo(z, y));
-      cabin.closePath();
-      const cabGeo = new THREE.ExtrudeGeometry(cabin, { depth: 1.66, bevelEnabled: false }); cabGeo.translate(0, 0, -0.83); cabGeo.rotateY(-Math.PI / 2);
-      const glass = new THREE.Mesh(cabGeo, glassM); glass.renderOrder = 2; g.add(glass);
-      const roof = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.06, 1.55), M(col)); roof.position.set(0, 1.5, -0.55); g.add(roof);
-      [-0.84, 0.84].forEach(x => mk(new THREE.BoxGeometry(0.04, 0.04, 3.2), chrome, x, 0.97, -0.45, g)); // chrome window line
-      [-0.83, 0.83].forEach(x => mk(new THREE.BoxGeometry(0.06, 0.52, 0.1), col, x, 1.22, -0.45, g)); // B-pillars
-      [[-0.42, 0.15, 1], [0.42, 0.15, 0.6], [-0.42, -1.05, 0.5], [0.42, -1.05, 0.5]].forEach(([x, z, pr]) => { if (rand() < pr) { const p = new THREE.Group(); p.scale.setScalar(0.85); g.add(p); seated(p, x / 0.85, 0.62 / 0.85, z / 0.85); } });
-      mk(new THREE.BoxGeometry(0.9, 0.28, 0.05), '#16161a', 0, 0.56, 2.66, g);       // grille
-      for (let k = 0; k < 3; k++) mk(new THREE.BoxGeometry(0.86, 0.03, 0.06), chrome, 0, 0.47 + k * 0.09, 2.68, g);
-      mk(new THREE.BoxGeometry(0.95, 0.04, 0.06), chrome, 0, 0.72, 2.67, g);
-      [-0.68, 0.68].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.08, 0.05), BasicM('#f4fbff')); l.position.set(x, 0.68, 2.62); g.add(l); });
-      { const t = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.07, 0.05), BasicM('#ff2a4a')); t.position.set(0, 0.78, -2.62); g.add(t); }
-      mk(new THREE.BoxGeometry(1.0, 0.04, 0.05), chrome, 0, 0.5, -2.63, g);
-      decals(g, 0.995, 0.6, 0.15, 0.5, 0.5);
-      const boot = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.34), emblemMat); boot.rotation.y = Math.PI; boot.position.set(0, 0.62, -2.64); g.add(boot);
-      const bonnet = new THREE.Mesh(new THREE.PlaneGeometry(0.36, 0.36), emblemMat); bonnet.rotation.x = -Math.PI / 2 - 0.12; bonnet.position.set(0, 0.92, 2.2); g.add(bonnet);
-      wheelSet(g, [-0.92, 0.92], [1.72, -1.6], 0.37);
-      return g;
-    }
-    function cab() {
-      const g = new THREE.Group();
-      mk(new THREE.BoxGeometry(1.8, 0.85, 4.4), '#16161a', 0, 0.72, 0, g);
-      { const gl = new THREE.Mesh(new THREE.BoxGeometry(1.62, 0.78, 2.5), glassM); gl.position.set(0, 1.52, -0.25); gl.renderOrder = 2; g.add(gl); }
-      seated(g, -0.42, 0.92, 0.35); [-0.4, 0.4].forEach(x => { if (rand() < 0.6) seated(g, x, 0.92, -0.85); });
-      mk(new THREE.BoxGeometry(1.66, 0.12, 2.3), '#16161a', 0, 1.96, -0.3, g);
-      mk(new THREE.BoxGeometry(0.5, 0.16, 0.22), M('#ffcf3a'), 0, 2.1, 0.5, g);
-      mk(new THREE.BoxGeometry(1.0, 0.3, 0.05), '#c7ccd4', 0, 0.75, 2.21, g);
-      [-0.62, 0.62].forEach(x => { const l = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.06, 12), BasicM('#fff4d0')); l.rotation.x = Math.PI / 2; l.position.set(x, 0.9, 2.21); g.add(l); });
-      wheelSet(g, [-0.82, 0.82], [1.35, -1.35], 0.38);
-      return g;
-    }
-    const fleet = [];
-    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('8  SLOUGH', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.415, ambulance, 13.5], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('8  SLOUGH', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
-      const v = make(); scene.add(v); fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus });
-    });
-    function place(o) {
-      const f = frameAt(o.u);
-      o.v.position.copy(f.p).addScaledVector(f.n, 2.0); // oncoming lane: we keep left, as in the UK
-      o.v.rotation.y = Math.atan2(f.t.x, f.t.z) + Math.PI;
-    }
-    fleet.forEach(place);
-    trafficRef.list = fleet;
-    // buses pull in at every shelter on their side for 3 seconds; everything keeps a safe gap to whatever is in front
-    const stopsU = BUS_STOP_PROGS.map(uOf);
-    const aheadDist = (from, to) => ((((from - to) % 1) + 1) % 1) * LEN; // we travel towards smaller u
-    const d0 = d => d.uStart;
-    const laneAt = u => { const f = frameAt(u); return f.p.clone().addScaledVector(f.n, 2.0).setY(0); };
-    DETOURS.forEach(d => { d.pts[0] = laneAt(d.uStart); d.pts[d.pts.length - 1] = laneAt(d.uEnd); d.curve = new THREE.CatmullRomCurve3(d.pts, false, 'centripetal'); d.len = d.curve.getLength(); });
-    const nearLane = (u, m) => fleet.some(q => !q.det && (aheadDist(q.u, u) < m + 18 || aheadDist(u, q.u) < m));
-    function followDetour(o, dt) {
-      const d = o.det.d;
-      let target = o.det.s > d.len * 0.3 && o.det.s < d.len * 0.75 ? 5.5 : Math.min(o.speed, 8);
-      if (!o.det.parked && o.det.s > d.len * 0.5) { o.det.parked = true; o.wait = 2 + rand() * 2; }   // a short stop at the door
-      if (o.wait > 0) { o.wait -= dt; target = 0; }
-      if (o.det.s > d.len * 0.8 && o.det.s < d.len * 0.86 && nearLane(d.uEnd, 12)) target = 0;        // give way before pulling out
-      o.cur += (target - o.cur) * Math.min(1, dt * (target < o.cur ? 4 : 1.1));
-      o.det.s += o.cur * dt;
-      if (o.det.s >= d.len) { o.u = d.uEnd; o.det = null; d.busy = false; o.cool = 25; place(o); return; }
-      const t = o.det.s / d.len, p = d.curve.getPointAt(t), tg = d.curve.getTangentAt(t);
-      o.v.position.copy(p); o.v.rotation.y = Math.atan2(tg.x, tg.z);
-    }
-    spinners.push(dt => {
-      fleet.forEach(o => {
-        if (o.det) { followDetour(o, dt); return; }
-        if (o.cool > 0) o.cool -= dt;
-        let target = o.speed;
-        if (o.wait > 0) { o.wait -= dt; target = 0; }
-        else if (o.isBus) {
-          stopsU.forEach((s, i) => {
-            if (i === o.lastStop) return;
-            const d = aheadDist(o.u, s) - 1.0; // stop with the doors by the shelter
-            if (d < 30) {
-              target = Math.min(target, Math.sqrt(2 * 2.2 * Math.max(d, 0)));
-              if (d < 0.4) { o.wait = 3; o.lastStop = i; o.cur = 0; target = 0; }
-            }
-          });
-        }
-        let gap = Infinity;
-        fleet.forEach(q => { if (q !== o && !q.det) gap = Math.min(gap, aheadDist(o.u, q.u)); });
-        const safe = 11.5;
-        if (gap < safe + 14) target = Math.min(target, o.speed * clamp((gap - safe) / 14, 0, 1));
-        o.cur += (target - o.cur) * Math.min(1, dt * (target < o.cur ? 4 : 1.1));
-        const nu = (((o.u - o.cur * dt / LEN) % 1) + 1) % 1;
-        const turn = !(o.cool > 0) && DETOURS.find(d => aheadDist(o.u, d.uStart) <= o.cur * dt / LEN * LEN + 1e-6 && aheadDist(o.u, d.uStart) < 2 && !d.busy);
-        if (turn && rand() < 0.45) { o.u = d0(turn); o.det = { d: turn, s: 0, parked: false }; turn.busy = true; o.v.userData.onDet = turn; return; }
-        o.u = nu;
-        place(o);
-      });
-    });
-  })();
-
-  // ---------- Street life: pedestrians, cyclists, the guard column, bunting and rooftop flags ----------
-  (function () {
-    const fastFrame = u => frames[Math.max(0, Math.min(SEG, Math.round(u * SEG)))];
-    const wrap = u => (u < 0.003 ? 0.997 : u > 0.997 ? 0.003 : u);
-    const noShadow = o => o.traverse(m => { if (m.isMesh) m.castShadow = false; });
-    const coats = ['#2b2f3a', '#6b2737', '#36495e', '#7a6a55', '#1f3b2e', '#8c8c8c', '#b0753c', '#c8102e', '#3e3a5a', '#d9d2c3', '#5b6b4a'];
-    const skins = ['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e', '#e8b893'];
-
-    function walker() {
-      const s = new THREE.Group();
-      const trousers = pick(['#1d1f26', '#2f3442', '#4a3f35', '#24324a', '#5a5f6b']);
-      const legs = [-0.1, 0.1].map(x => { const pv = new THREE.Group(); pv.position.set(x, 0.88, 0); s.add(pv); mk(new THREE.BoxGeometry(0.15, 0.86, 0.17), trousers, 0, -0.43, 0, pv); return pv; });
-      const coat = pick(coats);
-      mk(new THREE.BoxGeometry(0.44, 0.72, 0.26), coat, 0, 1.22, 0, s);
-      const arms = [-0.28, 0.28].map(x => { const pv = new THREE.Group(); pv.position.set(x, 1.52, 0); s.add(pv); mk(new THREE.BoxGeometry(0.12, 0.6, 0.14), coat, 0, -0.3, 0, pv); return pv; });
-      mk(new THREE.SphereGeometry(0.13, 10, 8), pick(skins), 0, 1.72, 0, s);
-      const r = rand();
-      if (r < 0.2) { // bowler hat
-        mk(new THREE.CylinderGeometry(0.13, 0.14, 0.13, 12), '#141418', 0, 1.87, 0, s);
-        mk(new THREE.CylinderGeometry(0.21, 0.21, 0.02, 14), '#141418', 0, 1.81, 0, s);
-      } else if (r < 0.45) { // umbrella
-        const um = new THREE.Group(); um.position.set(0.28, 1.45, 0.05); s.add(um);
-        mk(new THREE.CylinderGeometry(0.015, 0.015, 0.95, 4), '#222', 0, 0.47, 0, um);
-        mk(new THREE.ConeGeometry(0.62, 0.32, 8), pick(['#111114', '#111114', '#c8102e', '#1b2b4a', '#f2efe6']), 0, 0.98, 0, um);
-      } else {
-        mk(new THREE.SphereGeometry(0.135, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pick(['#2a1d14', '#141414', '#6b4a2b', '#c9a46a', '#8a8a8a']), 0, 1.74, 0, s);
-      }
-      if (rand() < 0.3) mk(new THREE.BoxGeometry(0.1, 0.3, 0.34), pick(['#3a2a1e', '#111', '#7a5a3a']), 0.3, 0.95, 0, s); // bag
-      s.userData = { legs, arms };
-      noShadow(s);
-      return s;
-    }
-
-    function cyclist() {
-      const c = new THREE.Group();
-      const frameCol = pick(['#c8102e', '#1b2b4a', '#2e7d4f', '#e9e4d8', '#111114']);
-      const wheelGeo = new THREE.TorusGeometry(0.33, 0.035, 6, 20);
-      [0.52, -0.52].forEach(z => { const w = new THREE.Mesh(wheelGeo, M('#1a1a1e')); w.position.set(0, 0.34, z); w.rotation.y = Math.PI / 2; c.add(w); });
-      const P = (x, y, z) => new THREE.Vector3(x, y, z);
-      [[P(0, 0.34, -0.52), P(0, 0.36, 0)], [P(0, 0.36, 0), P(0, 0.34, 0.52)], [P(0, 0.36, 0), P(0, 0.86, -0.18)], [P(0, 0.86, -0.18), P(0, 0.88, 0.38)], [P(0, 0.88, 0.38), P(0, 0.34, 0.52)], [P(0, 0.88, 0.38), P(0, 1.02, 0.42)]]
-        .forEach(([a, b]) => beam(a, b, 0.045, frameCol, c));
-      mk(new THREE.BoxGeometry(0.5, 0.04, 0.04), '#222', 0, 1.02, 0.42, c);
-      mk(new THREE.BoxGeometry(0.12, 0.05, 0.24), '#111', 0, 0.9, -0.2, c);
-      const jacket = pick(['#d7f22e', '#d7f22e', '#2b2f3a', '#c8102e', '#36495e', '#e9e4d8']);
-      mk(new THREE.BoxGeometry(0.4, 0.62, 0.24), jacket, 0, 1.24, 0.02, c, { rx: 0.75 });
-      mk(new THREE.SphereGeometry(0.12, 10, 8), pick(skins), 0, 1.55, 0.3, c);
-      mk(new THREE.SphereGeometry(0.15, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pick(['#ffffff', '#111114', '#c8102e', '#2e7d4f']), 0, 1.58, 0.28, c);
-      [-1, 1].forEach(sx => beam(P(sx * 0.2, 1.42, 0.22), P(sx * 0.22, 1.03, 0.42), 0.09, jacket, c));
-      const legs = [-1, 1].map(sx => { const pv = new THREE.Group(); pv.position.set(sx * 0.12, 0.92, -0.14); c.add(pv); mk(new THREE.BoxGeometry(0.13, 0.62, 0.14), '#1d1f26', 0, -0.3, 0.06, pv); return pv; });
-      c.userData = { legs };
-      noShadow(c);
-      return c;
-    }
-
-    // pedestrians on both pavements, walking both ways
-    const peds = [];
-    const nPeds = isPhone ? 26 : 52;
-    for (let k = 0; k < nPeds; k++) {
-      const w = walker(); scene.add(w);
-      peds.push({ w, u: rand(), side: rand() < 0.5 ? -1 : 1, off: ROAD_W + 1.6 + rand() * 0.6, dir: rand() < 0.5 ? -1 : 1, speed: 0.85 + rand() * 0.45, ph: rand() * 6 });
-      if (peds.length % 5 === 0) peds[peds.length - 1].dog = dog();
-    }
-    // cyclists: with us on the left (slower, so we overtake), and oncoming on the right
-    const bikes = [];
-    for (let k = 0; k < (isPhone ? 6 : 12); k++) {
-      const c = cyclist(); scene.add(c);
-      const oncoming = k % 2 === 1;
-      bikes.push({ c, u: rand(), lane: oncoming ? 3.6 : -3.45, dir: oncoming ? -1 : 1, speed: 3.4 + rand() * 1.6, ph: rand() * 6 });
-    }
-    // King's Guard column marching along the palace pavement, led by a flag bearer
-    const palaceU = uOf(0.27);
-    const column = [];
-    for (let k = 0; k < 0; k++) {
-      const s = guardsman(); noShadow(s); scene.add(s);
-      if (k === 0) flagOnPole(s.userData.arms[1], 0, -0.6, 0.1, 0.7, 2.6);
-      column.push({ s, k });
-    }
-
-    // dogs out for a walk: a handful of breeds' colours, wagging tails, on a lead
-    function dog() {
-      const d = new THREE.Group(), col = pick(['#8a5a2b', '#1b1b1b', '#e8d9b8', '#c98a3e', '#f4f4f0', '#6b6f78']), dark = '#222';
-      const big = rand() < 0.4 ? 1.35 : 1;
-      d.scale.setScalar(big);
-      mk(new THREE.BoxGeometry(0.26, 0.26, 0.6), col, 0, 0.42, 0, d);
-      const legs = [[-0.09, 0.22], [0.09, 0.22], [-0.09, -0.22], [0.09, -0.22]].map(([x, z]) => { const pv = new THREE.Group(); pv.position.set(x, 0.32, z); d.add(pv); mk(new THREE.BoxGeometry(0.08, 0.32, 0.08), col, 0, -0.16, 0, pv); return pv; });
-      mk(new THREE.BoxGeometry(0.22, 0.22, 0.26), col, 0, 0.6, 0.38, d);
-      mk(new THREE.BoxGeometry(0.12, 0.1, 0.14), col, 0, 0.55, 0.56, d);
-      mk(new THREE.BoxGeometry(0.06, 0.05, 0.04), dark, 0, 0.58, 0.64, d);
-      [-0.08, 0.08].forEach(x => mk(new THREE.BoxGeometry(0.06, 0.12, 0.05), rand() < 0.5 ? col : dark, x, 0.75, 0.34, d));
-      const tail = new THREE.Group(); tail.position.set(0, 0.52, -0.3); d.add(tail); mk(new THREE.BoxGeometry(0.05, 0.05, 0.25), col, 0, 0.06, -0.1, tail); tail.rotation.x = -0.6;
-      mk(new THREE.BoxGeometry(0.24, 0.05, 0.05), '#c8102e', 0, 0.6, 0.27, d); // collar
-      const leadGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
-      const lead = new THREE.Line(leadGeo, new THREE.LineBasicMaterial({ color: '#2b2b2b' })); scene.add(lead);
-      d.userData = { legs, tail, lead }; scene.add(d);
-      return d;
-    }
-    const handPt = new THREE.Vector3(), collarPt = new THREE.Vector3();
-    function placeOnRoad(obj, u, lateral, facing) {
-      const f = fastFrame(u);
-      obj.position.set(f.p.x + f.n.x * lateral, 0, f.p.z + f.n.z * lateral);
-      obj.rotation.y = Math.atan2(f.t.x, f.t.z) + (facing < 0 ? Math.PI : 0);
-    }
-    function step(dt, now) {
-      peds.forEach(p => {
-        p.u = wrap(p.u + p.dir * p.speed * dt / LEN); p.ph += dt * p.speed * 4.4;
-        placeOnRoad(p.w, p.u, p.side * p.off, p.dir);
-        p.w.visible = !inRiver(p.w.position.x, p.w.position.z);
-        const sw = Math.sin(p.ph) * 0.45;
-        p.w.userData.legs[0].rotation.x = sw; p.w.userData.legs[1].rotation.x = -sw;
-        p.w.userData.arms[0].rotation.x = -sw * 0.7; p.w.userData.arms[1].rotation.x = sw * 0.7;
-        if (p.dog) { // trots a metre ahead, slightly towards the kerb
-          const D = p.dog, ud = D.userData;
-          placeOnRoad(D, wrap(p.u + p.dir * 1.3 / LEN), p.side * (p.off - 0.55), p.dir);
-          D.visible = p.w.visible;
-          const tr = Math.sin(p.ph * 1.6) * 0.6; ud.legs.forEach((l, k) => l.rotation.x = (k === 0 || k === 3) ? tr : -tr);
-          ud.tail.rotation.y = Math.sin(p.ph * 5) * 0.6;
-          handPt.set(p.side * 0, 0, 0); p.w.updateMatrixWorld(); handPt.set(0.28, 0.95, 0.15).applyMatrix4(p.w.matrixWorld);
-          D.updateMatrixWorld(); collarPt.set(0, 0.6, 0.27).applyMatrix4(D.matrixWorld);
-          const a = ud.lead.geometry.attributes.position; a.setXYZ(0, handPt.x, handPt.y, handPt.z); a.setXYZ(1, collarPt.x, collarPt.y, collarPt.z); a.needsUpdate = true; ud.lead.geometry.computeBoundingSphere(); ud.lead.visible = D.visible;
-        }
-      });
-      bikes.forEach(b => {
-        b.u = wrap(b.u + b.dir * b.speed * dt / LEN); b.ph += dt * b.speed * 1.75;
-        placeOnRoad(b.c, b.u, b.lane, b.dir);
-        b.c.userData.legs[0].rotation.x = Math.sin(b.ph) * 0.6; b.c.userData.legs[1].rotation.x = -Math.sin(b.ph) * 0.6;
-      });
-      // the column marches 40 m up the pavement and back, in step
-      const span = 40 / LEN, cyc = (now / 1000 * 1.1 * (1 / 40)) % 2, fwd = cyc < 1, t = fwd ? cyc : 2 - cyc;
-      const sw = Math.sin(now * 0.0085) * 0.5;
-      column.forEach(({ s, k }) => {
-        const u = palaceU - span / 2 + t * span - (fwd ? 1 : -1) * k * 1.5 / LEN;
-        placeOnRoad(s, u, -(ROAD_W + 1.9), fwd ? 1 : -1);
-        s.userData.legs[0].rotation.x = sw; s.userData.legs[1].rotation.x = -sw;
-        if (s.userData.arms[1].children.length < 3) s.userData.arms[1].rotation.x = -sw * 0.8;
-      });
-    }
-    step(0, 0);
-    spinners.push(step);
-
-    // red, white and blue bunting strung across the street (kept clear of signs, gates and the bridge)
-    const tri = new THREE.BufferGeometry();
-    tri.setAttribute('position', new THREE.Float32BufferAttribute([-0.22, 0, 0, 0.22, 0, 0, 0, -0.42, 0], 3)); tri.computeVertexNormals();
-    const pennants = [], lines = [];
-    const busy = signBoards.map(s => s.g.position).concat([frameAt(uOf(0) + 0.022).p, frameAt(U1 + 0.012).p]);
-    for (let d = 30; d < LEN - 30; d += 48) {
-      const u = d / LEN, f = frameAt(u);
-      if (busy.some(q => q.distanceTo(f.p) < 20) || inRiver(f.p.x, f.p.z, 30)) continue;
-      const half = ROAD_W + 3, y0 = 6.4, sag = 0.9, ry = Math.atan2(f.t.x, f.t.z);
-      const pts2 = [];
-      for (let k = 0; k <= 22; k++) {
-        const a = -half + (2 * half) * k / 22, y = y0 - sag * (1 - Math.pow(a / half, 2));
-        const pt = f.p.clone().addScaledVector(f.n, a).setY(y); pts2.push(pt);
-        if (k > 0 && k < 22) pennants.push({ x: pt.x, y: pt.y, z: pt.z, ry, color: new THREE.Color(['#c8102e', '#f4f4f6', '#012169'][k % 3]) });
-      }
-      for (let k = 0; k < pts2.length - 1; k++) lines.push([pts2[k], pts2[k + 1]]);
-      [-1, 1].forEach(sd => { const base = f.p.clone().addScaledVector(f.n, sd * half); beam(base.clone().setY(0), base.clone().setY(y0 + 0.2), 0.12, '#1d1d22', scene); });
-    }
-    const pm = instanced(tri, new THREE.MeshLambertMaterial({ color: '#ffffff', side: THREE.DoubleSide }), pennants, it => it.color); pm.castShadow = false;
-    lines.forEach(([a, b]) => beam(a, b, 0.025, '#2a2a2e', scene).castShadow = false);
-
-    // Union flags on a scattering of rooftops near the road
-    let flagsUp = 0;
-    classes.slice(0, 3).forEach(c => c.list.forEach(b => {
-      if (flagsUp > (isPhone ? 10 : 22) || rand() > 0.16 || roadDist(b.x, b.z) > ROAD_W + 16) return;
-      flagOnPole(scene, b.x, b.sy, b.z, 1.1, 3.2, rand() * Math.PI * 2); flagsUp++;
-    }));
-  })();
-
-  // ---------- Birds: flocks overhead, gulls by the river, pigeons on the pavement ----------
-  (function () {
-    const tri = pts => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3)); g.computeVertexNormals(); return g; };
-    const wingL = tri([0, 0, 0.16, 0, 0, -0.14, 0.75, 0, -0.06]), wingR = tri([0, 0, 0.16, -0.75, 0, -0.06, 0, 0, -0.14]);
-    const bodyGeo = new THREE.BoxGeometry(0.17, 0.14, 0.55);
-    function flier(col) {
-      const b = new THREE.Group();
-      const mat = new THREE.MeshLambertMaterial({ color: col, side: THREE.DoubleSide });
-      b.add(new THREE.Mesh(bodyGeo, mat));
-      const wl = new THREE.Mesh(wingL, mat), wr = new THREE.Mesh(wingR, mat); b.add(wl, wr);
-      b.userData.w = [wl, wr];
-      b.scale.setScalar(1.9);
-      return b;
-    }
-    const flocks = [];
-    const spots = [[0.06, 10, 13, '#4f5563'], [0.2, -8, 15, '#565c6a'], [0.3, 12, 14, '#565c6a'], [0.5, 8, 12, '#4f5563'], [0.703, 0, 11, '#f4f4f2'], [0.72, 14, 13, '#f4f4f2'], [0.88, 10, 14, '#565c6a']];
-    spots.forEach(([prog, side, h, col], i) => {
-      const u = prog > 0.7 && prog < 0.71 ? prog : uOf(prog);
-      const f = frameAt(u), c = f.p.clone().addScaledVector(f.n, side).setY(h);
-      const n = 6 + Math.floor(rand() * 6), birds = [];
-      for (let k = 0; k < n; k++) {
-        const b = flier(col); scene.add(b);
-        birds.push({ b, dx: (rand() - 0.5) * 6, dy: (rand() - 0.5) * 3, dz: -k * 1.3 + (rand() - 0.5), ph: rand() * 6, flap: 9 + rand() * 4 });
-      }
-      flocks.push({ c, R: 12 + rand() * 12, w: (0.18 + rand() * 0.12) * (i % 2 ? 1 : -1), a: rand() * 6, birds, bob: rand() * 6 });
-    });
-    const tmp = new THREE.Vector3();
-    function flyStep(dt, now) {
-      flocks.forEach(fl => {
-        fl.a += fl.w * dt;
-        const heading = fl.a + (fl.w > 0 ? Math.PI / 2 : -Math.PI / 2);
-        const fx = Math.cos(heading), fz = -Math.sin(heading); // forward
-        fl.birds.forEach(bd => {
-          bd.ph += dt * bd.flap;
-          const cx = fl.c.x + Math.cos(fl.a) * fl.R, cz = fl.c.z - Math.sin(fl.a) * fl.R;
-          // lay the flock out behind and beside the leader
-          tmp.set(cx + fx * bd.dz + fz * bd.dx, fl.c.y + bd.dy + Math.sin(now * 0.0012 + fl.bob) * 1.2, cz + fz * bd.dz - fx * bd.dx);
-          bd.b.position.copy(tmp);
-          bd.b.rotation.set(0, Math.atan2(fx, fz), (fl.w > 0 ? -1 : 1) * 0.25);
-          const flap = Math.sin(bd.ph) * 0.75, glide = Math.sin(bd.ph * 0.13) > 0.6;
-          bd.b.userData.w[0].rotation.z = glide ? 0.1 : flap; bd.b.userData.w[1].rotation.z = glide ? -0.1 : -flap;
-        });
-      });
-    }
-
-    // pigeons pecking on the pavement outside the palace, the shops and the café
-    const pigeonBody = new THREE.SphereGeometry(0.16, 8, 6), pigeonHead = new THREE.SphereGeometry(0.08, 8, 6);
-    const pigeons = [];
-    [[0.25, -1], [0.29, -1], [0.075, -1], [0.155, -1], [0.8, 1], [0.905, 1], [0.65, 1]].forEach(([prog, side]) => {
-      for (let k = 0; k < 4 + Math.floor(rand() * 4); k++) {
-        const f = frameAt(uOf(prog) + (rand() - 0.5) * 12 / LEN), off = ROAD_W + 1.0 + rand() * 1.2;
-        const p = new THREE.Group(); p.position.copy(f.p).addScaledVector(f.n, side * off); p.rotation.y = rand() * Math.PI * 2; scene.add(p);
-        const body = new THREE.Mesh(pigeonBody, M(pick(['#7d8491', '#6d7380', '#8f95a0']))); body.scale.set(0.9, 0.8, 1.4); body.position.y = 0.2; p.add(body);
-        const neck = new THREE.Group(); neck.position.set(0, 0.3, 0.17); p.add(neck);
-        const head = new THREE.Mesh(pigeonHead, M('#4e5a66')); head.position.set(0, 0.04, 0.06); neck.add(head);
-        const beak = new THREE.Mesh(new THREE.ConeGeometry(0.02, 0.07, 4), M('#d9a441')); beak.rotation.x = Math.PI / 2; beak.position.set(0, 0.03, 0.15); neck.add(beak);
-        [-0.05, 0.05].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.02), M('#c56a6a')); l.position.set(x, 0.05, 0); p.add(l); });
-        p.traverse(m => { if (m.isMesh) m.castShadow = false; });
-        pigeons.push({ p, neck, ph: rand() * 10, speed: 2 + rand() * 3, turn: rand() * 6 });
-      }
-    });
-    function pigeonStep(dt, now) {
-      pigeons.forEach(pg => {
-        pg.ph += dt * pg.speed;
-        pg.neck.rotation.x = Math.max(0, Math.sin(pg.ph * 2.2)) * 0.9; // peck
-        if (Math.sin(pg.ph * 0.37 + pg.turn) > 0.97) pg.p.rotation.y += dt * 4; // shuffle round now and then
-      });
-    }
-    flyStep(0, 0); pigeonStep(0, 0);
-    spinners.push(flyStep, pigeonStep);
-  })();
-
-  // ---------- Grey London clouds & distant skyline ----------
-  const clouds = [];
-  const cloudMat = new THREE.MeshLambertMaterial({ color: '#eeeaf0', emissive: '#bfaebd', emissiveIntensity: 0.3 });
-  const center = new THREE.Vector3(0, 0, 0); // centred on the campus
-  for (let k = 0; k < 30; k++) {
-    const g = new THREE.Group();
-    const n = 3 + Math.floor(rand() * 4);
-    for (let j = 0; j < n; j++) {
-      const s = new THREE.Mesh(new THREE.IcosahedronGeometry(4 + rand() * 5, 1), cloudMat);
-      s.position.set(j * 5 - n * 2.5, rand() * 2, (rand() - 0.5) * 4); s.scale.y = 0.6; g.add(s);
-    }
-    const a = rand() * Math.PI * 2, r = 40 + rand() * 260;
-    g.position.set(center.x + Math.cos(a) * r, 50 + rand() * 40, center.z + Math.sin(a) * r);
-    g.userData.speed = 1 + rand() * 2;
-    scene.add(g); clouds.push(g);
-  }
-  const skyline = [];
-  for (let k = 0; k < 90; k++) {
-    const a = rand() * Math.PI * 2, r = 440 + rand() * 180;
-    const h = 12 + Math.pow(rand(), 2) * 40, w = 12 + rand() * 22; // low, distant Surrey and Heathrow skyline
-    skyline.push({ x: center.x + Math.cos(a) * r, z: center.z + Math.sin(a) * r, sx: w, sy: h, sz: w, ry: rand() * 3, color: new THREE.Color(pick(['#8c86a0', '#7f7a94', '#9993ab'])) });
-  }
-  const sk = instanced(boxGeo, new THREE.MeshLambertMaterial({ color: '#ffffff' }), skyline, it => it.color); sk.castShadow = false;
-
-  // ---------- Mini-map (bottom right): the loop, river, stops, landmarks, traffic and you ----------
-  const miniMap = (function () {
-    const mm = document.createElement('canvas'); mm.className = 'minimap'; mm.setAttribute('role', 'img'); mm.setAttribute('aria-label', 'Map of the route');
-    document.body.appendChild(mm);
-    const ctx = mm.getContext('2d');
-    const road = []; for (let i = 0; i <= SEG; i += 6) road.push(frames[i].p);
-    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
-    road.forEach(p => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minZ = Math.min(minZ, p.z); maxZ = Math.max(maxZ, p.z); });
-    const cx0 = (minX + maxX) / 2, cz0 = (minZ + maxZ) / 2, span = Math.max(maxX - minX, maxZ - minZ) * 1.18;
-    const stopPts = signBoards.map(s => s.g.position.clone());
-    const marks = [
-      { p: frameAt(uOf(0) + 0.022).p, c: '#ffffff', label: 'S' }
-    ].concat(MAP_MARKS);
-    // small hand-drawn icons on round badges
-    function icon(type, x, y, r) {
-      const bg = { castle: '#b0503a', book: '#0a6ec4', cup: '#7a4a22', bed: '#5b6b8a', star: '#eb641e', mask: '#8e3a8a', flask: '#00866a', bolt: '#2f4f6a', ball: '#2f66a8', tree: '#2e7d32', flower: '#7aa83a', uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
-      ctx.save(); ctx.translate(x, y);
-      ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.stroke();
-      ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#ffffff'; const k = r * 0.55;
-      ctx.beginPath();
-      if (type === 'castle') { ctx.fillRect(-k * 0.9, -k * 0.2, k * 1.8, k * 1.0); [-0.9, -0.3, 0.3].forEach(a => ctx.fillRect(a * k, -k * 0.75, k * 0.6, k * 0.6)); ctx.fillStyle = bg; ctx.fillRect(-k * 0.2, k * 0.3, k * 0.4, k * 0.5); }
-      else if (type === 'book') { ctx.fillRect(-k * 0.85, -k * 0.6, k * 0.78, k * 1.2); ctx.fillRect(k * 0.07, -k * 0.6, k * 0.78, k * 1.2); }
-      else if (type === 'cup') { ctx.fillRect(-k * 0.6, -k * 0.35, k * 0.95, k * 0.9); ctx.lineWidth = Math.max(1, r * 0.14); ctx.strokeRect(k * 0.35, -k * 0.15, k * 0.35, k * 0.4); }
-      else if (type === 'bed') { ctx.fillRect(-k * 0.9, -k * 0.05, k * 1.8, k * 0.5); ctx.fillRect(-k * 0.9, -k * 0.6, k * 0.25, k * 1.4); ctx.fillRect(-k * 0.55, -k * 0.35, k * 0.5, k * 0.3); }
-      else if (type === 'star') { for (let q = 0; q < 10; q++) { const a = -Math.PI / 2 + q * Math.PI / 5, rr = q % 2 ? k * 0.4 : k * 0.95; q ? ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : ctx.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); ctx.fill(); }
-      else if (type === 'mask') { ctx.arc(0, 0, k * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = bg; ctx.fillRect(-k * 0.45, -k * 0.25, k * 0.3, k * 0.18); ctx.fillRect(k * 0.15, -k * 0.25, k * 0.3, k * 0.18); ctx.fillRect(-k * 0.35, k * 0.25, k * 0.7, k * 0.15); }
-      else if (type === 'flask') { ctx.moveTo(-k * 0.2, -k * 0.85); ctx.lineTo(k * 0.2, -k * 0.85); ctx.lineTo(k * 0.2, -k * 0.2); ctx.lineTo(k * 0.75, k * 0.8); ctx.lineTo(-k * 0.75, k * 0.8); ctx.lineTo(-k * 0.2, -k * 0.2); ctx.closePath(); ctx.fill(); }
-      else if (type === 'bolt') { ctx.moveTo(k * 0.15, -k * 0.95); ctx.lineTo(-k * 0.55, k * 0.1); ctx.lineTo(-k * 0.05, k * 0.1); ctx.lineTo(-k * 0.2, k * 0.95); ctx.lineTo(k * 0.55, -k * 0.15); ctx.lineTo(k * 0.05, -k * 0.15); ctx.closePath(); ctx.fill(); }
-      else if (type === 'ball') { ctx.arc(0, 0, k * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = bg; ctx.fillRect(-k * 0.2, -k * 0.2, k * 0.4, k * 0.4); }
-      else if (type === 'tree') { ctx.moveTo(0, -k * 0.95); ctx.lineTo(k * 0.75, k * 0.4); ctx.lineTo(-k * 0.75, k * 0.4); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.12, k * 0.4, k * 0.24, k * 0.5); }
-      else if (type === 'flower') { for (let q = 0; q < 5; q++) { const a = q * Math.PI * 2 / 5; ctx.beginPath(); ctx.arc(Math.cos(a) * k * 0.45, Math.sin(a) * k * 0.45, k * 0.32, 0, Math.PI * 2); ctx.fill(); } ctx.fillStyle = '#f2c200'; ctx.beginPath(); ctx.arc(0, 0, k * 0.28, 0, Math.PI * 2); ctx.fill(); }
-      else if (type === 'uni') { ctx.moveTo(-k, -k * 0.1); ctx.lineTo(0, -k * 0.6); ctx.lineTo(k, -k * 0.1); ctx.lineTo(0, k * 0.4); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.5, 0, k, k * 0.55); ctx.fillStyle = '#f0c94f'; ctx.fillRect(k * 0.75, -k * 0.1, k * 0.14, k * 0.8); }
-      else if (type === 'church') { ctx.arc(0, k * 0.15, k * 0.6, Math.PI, 0); ctx.fill(); ctx.fillRect(-k * 0.8, k * 0.15, k * 1.6, k * 0.7); ctx.fillRect(-k * 0.08, -k * 0.95, k * 0.16, k * 0.6); ctx.fillRect(-k * 0.3, -k * 0.75, k * 0.6, k * 0.14); }
-      else if (type === 'palace') { ctx.fillStyle = '#f0c94f'; ctx.moveTo(-k, k * 0.6); ctx.lineTo(-k, -k * 0.5); ctx.lineTo(-k * 0.5, 0); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.5, 0); ctx.lineTo(k, -k * 0.5); ctx.lineTo(k, k * 0.6); ctx.closePath(); ctx.fill(); }
-      else if (type === 'zoo') { ctx.arc(0, k * 0.35, k * 0.45, 0, Math.PI * 2); ctx.fill(); [[-0.6, -0.25], [-0.22, -0.65], [0.22, -0.65], [0.6, -0.25]].forEach(([a, b]) => { ctx.beginPath(); ctx.arc(a * k, b * k, k * 0.22, 0, Math.PI * 2); ctx.fill(); }); }
-      else if (type === 'park') { ctx.arc(0, -k * 0.25, k * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-k * 0.12, 0, k * 0.24, k * 0.9); }
-      else if (type === 'school') { ctx.moveTo(-k * 0.9, -k * 0.05); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.9, -k * 0.05); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.7, -k * 0.05, k * 1.4, k * 0.85); ctx.fillStyle = bg; ctx.fillRect(-k * 0.18, k * 0.3, k * 0.36, k * 0.5); }
-      else if (type === 'hospital') { ctx.font = '900 ' + Math.round(r * 1.25) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', 0, r * 0.08); }
-      else if (type === 'eye') { ctx.lineWidth = Math.max(1, r * 0.14); ctx.arc(0, -k * 0.1, k * 0.7, 0, Math.PI * 2); ctx.stroke(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(Math.cos(a) * k * 0.7, -k * 0.1 + Math.sin(a) * k * 0.7); ctx.lineTo(-Math.cos(a) * k * 0.7, -k * 0.1 - Math.sin(a) * k * 0.7); } ctx.moveTo(-k * 0.5, k * 0.9); ctx.lineTo(0, -k * 0.1); ctx.lineTo(k * 0.5, k * 0.9); ctx.stroke(); }
-      else if (type === 'shield') { ctx.fillStyle = '#d4a83a'; ctx.moveTo(0, -k * 0.95); ctx.lineTo(k * 0.8, -k * 0.6); ctx.lineTo(k * 0.7, k * 0.2); ctx.lineTo(0, k * 0.95); ctx.lineTo(-k * 0.7, k * 0.2); ctx.lineTo(-k * 0.8, -k * 0.6); ctx.closePath(); ctx.fill(); }
-      ctx.restore();
-    }
-    const riverA = RIV.p.clone().addScaledVector(RIV.n, -RIVER_LEN / 2), riverB = RIV.p.clone().addScaledVector(RIV.n, RIVER_LEN / 2);
-    let size = 0;
-    function resize() {
-      const css = mm.getBoundingClientRect().width || 170, dpr = Math.min(devicePixelRatio || 1, 2);
-      if (Math.round(css * dpr) !== size) { size = Math.round(css * dpr); mm.width = mm.height = size; }
-    }
-    return function draw(pos, t) {
-      resize(); if (!size) return;
-      const S = size, R = S / 2, k = S / span;
-      const X = x => R + (x - cx0) * k, Y = z => R + (z - cz0) * k;
-      ctx.clearRect(0, 0, S, S);
-      ctx.save(); ctx.beginPath(); ctx.arc(R, R, R - 1, 0, Math.PI * 2); ctx.clip();
-      ctx.fillStyle = 'rgba(11, 11, 13, 0.88)'; ctx.fillRect(0, 0, S, S);
-      // river
-      ctx.strokeStyle = '#2f5d86'; ctx.lineWidth = Math.max(6, S * 0.045); ctx.lineCap = 'round';
-      ctx.beginPath(); ctx.moveTo(X(riverA.x), Y(riverA.z)); ctx.lineTo(X(riverB.x), Y(riverB.z)); ctx.stroke();
-      // road
-      ctx.strokeStyle = '#6f6a5e'; ctx.lineWidth = Math.max(4, S * 0.03); ctx.lineJoin = 'round';
-      ctx.beginPath(); road.forEach((p, i) => i ? ctx.lineTo(X(p.x), Y(p.z)) : ctx.moveTo(X(p.x), Y(p.z))); ctx.closePath(); ctx.stroke();
-      ctx.strokeStyle = 'rgba(212, 168, 58, 0.55)'; ctx.lineWidth = Math.max(1, S * 0.006); ctx.stroke();
-      // landmarks
-      marks.forEach(m => { if (m.icon) { icon(m.icon, X(m.p.x), Y(m.p.z), S * 0.045); return; } ctx.fillStyle = m.c; const r = S * (m.tag ? 0.028 : 0.022); if (m.sq) ctx.fillRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); else { ctx.beginPath(); ctx.arc(X(m.p.x), Y(m.p.z), r, 0, Math.PI * 2); ctx.fill(); }
-        if (m.tag) { ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, S * 0.008); ctx.strokeRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); ctx.font = '700 ' + Math.round(S * 0.05) + 'px Arial, sans-serif'; } });
-      // traffic
-      (trafficRef.list || []).forEach(o => { ctx.fillStyle = o.isBus ? '#e0303f' : '#b9b4a8'; ctx.beginPath(); ctx.arc(X(o.v.position.x), Y(o.v.position.z), S * (o.isBus ? 0.013 : 0.009), 0, Math.PI * 2); ctx.fill(); });
-      // numbered stops
-      ctx.font = '700 ' + Math.round(S * 0.055) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      stopPts.forEach((p, i) => { ctx.fillStyle = '#d4a83a'; ctx.beginPath(); ctx.arc(X(p.x), Y(p.z), S * 0.036, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#0b0b0d'; ctx.fillText(String(i + 1), X(p.x), Y(p.z) + 1); })
-      // tribute labels on top, nudged towards the centre
-      marks.forEach(m => { if (!m.tag) return; ctx.font = '700 ' + Math.round(S * 0.05) + 'px Arial, sans-serif'; const dx = R - X(m.p.x), dy = R - Y(m.p.z), dl = Math.hypot(dx, dy) || 1, lx = X(m.p.x) + dx / dl * S * 0.17, ly = Y(m.p.z) + dy / dl * S * 0.13; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(11,11,13,.85)'; const tw = ctx.measureText(m.tag).width; ctx.fillRect(lx - tw / 2 - 3, ly - S * 0.032, tw + 6, S * 0.064); ctx.fillStyle = '#f0c94f'; ctx.fillText(m.tag, lx, ly + 1); });;
-      // you
-      const px = X(pos.x), py = Y(pos.z), a = Math.atan2(t.z, t.x), L = S * 0.06;
-      ctx.save(); ctx.translate(px, py); ctx.rotate(a);
-      ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1.5, S * 0.012);
-      ctx.beginPath(); ctx.moveTo(L, 0); ctx.lineTo(-L * 0.7, L * 0.6); ctx.lineTo(-L * 0.35, 0); ctx.lineTo(-L * 0.7, -L * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.restore();
-      ctx.restore();
-      // rim and north
-      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(2, S * 0.014); ctx.beginPath(); ctx.arc(R, R, R - ctx.lineWidth / 2, 0, Math.PI * 2); ctx.stroke();
-      ctx.fillStyle = '#d4a83a'; ctx.font = '700 ' + Math.round(S * 0.07) + 'px Cinzel, Georgia, serif'; ctx.fillText('N', R, S * 0.085);
-    };
-  })();
-
+  // ---------- Your car ----------
   // ---------- Rider ----------
   const rider = new THREE.Group(); rider.rotation.order = 'YXZ';
   const lean = new THREE.Group(); rider.add(lean);
@@ -1955,159 +771,242 @@
   })();
   rider.scale.setScalar(1.15);
   scene.add(rider);
+  const START = { x: -255, z: 74, h: Math.atan2(-186 + 255, 8.5 - 74) }; // on the ring road, Founder's Building on your right
+  rider.position.set(START.x, 0, START.z); rider.rotation.y = START.h;
 
-  // ---------- Camera framing ----------
-  function applyViewOffset() {
-    const w = innerWidth, h = innerHeight;
-    camera.aspect = w / h;
-    if (w <= 760) camera.setViewOffset(w, h, 0, h * 0.16, w, h);
-    else camera.setViewOffset(w, h, -w * 0.1, 0, w, h);
-    camera.updateProjectionMatrix();
+  // ---------- Traffic: buses and cars on the campus loop and along Egham Hill ----------
+  const vehicles = [];
+  function simpleCar(col) {
+    const g = new THREE.Group();
+    mk(new THREE.BoxGeometry(1.9, 0.75, 4.4), col, 0, 0.75, 0, g);
+    const gl = new THREE.Mesh(new THREE.BoxGeometry(1.7, 0.6, 2.3), new THREE.MeshPhongMaterial({ color: '#2a3442', shininess: 90 })); gl.position.set(0, 1.4, -0.2); g.add(gl);
+    mk(new THREE.BoxGeometry(1.72, 0.08, 2.3), col, 0, 1.73, -0.2, g);
+    [[-0.95, 1.4], [0.95, 1.4], [-0.95, -1.4], [0.95, -1.4]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.38, 0.38, 0.3, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.38, z); g.add(w); });
+    [-0.6, 0.6].forEach(x => { const l = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.05), BasicM('#f4fbff')); l.position.set(x, 0.9, 2.22); g.add(l); const t = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.05), BasicM('#ff2a4a')); t.position.set(x, 0.9, -2.22); g.add(t); });
+    return g;
   }
-  applyViewOffset();
-  addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight, false); applyViewOffset(); });
-
-  // ---------- Sound (starts only after a click) ----------
-  let audio = null, soundOn = false;
-  const soundBtn = document.getElementById('soundBtn');
-  function startAudio() {
-    // Synthesised twin-turbo V8: lumpy cross-plane idle, gear changes, turbo whistle, blow-off, overrun crackle.
-    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return null;
-    const ctx = new AC();
-    const master = ctx.createGain(); master.gain.value = 0;
-    const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 5;
-    master.connect(comp); comp.connect(ctx.destination);
-    const noise = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-    const nd = noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
-
-    // engine voice: saws at firing frequency + square sub -> uneven-firing AM -> drive -> chest EQ -> lowpass
-    const engOut = ctx.createGain(); engOut.gain.value = 0; engOut.connect(master);
-    const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.Q.value = 1.2; lp.frequency.value = 600; lp.connect(engOut);
-    const chest = ctx.createBiquadFilter(); chest.type = 'peaking'; chest.frequency.value = 130; chest.gain.value = 9; chest.Q.value = 1; chest.connect(lp);
-    const shaper = ctx.createWaveShaper(); const cv = new Float32Array(1024);
-    for (let i = 0; i < 1024; i++) { const x = i / 512 - 1; cv[i] = Math.tanh(3.2 * x); } shaper.curve = cv; shaper.oversample = '2x'; shaper.connect(chest);
-    const pre = ctx.createGain(); pre.gain.value = 0.55; pre.connect(shaper);
-    const am = ctx.createGain(); am.gain.value = 0.7; am.connect(pre);
-    const sawA = ctx.createOscillator(); sawA.type = 'sawtooth';
-    const sawB = ctx.createOscillator(); sawB.type = 'sawtooth'; sawB.detune.value = 8;
-    const sub = ctx.createOscillator(); sub.type = 'square'; const subG = ctx.createGain(); subG.gain.value = 0.45;
-    sawA.connect(am); sawB.connect(am); sub.connect(subG); subG.connect(am);
-    const lump = ctx.createOscillator(); lump.type = 'sine'; const lumpD = ctx.createGain(); lumpD.gain.value = 0.45;
-    lump.connect(lumpD); lumpD.connect(am.gain);
-    // turbo whistle
-    const whistle = ctx.createOscillator(); whistle.type = 'sine'; const wh = ctx.createGain(); wh.gain.value = 0;
-    whistle.connect(wh); wh.connect(master);
-    // wind
-    const wind = ctx.createBufferSource(); wind.buffer = noise; wind.loop = true;
-    const wbp = ctx.createBiquadFilter(); wbp.type = 'bandpass'; wbp.frequency.value = 500; wbp.Q.value = 0.7;
-    const wg = ctx.createGain(); wg.gain.value = 0; wind.connect(wbp); wbp.connect(wg); wg.connect(master);
-    [sawA, sawB, sub, lump, whistle, wind].forEach(o => o.start());
-
-    function setRPM(rpm, t, tc) {
-      const f = rpm / 60 * 4; // 8 cylinders, four-stroke: 4 firings per revolution
-      sawA.frequency.setTargetAtTime(f, t, tc); sawB.frequency.setTargetAtTime(f, t, tc);
-      sub.frequency.setTargetAtTime(f / 2, t, tc); lump.frequency.setTargetAtTime(rpm / 60, t, tc);
-      lumpD.gain.setTargetAtTime(rpm < 1500 ? 0.45 : 0.18, t, 0.2);
-    }
-    function pop(t, amp) {
-      const s = ctx.createBufferSource(); s.buffer = noise;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = 700 + Math.random() * 1600; f.Q.value = 1.5;
-      const g = ctx.createGain(); g.gain.setValueAtTime(amp * 0.5, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03 + Math.random() * 0.04);
-      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + 0.1);
-      const o = ctx.createOscillator(); const og = ctx.createGain(); o.frequency.setValueAtTime(90, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.06);
-      og.gain.setValueAtTime(amp * 0.5, t); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.08); o.connect(og); og.connect(master); o.start(t); o.stop(t + 0.1);
-    }
-    function blowOff(t) {
-      const s = ctx.createBufferSource(); s.buffer = noise;
-      const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.Q.value = 2; f.frequency.setValueAtTime(5200, t); f.frequency.exponentialRampToValueAtTime(1400, t + 0.45);
-      const g = ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.09, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.5);
-      s.connect(f); f.connect(g); g.connect(master); s.start(t, Math.random()); s.stop(t + 0.55);
-    }
-
-    const gearTop = [0.14, 0.28, 0.45, 0.63, 0.82, 1.0];
-    let rpm = 850, gear = 0, lastS = 0, lastT = ctx.currentTime, shiftUntil = 0, crackleUntil = 0, peakRpm = 850;
-    // start-up: crank, catch, blip, settle to idle
-    const t0 = ctx.currentTime, startupUntil = t0 + 1.9;
-    [sawA, sawB].forEach(o => { o.frequency.setValueAtTime(18, t0); o.frequency.linearRampToValueAtTime(60, t0 + 0.45); o.frequency.exponentialRampToValueAtTime(240, t0 + 0.75); o.frequency.exponentialRampToValueAtTime(57, t0 + 1.8); });
-    sub.frequency.setValueAtTime(9, t0); sub.frequency.linearRampToValueAtTime(30, t0 + 0.45); sub.frequency.exponentialRampToValueAtTime(120, t0 + 0.75); sub.frequency.exponentialRampToValueAtTime(28, t0 + 1.8);
-    lump.frequency.setValueAtTime(5, t0); lump.frequency.linearRampToValueAtTime(14, t0 + 1.8);
-    lp.frequency.setValueAtTime(300, t0); lp.frequency.linearRampToValueAtTime(2600, t0 + 0.75); lp.frequency.linearRampToValueAtTime(650, t0 + 1.8);
-    engOut.gain.setValueAtTime(0.0001, t0); engOut.gain.exponentialRampToValueAtTime(0.05, t0 + 0.4); engOut.gain.linearRampToValueAtTime(0.16, t0 + 0.75); engOut.gain.linearRampToValueAtTime(0.07, t0 + 1.8);
-    pop(t0 + 1.05, 0.5); pop(t0 + 1.18, 0.35);
-
-    function update(s) {
-      const t = ctx.currentTime, dt = Math.max(0.001, t - lastT); lastT = t;
-      const ds = (s - lastS) / dt; lastS = s;
-      wg.gain.setTargetAtTime(s * 0.05, t, 0.3); wbp.frequency.setTargetAtTime(400 + s * 900, t, 0.3);
-      if (t < startupUntil) return;
-      let g = 0; while (g < gearTop.length - 1 && s > gearTop[g]) g++;
-      const moving = s > 0.012;
-      if (moving && g > gear) { shiftUntil = t + 0.11; pop(t + 0.03, 0.35); }
-      gear = moving ? g : 0;
-      const lo = gear ? gearTop[gear - 1] : 0, hi = gearTop[gear];
-      const target = moving ? 2300 + clamp((s - lo) / (hi - lo), 0, 1) * 4600 : 850;
-      const load = clamp(ds * 0.9, 0, 1);
-      rpm += (target - rpm) * Math.min(1, dt * (target > rpm ? 5 : 2.5));
-      peakRpm = Math.max(rpm, peakRpm * 0.995);
-      setRPM(rpm, t, 0.04);
-      const r = (rpm - 850) / 6050;
-      lp.frequency.setTargetAtTime(550 + r * 2600 + load * 1200, t, 0.06);
-      const shifting = t < shiftUntil;
-      engOut.gain.setTargetAtTime(shifting ? 0.03 : 0.07 + r * 0.09 + load * 0.04, t, shifting ? 0.015 : 0.06);
-      whistle.frequency.setTargetAtTime(2400 + rpm * 0.55, t, 0.15);
-      wh.gain.setTargetAtTime(rpm > 2600 ? 0.0035 + load * 0.012 : 0, t, 0.2);
-      // lift off the throttle at high revs: blow-off valve + overrun crackle
-      if (ds < -0.45 && peakRpm > 3400 && t > crackleUntil) {
-        crackleUntil = t + 1.1; peakRpm = rpm;
-        blowOff(t);
-        const n = 4 + Math.floor(Math.random() * 5);
-        for (let k = 0; k < n; k++) pop(t + 0.12 + Math.random() * 0.8, 0.2 + Math.random() * 0.5);
-      }
-    }
-    return { ctx, master, update };
+  function simpleBus(dest) {
+    const g = new THREE.Group(), RED = '#c8102e';
+    mk(new THREE.BoxGeometry(2.5, 1.2, 10), RED, 0, 1.0, 0, g);
+    const gl = new THREE.Mesh(new THREE.BoxGeometry(2.48, 0.8, 9.6), new THREE.MeshPhongMaterial({ color: '#3a4a64', transparent: true, opacity: 0.5 })); gl.position.set(0, 1.95, 0); g.add(gl);
+    mk(new THREE.BoxGeometry(2.5, 0.5, 9.8), RED, 0, 2.6, 0, g);
+    const gl2 = gl.clone(); gl2.position.y = 3.25; g.add(gl2);
+    mk(new THREE.BoxGeometry(2.5, 0.45, 9.8), RED, 0, 3.85, 0, g);
+    const d = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.36), new THREE.MeshBasicMaterial({ map: canvasTex(180, 36, (x, w, h) => { x.fillStyle = '#111'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffcf33'; x.font = '700 22px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(dest, w / 2, h / 2 + 1); }) })); d.position.set(0, 2.62, 5.02); g.add(d);
+    [[-1.15, 3.2], [1.15, 3.2], [-1.15, -3.3], [1.15, -3.3]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.3, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.55, z); g.add(w); });
+    g.scale.setScalar(1.15); return g;
   }
-  soundBtn.addEventListener('click', () => {
-    soundOn = !soundOn;
-    if (soundOn && !audio) audio = startAudio();
-    if (audio) {
-      const now = audio.ctx.currentTime;
-      clearTimeout(audio.sleep);
-      if (soundOn) audio.ctx.resume();
-      audio.master.gain.cancelScheduledValues(now);
-      audio.master.gain.setTargetAtTime(soundOn ? 0.8 : 0, now, 0.25);
-      if (!soundOn) audio.sleep = setTimeout(() => { if (!soundOn) audio.ctx.suspend(); }, 1200);
-    }
-    soundBtn.classList.toggle('sound-on', soundOn);
-    soundBtn.setAttribute('aria-pressed', String(soundOn));
-    document.getElementById('soundLabel').textContent = soundOn ? 'Sound on' : 'Sound off';
-  });
-
-  // ---- smoother look: rounded shapes get smooth shading (boxes and pyramids stay crisp), sharper texture filtering ----
-  (function smoothScene() {
-    const maxAniso = renderer.capabilities.getMaxAnisotropy();
-    const cache = new Map();
-    const isRound = g => { const t = g.type, pr = g.parameters || {}; return t === 'SphereGeometry' || t === 'TorusGeometry' || (t === 'IcosahedronGeometry' && pr.detail >= 1) || ((t === 'CylinderGeometry' || t === 'ConeGeometry') && (pr.radialSegments || 8) >= 8); };
-    scene.traverse(o => {
-      if (!o.isMesh || !o.material) return;
-      (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => { if (m.map && m.map.anisotropy < maxAniso) { m.map.anisotropy = maxAniso; m.map.needsUpdate = true; } if (m.emissiveMap) { m.emissiveMap.anisotropy = maxAniso; m.emissiveMap.needsUpdate = true; } });
-      if (Array.isArray(o.material) || !o.material.flatShading || !isRound(o.geometry)) return;
-      let sm = cache.get(o.material); if (!sm) { sm = o.material.clone(); sm.flatShading = false; sm.needsUpdate = true; cache.set(o.material, sm); }
-      o.material = sm;
-    });
+  // the campus loop the tour also follows: Founder's ring -> inner road -> east road -> south path -> back round the ring
+  const TOUR = (() => { // built from the same smoothed centre lines as the road surfaces, so it never leaves the road
+    const near = (pts, [x, z]) => { let b = 0, bd = Infinity; pts.forEach(([px, pz], i) => { const d = (px - x) ** 2 + (pz - z) ** 2; if (d < bd) { bd = d; b = i; } }); return b; };
+    const ring = DENSE.ring, iW = near(ring, ROADS.ring[3]), iS = near(ring, ROADS.ring[2]);
+    const east = DENSE.east, eEnd = near(east, ROADS.east[4]);
+    const pts = ring.slice(iW).concat(DENSE.inner, east.slice(0, eEnd + 1), DENSE.south.slice().reverse(), ring.slice(iS, iW));
+    const v = []; pts.forEach(([x, z]) => { const q = new THREE.Vector3(x, 0, z); if (!v.length || v[v.length - 1].distanceTo(q) > 1.5) v.push(q); });
+    if (v[0].distanceTo(v[v.length - 1]) < 1.5) v.pop();
+    return new THREE.CatmullRomCurve3(v, true, 'centripetal');
   })();
-  // keep the frame rate smooth: lower or raise the rendering resolution to suit the device
-  const perf = { t: 0, n: 0, last: performance.now() };
-  function adaptResolution(now) {
-    perf.t += now - perf.last; perf.last = now; perf.n++;
-    if (perf.n < 45) return;
-    const avg = perf.t / perf.n; perf.t = 0; perf.n = 0;
-    let next = curPR;
-    if (avg > 24 && curPR > 1) next = Math.max(1, curPR - 0.25);
-    else if (avg < 14 && curPR < MAX_PR) next = Math.min(MAX_PR, curPR + 0.25);
-    if (next !== curPR) { curPR = next; renderer.setPixelRatio(curPR); renderer.setSize(innerWidth, innerHeight, false); }
+  const TOUR_LEN = TOUR.getLength();
+  const A30C = new THREE.CatmullRomCurve3(ROADS.A30.map(([x, z]) => new THREE.Vector3(x, 0, z)), false, 'centripetal');
+  const A30_LEN = A30C.getLength();
+  function addVehicle(mesh, curve, len, closed, t, speed, lane, dir) { scene.add(mesh); vehicles.push({ v: mesh, curve, len, closed, t, speed, cur: speed, lane, dir }); }
+  addVehicle(simpleBus('441  STAINES'), A30C, A30_LEN, false, 0.2, 9, 2.2, 1);
+  addVehicle(simpleBus('8  SLOUGH'), A30C, A30_LEN, false, 0.7, 9, 2.2, -1);
+  addVehicle(simpleCar('#111114'), A30C, A30_LEN, false, 0.45, 12, 2.2, 1);
+  addVehicle(simpleCar('#e9e9ea'), A30C, A30_LEN, false, 0.9, 12, 2.2, -1);
+  addVehicle(simpleCar('#7d1b22'), TOUR, TOUR_LEN, true, 0.3, 7, 1.8, 1);
+  addVehicle(simpleCar('#36495e'), TOUR, TOUR_LEN, true, 0.65, 7, 1.8, 1);
+  addVehicle(simpleBus('CAMPUS'), TOUR, TOUR_LEN, true, 0.05, 6, 1.8, 1);
+  const tmpV = new THREE.Vector3(), tanV = new THREE.Vector3();
+  function moveTraffic(dt) {
+    vehicles.forEach(o => {
+      // slow down for the visitor's car in front
+      const p = o.curve.getPointAt(o.t), tg = o.curve.getTangentAt(o.t).multiplyScalar(o.dir);
+      const ax = rider.position.x - p.x, az = rider.position.z - p.z, ahead = ax * tg.x + az * tg.z, side = Math.abs(ax * tg.z - az * tg.x);
+      let target = o.speed; if (ahead > 0 && ahead < 14 && side < 4) target = ahead < 7 ? 0 : o.speed * (ahead - 7) / 7;
+      o.cur += (target - o.cur) * Math.min(1, dt * 2);
+      o.t += o.dir * o.cur * dt / o.len;
+      if (o.closed) o.t = ((o.t % 1) + 1) % 1; else if (o.t > 1 || o.t < 0) { o.t = o.t > 1 ? 0 : 1; }
+      const q = o.curve.getPointAt(Math.min(1, Math.max(0, o.t))); tanV.copy(o.curve.getTangentAt(Math.min(1, Math.max(0, o.t)))).multiplyScalar(o.dir);
+      o.v.position.set(q.x - tanV.z * o.lane, 0, q.z + tanV.x * o.lane); // keep left
+      o.v.rotation.y = Math.atan2(tanV.x, tanV.z);
+    });
+  }
+  // students walking along the south path and the ring
+  const walkers = [];
+  for (let i = 0; i < (isPhone ? 14 : 30); i++) {
+    const k = new THREE.Group(); scene.add(k);
+    const legs = [-0.1, 0.1].map(x => { const pv = new THREE.Group(); pv.position.set(x, 0.86, 0); k.add(pv); mk(new THREE.BoxGeometry(0.15, 0.85, 0.17), pick(['#1d1f26', '#2f3442', '#24324a', '#4a3f35']), 0, -0.43, 0, pv); return pv; });
+    mk(new THREE.BoxGeometry(0.46, 0.72, 0.28), pick(['#eb641e', '#202a30', '#0a6ec4', '#00b585', '#f17cb0', '#b4c4d0', '#7a2e2e']), 0, 1.22, 0, k);
+    mk(new THREE.BoxGeometry(0.24, 0.26, 0.24), pick(['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e']), 0, 1.72, 0, k);
+    if (rand() < 0.6) mk(new THREE.BoxGeometry(0.32, 0.42, 0.16), pick(['#111', '#5a3e2b', '#1b4f9c', '#eb641e']), 0, 1.25, -0.22, k);
+    walkers.push({ k, legs, curve: TOUR, t: rand(), dir: rand() < 0.5 ? 1 : -1, off: (rand() < 0.5 ? -1 : 1) * (4.6 + rand() * 0.8), sp: 1.0 + rand() * 0.4, ph: rand() * 6 });
+  }
+  function moveWalkers(dt) {
+    walkers.forEach(o => {
+      o.t = (((o.t + o.dir * o.sp * dt / TOUR_LEN) % 1) + 1) % 1; o.ph += dt * o.sp * 4.4;
+      const p = TOUR.getPointAt(o.t), tg = TOUR.getTangentAt(o.t).multiplyScalar(o.dir);
+      o.k.position.set(p.x - tg.z * o.off, 0, p.z + tg.x * o.off); o.k.rotation.y = Math.atan2(tg.x, tg.z);
+      const sw = Math.sin(o.ph) * 0.45; o.legs[0].rotation.x = sw; o.legs[1].rotation.x = -sw;
+    });
   }
 
+  // ---------- Collisions: a 2 m grid of everything solid that stands on the ground ----------
+  const CELL = 2, solid = new Set();
+  const ckey = (x, z) => Math.floor(x / CELL) * 100003 + Math.floor(z / CELL);
+  function buildSolids() {
+    scene.updateMatrixWorld(true);
+    const box = new THREE.Box3(), m4 = new THREE.Matrix4(), skip = new Set();
+    [rider].concat(vehicles.map(o => o.v), walkers.map(o => o.k)).forEach(r => r.traverse(o => skip.add(o)));
+    const mark = b => {
+      if (!isFinite(b.min.x) || b.min.y > 1.0 || b.max.y < 0.9) return;
+      if (b.max.x - b.min.x > 90 || b.max.z - b.min.z > 90) return;
+      for (let x = Math.floor(b.min.x / CELL); x <= Math.floor(b.max.x / CELL); x++) for (let z = Math.floor(b.min.z / CELL); z <= Math.floor(b.max.z / CELL); z++) solid.add(x * 100003 + z);
+    };
+    scene.traverse(o => {
+      if (!o.isMesh || skip.has(o) || !o.geometry) return;
+      if (o.material && o.material.transparent && o.material.opacity < 0.3) return;
+      if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
+      if (o.isInstancedMesh) { for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, m4); m4.premultiply(o.matrixWorld); mark(box.copy(o.geometry.boundingBox).applyMatrix4(m4)); } }
+      else mark(box.copy(o.geometry.boundingBox).applyMatrix4(o.matrixWorld));
+    });
+    // roads are always drivable, even where a sign's box reaches over them
+    Object.values(DENSE).forEach(pts => pts.forEach(([x, z]) => { for (let dx = -2; dx <= 2; dx++) for (let dz = -2; dz <= 2; dz++) solid.delete(ckey(x + dx * CELL, z + dz * CELL)); }));
+  }
+  const blocked = (x, z) => solid.has(ckey(x, z));
 
+  // ---------- Driving ----------
+  const keys = {};
+  addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' ', 'w', 'a', 's', 'd'].includes(k)) { keys[k] = true; e.preventDefault(); stopTour(); started(); } });
+  addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+  const touch = { up: false, down: false, left: false, right: false };
+  document.querySelectorAll('[data-pad]').forEach(b => {
+    const k = b.dataset.pad;
+    const on = e => { e.preventDefault(); touch[k] = true; b.classList.add('on'); stopTour(); started(); }, off = e => { e.preventDefault(); touch[k] = false; b.classList.remove('on'); };
+    b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
+  });
+  const car = { speed: 0, heading: START.h, steer: 0 };
+  let touring = false, tourT = 0;
+  const tourBtn = document.getElementById('tourBtn');
+  function stopTour() { if (touring) { touring = false; tourBtn.setAttribute('aria-pressed', 'false'); tourBtn.textContent = 'Auto tour'; } }
+  tourBtn.addEventListener('click', () => {
+    touring = !touring; tourBtn.setAttribute('aria-pressed', String(touring)); tourBtn.textContent = touring ? 'Stop tour' : 'Auto tour'; started();
+    if (touring) { // join the loop at its nearest point
+      let best = 0, bd = Infinity; for (let i = 0; i < 400; i++) { const p = TOUR.getPointAt(i / 400), d = p.distanceTo(rider.position); if (d < bd) { bd = d; best = i / 400; } } tourT = best;
+    }
+  });
+  let hasStarted = false;
+  function started() { if (!hasStarted) { hasStarted = true; document.getElementById('hint').classList.add('hide'); } }
+  const fwd = new THREE.Vector3();
+  function drive(dt) {
+    const up = keys.arrowup || keys.w || touch.up, down = keys.arrowdown || keys.s || touch.down;
+    const left = keys.arrowleft || keys.a || touch.left, right = keys.arrowright || keys.d || touch.right;
+    const near = nearestOnRoads(rider.position.x, rider.position.z), onRoad = near && near.d < near.hw + 1.5;
+    const vmax = onRoad ? 17 : 8;
+    if (touring) {
+      // follow the campus loop: steer at a point a few metres ahead
+      tourT = (tourT + Math.max(car.speed, 2) * dt / TOUR_LEN) % 1;
+      const look = TOUR.getPointAt((tourT + 9 / TOUR_LEN) % 1), tg = TOUR.getTangentAt(tourT);
+      const target = look.clone().add(new THREE.Vector3(tg.z * 1.7, 0, -tg.x * 1.7)); // keep left
+      const want = Math.atan2(target.x - rider.position.x, target.z - rider.position.z);
+      let dh = want - car.heading; dh = Math.atan2(Math.sin(dh), Math.cos(dh));
+      car.heading += clamp(dh, -1.6 * dt, 1.6 * dt);
+      const slow = Math.abs(dh) > 0.35 ? 6 : 9;
+      car.speed += (slow - car.speed) * Math.min(1, dt * 1.5);
+      const p = TOUR.getPointAt(tourT); if (p.distanceTo(rider.position) > 12) { tourT = (tourT + 0.0005) % 1; }
+    } else {
+      if (up) car.speed += (car.speed < 0 ? 14 : 7) * dt;
+      else if (down) car.speed -= (car.speed > 0 ? 16 : 5) * dt;
+      else car.speed -= Math.sign(car.speed) * Math.min(Math.abs(car.speed), 3.5 * dt);
+      if (keys[' ']) car.speed -= Math.sign(car.speed) * Math.min(Math.abs(car.speed), 22 * dt);
+      car.speed = clamp(car.speed, -6, vmax);
+      const steerIn = (left ? 1 : 0) - (right ? 1 : 0);
+      car.steer += (steerIn - car.steer) * Math.min(1, dt * 6);
+      car.heading += car.steer * clamp(car.speed / 6, -1, 1) * 1.5 * dt;
+    }
+    fwd.set(Math.sin(car.heading), 0, Math.cos(car.heading));
+    const nx = rider.position.x + fwd.x * car.speed * dt, nz = rider.position.z + fwd.z * car.speed * dt;
+    // bump into buildings, trees and walls instead of driving through them
+    const front = Math.sign(car.speed || 1) * 2.4;
+    if (blocked(nx + fwd.x * front, nz + fwd.z * front) || blocked(nx + fwd.x * front + fwd.z * 0.9, nz + fwd.z * front - fwd.x * 0.9) || blocked(nx + fwd.x * front - fwd.z * 0.9, nz + fwd.z * front + fwd.x * 0.9)) {
+      car.speed = -car.speed * 0.25; if (touring) stopTour();
+    } else if (Math.abs(nx) < 700 && Math.abs(nz) < 700) { rider.position.x = nx; rider.position.z = nz; }
+    rider.rotation.y = car.heading;
+    lean.rotation.z = clamp(-car.steer * car.speed * 0.012, -0.06, 0.06);
+    wheels.forEach(w => w.rotation.x += car.speed * dt / 0.48);
+  }
+
+  // ---------- Camera: a chase camera that swings round smoothly ----------
+  const camPos = new THREE.Vector3(START.x - Math.sin(START.h) * 12, 6, START.z - Math.cos(START.h) * 12), camLook = new THREE.Vector3();
+  function chase(dt) {
+    fwd.set(Math.sin(car.heading), 0, Math.cos(car.heading));
+    const back = car.speed < -0.5 ? -1 : 1;
+    const want = rider.position.clone().addScaledVector(fwd, -9.5 * back).setY(4.4);
+    camPos.lerp(want, Math.min(1, dt * 3.2));
+    camLook.copy(rider.position).addScaledVector(fwd, 6).setY(1.3);
+    camera.position.copy(camPos); camera.lookAt(camLook);
+  }
+
+  // ---------- Info cards: the nearest place's card slides in as you get close ----------
+  const PLACES = [{"id": "founders", "name": "Founder's Building", "short": "F", "x": -186, "z": 83.5, "r": 95, "col": "#b0503a"}, {"id": "chapel", "name": "Chapel & Picture Gallery", "short": "C", "x": -235, "z": 20, "r": 45, "col": "#5b6470"}, {"id": "library", "name": "Davison Building", "short": "L", "x": -64, "z": 20, "r": 55, "col": "#0a6ec4"}, {"id": "academic", "name": "Academic quarter", "short": "A", "x": 0, "z": -90, "r": 60, "col": "#7a2e2e"}, {"id": "north", "name": "Boilerhouse & George Eliot", "short": "B", "x": -60, "z": -215, "r": 60, "col": "#7a4a22"}, {"id": "union", "name": "Students' Union", "short": "U", "x": 85, "z": -250, "r": 75, "col": "#eb641e"}, {"id": "science", "name": "Wolfson & Shilling", "short": "S", "x": 150, "z": -50, "r": 60, "col": "#00866a"}, {"id": "hub", "name": "The Hub", "short": "H", "x": 182, "z": 83, "r": 50, "col": "#7a4a22"}, {"id": "sports", "name": "Sports Centre", "short": "P", "x": 300, "z": 250, "r": 85, "col": "#2f66a8"}, {"id": "woodland", "name": "Woodland & Meadow", "short": "W", "x": -30, "z": 225, "r": 75, "col": "#2e7d32"}];
+  const cardEl = document.getElementById('card'), cardBody = document.getElementById('cardBody');
+  let shown = null;
+  function updateCard() {
+    let best = null, bd = Infinity;
+    PLACES.forEach(p => { const d = Math.hypot(p.x - rider.position.x, p.z - rider.position.z); if (d < p.r && d < bd) { bd = d; best = p; } });
+    const id = !hasStarted ? 'start' : best ? best.id : null;
+    if (id === shown) return; shown = id;
+    if (!id) { cardEl.classList.remove('on'); return; }
+    cardBody.innerHTML = document.getElementById('tpl-' + id).innerHTML; cardEl.classList.add('on');
+    const sd = document.getElementById('placeName'); if (sd) sd.textContent = best ? best.name : '';
+  }
+
+  // ---------- Mini-map ----------
+  const mm = document.getElementById('minimap'), mctx = mm.getContext('2d');
+  function drawMap() {
+    const css = mm.getBoundingClientRect().width || 180, dpr = Math.min(devicePixelRatio || 1, 2), S = Math.round(css * dpr);
+    if (mm.width !== S) { mm.width = mm.height = S; }
+    const R = S / 2, span = 520, k = S / span, cx = rider.position.x, cz = rider.position.z;
+    const X = x => R + (x - cx) * k, Y = z => R + (z - cz) * k;
+    mctx.clearRect(0, 0, S, S); mctx.save(); mctx.beginPath(); mctx.arc(R, R, R - 1, 0, Math.PI * 2); mctx.clip();
+    mctx.fillStyle = 'rgba(32,42,48,.9)'; mctx.fillRect(0, 0, S, S);
+    Object.entries(DENSE).forEach(([name, pts]) => { mctx.strokeStyle = name === 'south' ? '#8d8576' : '#b4c4d0'; mctx.lineWidth = Math.max(2, S * (name === 'A30' ? 0.03 : 0.02)); mctx.lineCap = mctx.lineJoin = 'round'; mctx.beginPath(); pts.forEach(([x, z], i) => i ? mctx.lineTo(X(x), Y(z)) : mctx.moveTo(X(x), Y(z))); mctx.stroke(); });
+    vehicles.forEach(o => { mctx.fillStyle = '#e0303f'; mctx.beginPath(); mctx.arc(X(o.v.position.x), Y(o.v.position.z), S * 0.012, 0, Math.PI * 2); mctx.fill(); });
+    mctx.font = '700 ' + Math.round(S * 0.05) + 'px Arial, sans-serif'; mctx.textAlign = 'center'; mctx.textBaseline = 'middle';
+    PLACES.forEach(p => { const x = X(p.x), y = Y(p.z); if (x < -20 || y < -20 || x > S + 20 || y > S + 20) return; mctx.fillStyle = p.col; mctx.beginPath(); mctx.arc(x, y, S * 0.04, 0, Math.PI * 2); mctx.fill(); mctx.strokeStyle = '#eb641e'; mctx.lineWidth = Math.max(1, S * 0.008); mctx.stroke(); mctx.fillStyle = '#fff'; mctx.fillText(p.short, x, y + 1); });
+    // you
+    mctx.save(); mctx.translate(R, R); mctx.rotate(-car.heading + Math.PI); const L = S * 0.06;
+    mctx.fillStyle = '#fff'; mctx.strokeStyle = '#eb641e'; mctx.lineWidth = Math.max(1.5, S * 0.012);
+    mctx.beginPath(); mctx.moveTo(0, -L); mctx.lineTo(L * 0.6, L * 0.7); mctx.lineTo(0, L * 0.35); mctx.lineTo(-L * 0.6, L * 0.7); mctx.closePath(); mctx.fill(); mctx.stroke(); mctx.restore();
+    mctx.restore();
+    mctx.strokeStyle = '#eb641e'; mctx.lineWidth = Math.max(2, S * 0.014); mctx.beginPath(); mctx.arc(R, R, R - mctx.lineWidth / 2, 0, Math.PI * 2); mctx.stroke();
+    mctx.fillStyle = '#eb641e'; mctx.font = '700 ' + Math.round(S * 0.07) + 'px Arial, sans-serif'; mctx.fillText('N', R, S * 0.085);
+  }
+
+  // ---------- Engine sound (starts only after you switch it on) ----------
+  let audio = null;
+  const soundBtn = document.getElementById('soundBtn');
+  soundBtn.addEventListener('click', () => {
+    if (!audio) {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const o1 = ctx.createOscillator(), o2 = ctx.createOscillator(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      o1.type = 'sawtooth'; o2.type = 'square'; f.type = 'lowpass'; f.frequency.value = 500; g.gain.value = 0;
+      o1.connect(f); o2.connect(f); f.connect(g); g.connect(ctx.destination); o1.start(); o2.start();
+      audio = { ctx, o1, o2, f, g, on: false };
+    }
+    audio.on = !audio.on; if (audio.on) audio.ctx.resume(); soundBtn.setAttribute('aria-pressed', String(audio.on)); soundBtn.textContent = audio.on ? 'Sound on' : 'Sound off';
+  });
+  function engineSound() {
+    if (!audio) return; const t = audio.ctx.currentTime, v = Math.abs(car.speed);
+    const rpm = 38 + v * 6.5; audio.o1.frequency.setTargetAtTime(rpm, t, 0.08); audio.o2.frequency.setTargetAtTime(rpm * 0.5, t, 0.08);
+    audio.f.frequency.setTargetAtTime(300 + v * 60, t, 0.1); audio.g.gain.setTargetAtTime(audio.on ? 0.05 + v * 0.004 : 0, t, 0.1);
+  }
+
+  // ---------- Loop ----------
+  const speedEl = document.getElementById('speed');
+  let last = performance.now();
+  const trafficRef = { list: vehicles };
+  let adaptResolution = () => {};
   // ================= VOXEL EDITION: everything rebuilt from blocks =================
   (function voxelise() {
     function mergeBoxes(list) { // [w, h, d, x, y, z] boxes merged into one geometry
@@ -2184,112 +1083,23 @@
     addEventListener('resize', () => { renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2) * 0.5); });
   })();
 
-  // ---------- Loop ----------
-  const odoM = document.getElementById('odoM'), odoBar = document.getElementById('odoBar');
-  document.getElementById('odoTotal').textContent = Math.round((U1 - U0) * LEN).toLocaleString('en');
-  // ---- laps: scrolling past the end carries straight on into the next lap ----
-  let laps = 0;
-  const maxScroll = () => document.documentElement.scrollHeight - innerHeight;
-  function wrapTo(dir) { laps += dir; window.scrollTo(0, dir > 0 ? 1 : maxScroll() - 1); }
-  addEventListener('wheel', e => { if (e.deltaY > 0 && scrollY >= maxScroll() - 2) wrapTo(1); else if (e.deltaY < 0 && scrollY <= 0 && laps > 0) wrapTo(-1); }, { passive: true });
-  addEventListener('keydown', e => { if (['ArrowDown', 'PageDown', ' ', 'End'].includes(e.key) && scrollY >= maxScroll() - 2) wrapTo(1); });
-  let touchY = null;
-  addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
-  addEventListener('touchmove', e => { const y = e.touches[0].clientY; if (touchY !== null && touchY - y > 30 && scrollY >= maxScroll() - 2) { wrapTo(1); touchY = y; } }, { passive: true });
-  let prog = scrollProgress(), last = performance.now(), first = true, speed = 0, leanCur = 0;
-
-  // ---- 360-degree look-around: drag on the street with the mouse (or swipe sideways on a phone) ----
-  let orbitYaw = 0, orbitPitch = 0, dragging = false, lastLook = -1e9, px = 0, py = 0;
-  canvas.style.cursor = 'grab'; canvas.style.touchAction = 'pan-y';
-  canvas.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button !== 0) return; dragging = true; px = e.clientX; py = e.clientY; try { canvas.setPointerCapture(e.pointerId); } catch (err) {} canvas.style.cursor = 'grabbing'; });
-  canvas.addEventListener('pointermove', e => { if (!dragging) return; orbitYaw -= (e.clientX - px) * 0.006; orbitPitch = clamp(orbitPitch + (e.clientY - py) * 0.004, -0.3, 0.95); px = e.clientX; py = e.clientY; lastLook = performance.now(); });
-  const endDrag = () => { dragging = false; canvas.style.cursor = 'grab'; lastLook = performance.now(); };
-  canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
-  canvas.addEventListener('dblclick', () => { orbitYaw = 0; orbitPitch = 0; });
-  const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
-  const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3();
-
+  buildSolids();
   function frame(now) {
-    const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    adaptResolution(now);
-    const target = laps + scrollProgress();
-    const prev = prog;
-    prog += (target - prog) * (reduceMotion ? 1 : 1 - Math.exp(-dt * 3.2));
-    if (Math.abs(target - prog) < 1e-5) prog = target;
-    const dist = (prog - prev) * (U1 - U0) * LEN;
-    speed += ((dt > 0 ? dist / dt : 0) - speed) * 0.2;
-
-    const lapProg = ((prog % 1) + 1) % 1;
-    const u = uOf(lapProg);
-    rider.userData.u = u;
-    const f = frameAt(u);
-    const fAhead = frameAt(u + 0.008);
-    const heading = Math.atan2(f.t.x, f.t.z);
-    const lanePos = f.p.clone().addScaledVector(f.n, -1.7);
-    rider.position.copy(lanePos);
-    if (!reduceMotion) rider.position.y = Math.abs(speed) > 0.5 ? Math.sin(now * 0.03) * 0.015 : Math.sin(now * 0.004) * 0.02;
-    rider.rotation.y = heading;
-    const turn = f.t.x * fAhead.t.z - f.t.z * fAhead.t.x;
-    const leanTarget = clamp(-turn * Math.abs(speed) * 0.12, -0.06, 0.06);
-    leanCur += (leanTarget - leanCur) * Math.min(1, dt * 5);
-    rider.rotation.z = leanCur;
-    wheels.forEach(w => w.rotation.x += dist / (0.42 * 1.15));
-
-    // camera rides the road itself (never cuts through buildings): high and wide at the start, then a close chase cam
-    const intro = smooth(0.0, 0.07, prog);
-    const back = (isPhone ? 9.5 : 8) + (1 - intro) * 7;
-    const up = (isPhone ? 4.4 : 3.6) + (1 - intro) * 3.4;
-    const fc = frameAt(u - back / LEN);
-    camPos.copy(fc.p).addScaledVector(fc.n, -0.6 + (1 - intro) * 1.8).add(tmpA.set(0, up, 0));
-    camLook.copy(lanePos).addScaledVector(f.t, 6).add(tmpB.set(0, 1.4 + (1 - intro) * 1.6, 0));
-    first = false;
-    // drift back behind the car once you're driving again and haven't touched the view for a moment
-    if (!dragging && now - lastLook > 2500 && Math.abs(speed) > 1) {
-      const k = 1 - Math.exp(-dt * 1.6);
-      orbitYaw = Math.atan2(Math.sin(orbitYaw), Math.cos(orbitYaw)); orbitYaw -= orbitYaw * k; orbitPitch -= orbitPitch * k;
-    }
-    if (Math.abs(orbitYaw) > 0.002 || Math.abs(orbitPitch) > 0.002) {
-      const pivot = tmpB.copy(lanePos).setY(1.3);
-      const off = camPos.clone().sub(pivot);
-      const flat = Math.hypot(off.x, off.z), R = Math.min(Math.hypot(flat, off.y), 9.5);
-      const ang = Math.atan2(off.x, off.z) + orbitYaw, el = clamp(Math.atan2(off.y, flat) + orbitPitch, -0.15, 1.35);
-      camPos.set(pivot.x + Math.sin(ang) * Math.cos(el) * R, Math.max(0.7, pivot.y + Math.sin(el) * R), pivot.z + Math.cos(ang) * Math.cos(el) * R);
-      camLook.lerp(pivot, clamp((Math.abs(orbitYaw) + Math.abs(orbitPitch)) * 2.5, 0, 1));
-    }
-    camera.position.copy(camPos); camera.lookAt(camLook);
-
-    miniMap(lanePos, f.t);
-    signBoards.forEach(({ g, board }) => {
-      const dx = camera.position.x - g.position.x, dz = camera.position.z - g.position.z;
-      if (dx * dx + dz * dz > 160 * 160) return;
-      let rel = Math.atan2(dx, dz) - g.rotation.y;
-      rel = Math.atan2(Math.sin(rel), Math.cos(rel));
-      board.rotation.y = clamp(rel, -0.7, 0.7);
-    });
-    sky.position.copy(camera.position);
-    sunDisc.position.copy(camera.position).addScaledVector(sunDir, 900); sunDisc.lookAt(camera.position);
-    sunGlow.position.copy(camera.position).addScaledVector(sunDir, 910); sunGlow.lookAt(camera.position);
-    sunLight.position.copy(lanePos).addScaledVector(sunDir, 120).add(new THREE.Vector3(0, 60, 0));
-    sunLight.target.position.copy(lanePos);
-
-    if (!reduceMotion) {
-      spinners.forEach(s => s(dt, now));
-      clouds.forEach(c => { c.position.x += c.userData.speed * dt; if (c.position.x > center.x + 320) c.position.x = center.x - 320; });
-    }
-
-    if (audio && soundOn) audio.update(clamp(Math.abs(speed) / 45, 0, 1));
-
-    const meters = Math.round((u - U0) * LEN);
-    odoM.textContent = meters.toLocaleString('en') + (Math.floor(prog) > 0 ? '  · lap ' + (Math.floor(prog) + 1) : '');
-    odoBar.style.width = (lapProg * 100).toFixed(1) + '%';
-    updatePanels(lapProg);
-
+    const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
+    drive(dt); if (!reduceMotion) { moveTraffic(dt); moveWalkers(dt); spinners.forEach(s => s(dt, now)); }
+    chase(dt); updateCard(); drawMap(); engineSound();
+    speedEl.textContent = Math.round(Math.abs(car.speed) * 3.6 * 0.621) + ' mph';
+    sunLight.position.set(rider.position.x + 60, 120, rider.position.z + 40); sunLight.target.position.copy(rider.position);
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }
+  addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
+  camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
   requestAnimationFrame(frame);
+
+  const copyBtn = () => document.getElementById('copyBtn');
+  document.addEventListener('click', e => { if (e.target && e.target.id === 'copyBtn') { navigator.clipboard && navigator.clipboard.writeText('alex.philip99@hotmail.com'); e.target.textContent = 'Copied'; } });
 })();
 </script>
-
 </body>
 </html>
