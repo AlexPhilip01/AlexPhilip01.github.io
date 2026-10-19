@@ -1568,22 +1568,23 @@
     // local frame: z runs along the road (across the river), x runs along the river
     const water = new THREE.Mesh(new THREE.PlaneGeometry(RIVER_LEN, RIVER_HALF * 2, 1, 1), new THREE.MeshPhongMaterial({ color: '#58718a', shininess: 80, specular: '#dfe7ee' }));
     water.rotation.x = -Math.PI / 2; water.position.y = 0.035; water.receiveShadow = true; g.add(water);
-    const gap = ROAD_W + 8, segL = RIVER_LEN / 2 - gap; // embankment walls stop either side of the road
+    const BW = ROAD_W + 6; // bridge half-width: carriageway plus wide footways each side
+    const gap = BW + 8, segL = RIVER_LEN / 2 - gap; // embankment walls stop either side of the road
     [-1, 1].forEach(s => [-1, 1].forEach(e => mk(new THREE.BoxGeometry(segL, 0.7, 1.4), '#b9ad96', e * (gap + segL / 2), 0.2, s * (RIVER_HALF + 0.7), g)));
     const toWorld = (lx, lz) => new THREE.Vector3(lx, 0, lz).applyAxisAngle(UP, RIV.heading).add(RIV.p);
     // road-following helpers: d = metres along the road from the crossing, x = offset across (+ = towards -n, like the towers' local x)
     const roadPt = (d, x, y = 0) => { const f = frameAt(RIVER_U + d / LEN); return f.p.clone().addScaledVector(f.n, -x).setY(y); };
-    const legX = ROAD_W + 1.8, topW = 2 * (ROAD_W + 3.2);
+    const legX = BW + 1.8, topW = 2 * (BW + 3.2);
     const towerTops = {};
     [-10, 10].forEach(d => {
       const f = frameAt(RIVER_U + d / LEN);
-      const tg = new THREE.Group(); tg.position.copy(f.p); tg.rotation.y = Math.atan2(f.t.x, f.t.z); tg.scale.set(1.15, 1.7, 1.3); scene.add(tg); // taller, grander towers
+      const tg = new THREE.Group(); tg.position.copy(f.p); tg.rotation.y = Math.atan2(f.t.x, f.t.z); tg.scale.set(1, 1.7, 1.4); scene.add(tg); // taller, grander towers
       [-1, 1].forEach(s => mk(new THREE.BoxGeometry(4, 1.2, 6.5), '#a89d86', s * legX, -0.4, 0, tg)); // piers stay off the carriageway
       [-1, 1].forEach(s => mk(new THREE.BoxGeometry(2.6, 19, 4), STONE, s * legX, 9.5, 0, tg));
       mk(new THREE.BoxGeometry(topW, 1.6, 4), STONE, 0, 7.4, 0, tg);
       mk(new THREE.BoxGeometry(topW, 7, 4.6), STONE, 0, 22.5, 0, tg);
-      [-1, 1].forEach(s => mk(new THREE.BoxGeometry(0.9, 4.2, 4.7), '#3a4250', s * 2.4, 22.5, 0, tg));
-      mk(new THREE.ConeGeometry(4.4, 6.5, 4), SLATE, 0, 29.2, 0, tg, { ry: Math.PI / 4 });
+      [-3, -1, 1, 3].forEach(s => mk(new THREE.BoxGeometry(0.9, 4.2, 4.7), '#3a4250', s * 2.6, 22.5, 0, tg));
+      mk(new THREE.ConeGeometry(topW * 0.32, 6.5, 4), SLATE, 0, 29.2, 0, tg, { ry: Math.PI / 4 });
       mk(new THREE.SphereGeometry(0.4, 8, 6), GOLD, 0, 32.7, 0, tg);
       [[-1, -1], [-1, 1], [1, -1], [1, 1]].forEach(([sx, sz]) => {
         mk(new THREE.BoxGeometry(1.5, 9, 1.5), STONE, sx * (topW / 2 - 0.4), 23, sz * 1.9, tg);
@@ -1592,8 +1593,8 @@
       tg.updateMatrixWorld();
       const sd = Math.sign(d);
       towerTops[sd] = {
-        walk: [-1.7, 1.7].map(x => new THREE.Vector3(x, 24.4, -sd * 2.3).applyMatrix4(tg.matrixWorld)),
-        chain: [-1, 1].map(sx => new THREE.Vector3(sx * (ROAD_W + 1.0), 18.5, sd * 2.2).applyMatrix4(tg.matrixWorld))
+        walk: [-3.2, 3.2].map(x => new THREE.Vector3(x, 24.4, -sd * 2.3).applyMatrix4(tg.matrixWorld)),
+        chain: [-1, 1].map(sx => new THREE.Vector3(sx * (BW + 1.0), 18.5, sd * 2.2).applyMatrix4(tg.matrixWorld))
       };
       [-1, 1].forEach(s => { const w = f.p.clone().addScaledVector(f.n, -s * legX); occupied.push({ x: w.x, z: w.z, r: 2 }); });
     });
@@ -1602,21 +1603,23 @@
     // suspension chains from each tower down to the road ends, with hangers
     [-1, 1].forEach(sd => [0, 1].forEach(i => {
       const sx = i ? 1 : -1;
-      const a = towerTops[sd].chain[i], b = roadPt(sd * 31, sx * (ROAD_W + 1.0), 1.2);
+      const a = towerTops[sd].chain[i], b = roadPt(sd * 31, sx * (BW + 1.0), 1.2);
       beam(a, b, 0.6, BLUE_STEEL, scene);
       for (let k = 1; k <= 3; k++) { const top = a.clone().lerp(b, k / 4); beam(top, top.clone().setY(0.6), 0.14, BLUE_STEEL, scene); }
     }));
     // railings and deck edges follow the road's curve
-    const rails = [], edges = [];
+    const rails = [], edges = [], walks = [];
     for (let d = -24; d <= 24; d += 1) {
       const f = frameAt(RIVER_U + d / LEN), ry = Math.atan2(f.t.x, f.t.z);
       [-1, 1].forEach(s => {
-        const r = f.p.clone().addScaledVector(f.n, s * (ROAD_W + 0.45)); rails.push({ x: r.x, y: 0.55, z: r.z, ry });
-        if (Math.abs(d) <= RIVER_HALF + 1) { const e = f.p.clone().addScaledVector(f.n, s * (ROAD_W + 0.5)); edges.push({ x: e.x, y: -0.1, z: e.z, ry }); }
+        const r = f.p.clone().addScaledVector(f.n, s * (BW + 0.45)); rails.push({ x: r.x, y: 0.55, z: r.z, ry });
+        if (Math.abs(d) <= RIVER_HALF + 1) { const e = f.p.clone().addScaledVector(f.n, s * (BW + 0.5)); edges.push({ x: e.x, y: -0.1, z: e.z, ry }); }
+        const w = f.p.clone().addScaledVector(f.n, s * (ROAD_W + 3)); walks.push({ x: w.x, y: 0.06, z: w.z, ry }); // wide footway decks
       });
     }
     instanced(new THREE.BoxGeometry(0.25, 1.0, 1.05), M(BLUE_STEEL), rails);
     instanced(new THREE.BoxGeometry(1.0, 0.9, 1.05), M('#8e8676'), edges);
+    instanced(new THREE.BoxGeometry(6, 0.14, 1.05), M('#c9c1b3'), walks);
 
     // The London Eye: cantilevered white wheel on its A-frame, with 32 egg-shaped glass capsules on the outside of the rim
     const R = 25, cy = R + 4;
