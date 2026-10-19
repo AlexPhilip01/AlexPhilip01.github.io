@@ -733,6 +733,10 @@
     parent.add(m); return m;
   };
   const UP = new THREE.Vector3(0, 1, 0);
+  // keep the big ground plane safely below the road and pavements so it can never show through them
+  ground.position.y = -0.08; ground.material = ground.material.clone(); Object.assign(ground.material, { polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 4 });
+  const MAP_MARKS = []; // landmarks shown with an icon on the mini-map
+  const markAt = (prog, side, off, icon, tag) => MAP_MARKS.push({ p: placeAt(uOf(prog), side, off).pos, icon, tag });
   const DETOURS = []; // drives that traffic can turn into and come back out of (the university tributes)
   function beam(a, b, thick, color, parent) { // a box stretched from point a to point b
     const d = b.clone().sub(a), len = d.length();
@@ -1084,6 +1088,25 @@
     [[0, 1.05], [-0.55, -0.8], [0.55, -0.8]].forEach(([x, z]) => { const w = mk(new THREE.CylinderGeometry(0.24, 0.24, 0.16, 12), '#151519', x, 0.24, z, auto); w.rotation.z = Math.PI / 2; });
   })();
 
+
+  // boxy ambulance in yellow-and-green chequers with flashing blue lights (generic, no organisation's logo)
+  const ambBlink = [];
+  function ambulance() {
+    const g = new THREE.Group(); g.userData.keepSmooth = true;
+    const chk = canvasTex(256, 64, (x, w, h) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { x.fillStyle = (i + j) % 2 ? '#f6e900' : '#1b8a3a'; x.fillRect(i * 16, j * 32, 16, 32); } });
+    const body = new THREE.MeshLambertMaterial({ color: '#f7f7f2' });
+    const box = new THREE.Mesh(new THREE.BoxGeometry(2.1, 2.3, 4.2), body); box.position.set(0, 1.55, -0.6); g.add(box);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 1.4), body); cab.position.set(0, 1.1, 2.1); g.add(cab);
+    const ws = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.06), new THREE.MeshPhongMaterial({ color: '#2a3442', shininess: 90 })); ws.position.set(0, 1.45, 2.81); ws.rotation.x = -0.3; g.add(ws);
+    [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 0.5), new THREE.MeshBasicMaterial({ map: chk })); b.position.set(sd * 1.06, 0.9, 0.1); b.rotation.y = sd * Math.PI / 2; g.add(b); });
+    const word = canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#f7f7f2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b8a3a'; x.font = '900 34px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('AMBULANCE', w / 2, h / 2 + 2); });
+    [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.6), new THREE.MeshBasicMaterial({ map: word })); b.position.set(sd * 1.06, 2.2, -0.6); b.rotation.y = sd * Math.PI / 2; g.add(b); });
+    const lights = [-0.6, 0.6].map(x => { const m = new THREE.MeshBasicMaterial({ color: '#1e5bff' }); const l = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.3), m); l.position.set(x, 2.8, 1.35); g.add(l); return m; });
+    ambBlink.push(lights);
+    [[-0.92, 1.8], [0.92, 1.8], [-0.92, -1.8], [0.92, -1.8]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.42, z); g.add(w); });
+    return g;
+  }
+  spinners.push((dt, now) => { const on = Math.floor(now / 180) % 2 === 0; ambBlink.forEach(([a, b]) => { a.color.set(on ? '#2f6bff' : '#0b1a44'); b.color.set(on ? '#0b1a44' : '#2f6bff'); }); });
   // ---------- A zoo, a children's playground and a primary school (invented names) ----------
   const SCHOOL_PROG = 0.83, SCHOOL_SIDE = 1;
   (function () {
@@ -1117,7 +1140,7 @@
     // ===== Kingsgate Zoo (right-hand side, where the road keeps it in view) =====
     {
       const { g, toW } = site(0.255, 1, ROAD_W + 3.2);
-      reserve(toW, -2, -44, -28, 28);
+      reserve(toW, -2, -44, -28, 28); MAP_MARKS.push({ p: toW(-20, 0), icon: 'zoo' });
       ground(g, 44, 58, -22, 0, '#7da55a');
       ground(g, 6, 10, -3, 0, '#cbbd9a'); ground(g, 4, 56, -24, 0, '#cbbd9a'); // entrance plaza and main path
       // entrance: two stone pillars and a big arch board
@@ -1197,10 +1220,47 @@
       });
     }
 
+
+    // ===== Thameside General Hospital (left, opposite the playground; generic hospital signs) =====
+    {
+      const { g, toW } = site(0.565, -1, ROAD_W + 3.2);
+      reserve(toW, -2, -42, -20, 20);
+      ground(g, 34, 30, -24, 0, '#9a9a96'); // kept clear of the road, which bends towards the hospital
+      const HB = '#e9eef2', BLUE = '#1f5fae';
+      const n0 = g.children.length;
+      mk(new THREE.BoxGeometry(14, 18, 34), HB, -22, 9, 0, g);
+      const win = canvasTex(128, 128, (x, w, h) => { x.fillStyle = HB; x.fillRect(0, 0, w, h); x.fillStyle = '#7fa8cc'; x.fillRect(0, 30, w, 64); x.fillStyle = '#d6e6f3'; for (let i = 0; i < 4; i++) if (rand() < 0.5) x.fillRect(i * 32 + 3, 34, 26, 56); x.fillStyle = '#c9d3dc'; for (let i = 0; i <= 4; i++) x.fillRect(i * 32, 30, 3, 64); });
+      win.wrapS = win.wrapT = THREE.RepeatWrapping; win.repeat.set(10, 5);
+      const fr = new THREE.Mesh(new THREE.PlaneGeometry(34, 16), new THREE.MeshLambertMaterial({ map: win, emissive: '#ffffff', emissiveMap: win, emissiveIntensity: 0.2 })); fr.position.set(-14.98, 9, 0); fr.rotation.y = Math.PI / 2; g.add(fr);
+      mk(new THREE.BoxGeometry(14.4, 1.4, 34.4), BLUE, -22, 18.6, 0, g);
+      facing(g, board('THAMESIDE GENERAL HOSPITAL', null, BLUE, '#ffffff', 1024, 96), 26, 2.4, -14.7, 16, 0);
+      // helipad on the roof
+      const hp = canvasTex(128, 128, (x) => { x.fillStyle = '#3a3f46'; x.fillRect(0, 0, 128, 128); x.strokeStyle = '#f2c200'; x.lineWidth = 8; x.beginPath(); x.arc(64, 64, 52, 0, Math.PI * 2); x.stroke(); x.fillStyle = '#fff'; x.font = '900 70px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 64, 68); });
+      const pad = new THREE.Mesh(new THREE.PlaneGeometry(10, 10), new THREE.MeshLambertMaterial({ map: hp })); pad.rotation.x = -Math.PI / 2; pad.position.set(-22, 19.35, 6); g.add(pad);
+      // emergency entrance with a canopy and a red sign
+      mk(new THREE.BoxGeometry(6, 0.4, 12), '#dfe5ea', -12, 4.2, 9, g);
+      [[-9.5, 14.5], [-9.5, 3.5]].forEach(([x, z]) => mk(new THREE.BoxGeometry(0.3, 4.2, 0.3), '#c9d3dc', x, 2.1, z, g));
+      facing(g, board('EMERGENCY', 'A&E · AMBULANCES', '#c8102e', '#ffffff'), 8, 1.6, -8.9, 4.9, 9);
+      mk(new THREE.BoxGeometry(0.2, 3, 4), '#8fb3d1', -14.95, 1.5, 9, g);
+      { // turn the building and its entrance to face drivers coming from the start
+        const hb = new THREE.Group(); hb.position.set(-18, 0, 0); hb.rotation.y = -0.45;
+        g.children.slice(n0).forEach(c => { c.position.x += 18; hb.add(c); }); g.add(hb);
+      }
+      // blue hospital road sign at the gate
+      mk(new THREE.BoxGeometry(0.1, 3, 0.1), '#7d828c', -0.6, 1.5, 6, g);
+      facing(g, canvasTex(128, 128, (x) => { x.fillStyle = BLUE; x.fillRect(0, 0, 128, 128); x.strokeStyle = '#fff'; x.lineWidth = 8; x.strokeRect(6, 6, 116, 116); x.fillStyle = '#fff'; x.font = '900 84px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 64, 70); }), 1.2, 1.2, -0.5, 3.2, 6);
+      fenceLine(g, -1, -20, -1, -4, '#555', 0.9); fenceLine(g, -1, 4, -1, 20, '#555', 0.9);
+      // parked ambulances with flashing lights, staff and patients by the doors
+      const amb1 = ambulance(); amb1.position.set(-9, 0, 11); amb1.rotation.y = -Math.PI / 2 - 0.45; g.add(amb1);
+      const amb2 = ambulance(); amb2.position.set(-6, 0, 4); amb2.rotation.y = -Math.PI / 2 - 0.1; g.add(amb2);
+      for (let i = 0; i < 4; i++) kid(g, -11 - i * 0.8, 0, 4 + i * 1.5, false).scale.setScalar(1.45);
+      MAP_MARKS.push({ p: toW(-18, 0), icon: 'hospital' });
+    }
+
     // ===== Little Acorns Playground (right-hand side) =====
     {
       const { g, toW } = site(0.565, 1, ROAD_W + 3.2);
-      reserve(toW, -2, -30, -20, 20);
+      reserve(toW, -2, -30, -20, 20); MAP_MARKS.push({ p: toW(-13, 0), icon: 'park' });
       ground(g, 26, 38, -14, 0, '#5fa14a');
       ground(g, 16, 26, -12, 0, '#3f7fbf'); // soft play surface
       [[-6, -8, '#e53935'], [-15, 6, '#fdd835'], [-9, 9, '#43a047']].forEach(([x, z, c]) => { const d = new THREE.Mesh(new THREE.CircleGeometry(2.2, 20), M(c)); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.16, z); g.add(d); });
@@ -1254,7 +1314,7 @@
     // ===== Hollybrook Primary School =====
     {
       const { g, toW } = site(SCHOOL_PROG, SCHOOL_SIDE, ROAD_W + 3.2);
-      reserve(toW, -2, -40, -22, 22);
+      reserve(toW, -2, -40, -22, 22); MAP_MARKS.push({ p: toW(-24, 0), icon: 'school' });
       ground(g, 38, 44, -20, 0, '#8c8c88'); // tarmac playground
       const hop = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#8c8c88'; x.fillRect(0, 0, w, h); x.strokeStyle = '#fdd835'; x.lineWidth = 6; for (let i = 0; i < 6; i++) x.strokeRect(100, 10 + i * 40, 56, 40); x.fillStyle = '#ffffff'; x.font = '700 30px Arial'; for (let i = 0; i < 6; i++) x.fillText(String(i + 1), 118, 42 + i * 40); x.strokeStyle = '#e53935'; x.beginPath(); x.arc(40, 200, 30, 0, Math.PI * 2); x.stroke(); });
       const hp = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshLambertMaterial({ map: hop })); hp.rotation.x = -Math.PI / 2; hp.position.set(-8, 0.16, -12); g.add(hp);
@@ -1617,6 +1677,7 @@
       const lx = -(ROAD_W + 50) + ex * Math.cos(0.5) + ez * Math.sin(0.5), lz = -(RIVER_HALF - 1) - ex * Math.sin(0.5) + ez * Math.cos(0.5);
       const w = toWorld(lx, lz); occupied.push({ x: w.x, z: w.z, r: 5 });
     }
+    MAP_MARKS.push({ p: toWorld(-(ROAD_W + 50), -(RIVER_HALF - 1)), icon: 'eye' });
     spinners.push(dt => {
       wheel.rotation.z += dt * 0.035;
       pods.forEach(p => { p.pg.rotation.z = -wheel.rotation.z; });
@@ -1991,6 +2052,18 @@
         if (rand() < 0.6) bikeAt(g, 0.22, 0, z);
       }
       occupied.push({ x: pos.x, z: pos.z, r: 3.2 });
+    });
+    // red pillar post boxes here and there (classic design, no company logo)
+    const postPlate = canvasTex(64, 48, (x, w, h) => { x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h); x.fillStyle = '#c8102e'; x.font = '800 13px Arial'; x.textAlign = 'center'; x.fillText('POST BOX', w / 2, 16); x.fillStyle = '#222'; x.font = '600 9px Arial'; x.fillText('LAST COLLECTION', w / 2, 30); x.fillText('MON–FRI 5.30PM', w / 2, 42); });
+    [[0.06, -1], [0.165, 1], [0.225, -1], [0.345, 1], [0.39, -1], [0.485, 1], [0.545, -1], [0.615, 1], [0.76, -1], [0.85, 1], [0.905, -1], [0.975, 1]].forEach(([prog, side]) => {
+      const { g, pos } = onPavement(prog, side, ROAD_W + 1.0);
+      mk(new THREE.CylinderGeometry(0.34, 0.36, 1.35, 16), '#c8102e', 0, 0.9, 0, g);
+      mk(new THREE.CylinderGeometry(0.4, 0.4, 0.25, 16), '#15151a', 0, 0.12, 0, g);
+      mk(new THREE.SphereGeometry(0.37, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2), '#c8102e', 0, 1.6, 0, g);
+      mk(new THREE.CylinderGeometry(0.38, 0.38, 0.06, 16), '#a50d24', 0, 1.6, 0, g);
+      mk(new THREE.BoxGeometry(0.05, 0.05, 0.36), '#111', 0.35, 1.42, 0, g); // slot
+      const pl = new THREE.Mesh(new THREE.PlaneGeometry(0.34, 0.26), new THREE.MeshBasicMaterial({ map: postPlate })); pl.position.set(0.36, 1.05, 0); pl.rotation.y = Math.PI / 2; g.add(pl);
+      occupied.push({ x: pos.x, z: pos.z, r: 0.7 });
     });
     // zebra crossings with flashing Belisha beacons
     const beacons = [];
@@ -2397,7 +2470,7 @@
       return g;
     }
     const fleet = [];
-    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
+    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.415, ambulance, 13.5], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
       const v = make(); scene.add(v); fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus });
     });
     function place(o) {
@@ -2516,6 +2589,7 @@
     for (let k = 0; k < nPeds; k++) {
       const w = walker(); scene.add(w);
       peds.push({ w, u: rand(), side: rand() < 0.5 ? -1 : 1, off: ROAD_W + 1.6 + rand() * 0.6, dir: rand() < 0.5 ? -1 : 1, speed: 0.85 + rand() * 0.45, ph: rand() * 6 });
+      if (peds.length % 5 === 0) peds[peds.length - 1].dog = dog();
     }
     // cyclists: with us on the left (slower, so we overtake), and oncoming on the right
     const bikes = [];
@@ -2533,6 +2607,25 @@
       column.push({ s, k });
     }
 
+    // dogs out for a walk: a handful of breeds' colours, wagging tails, on a lead
+    function dog() {
+      const d = new THREE.Group(), col = pick(['#8a5a2b', '#1b1b1b', '#e8d9b8', '#c98a3e', '#f4f4f0', '#6b6f78']), dark = '#222';
+      const big = rand() < 0.4 ? 1.35 : 1;
+      d.scale.setScalar(big);
+      mk(new THREE.BoxGeometry(0.26, 0.26, 0.6), col, 0, 0.42, 0, d);
+      const legs = [[-0.09, 0.22], [0.09, 0.22], [-0.09, -0.22], [0.09, -0.22]].map(([x, z]) => { const pv = new THREE.Group(); pv.position.set(x, 0.32, z); d.add(pv); mk(new THREE.BoxGeometry(0.08, 0.32, 0.08), col, 0, -0.16, 0, pv); return pv; });
+      mk(new THREE.BoxGeometry(0.22, 0.22, 0.26), col, 0, 0.6, 0.38, d);
+      mk(new THREE.BoxGeometry(0.12, 0.1, 0.14), col, 0, 0.55, 0.56, d);
+      mk(new THREE.BoxGeometry(0.06, 0.05, 0.04), dark, 0, 0.58, 0.64, d);
+      [-0.08, 0.08].forEach(x => mk(new THREE.BoxGeometry(0.06, 0.12, 0.05), rand() < 0.5 ? col : dark, x, 0.75, 0.34, d));
+      const tail = new THREE.Group(); tail.position.set(0, 0.52, -0.3); d.add(tail); mk(new THREE.BoxGeometry(0.05, 0.05, 0.25), col, 0, 0.06, -0.1, tail); tail.rotation.x = -0.6;
+      mk(new THREE.BoxGeometry(0.24, 0.05, 0.05), '#c8102e', 0, 0.6, 0.27, d); // collar
+      const leadGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+      const lead = new THREE.Line(leadGeo, new THREE.LineBasicMaterial({ color: '#2b2b2b' })); scene.add(lead);
+      d.userData = { legs, tail, lead }; scene.add(d);
+      return d;
+    }
+    const handPt = new THREE.Vector3(), collarPt = new THREE.Vector3();
     function placeOnRoad(obj, u, lateral, facing) {
       const f = fastFrame(u);
       obj.position.set(f.p.x + f.n.x * lateral, 0, f.p.z + f.n.z * lateral);
@@ -2546,6 +2639,16 @@
         const sw = Math.sin(p.ph) * 0.45;
         p.w.userData.legs[0].rotation.x = sw; p.w.userData.legs[1].rotation.x = -sw;
         p.w.userData.arms[0].rotation.x = -sw * 0.7; p.w.userData.arms[1].rotation.x = sw * 0.7;
+        if (p.dog) { // trots a metre ahead, slightly towards the kerb
+          const D = p.dog, ud = D.userData;
+          placeOnRoad(D, wrap(p.u + p.dir * 1.3 / LEN), p.side * (p.off - 0.55), p.dir);
+          D.visible = p.w.visible;
+          const tr = Math.sin(p.ph * 1.6) * 0.6; ud.legs.forEach((l, k) => l.rotation.x = (k === 0 || k === 3) ? tr : -tr);
+          ud.tail.rotation.y = Math.sin(p.ph * 5) * 0.6;
+          handPt.set(p.side * 0, 0, 0); p.w.updateMatrixWorld(); handPt.set(0.28, 0.95, 0.15).applyMatrix4(p.w.matrixWorld);
+          D.updateMatrixWorld(); collarPt.set(0, 0.6, 0.27).applyMatrix4(D.matrixWorld);
+          const a = ud.lead.geometry.attributes.position; a.setXYZ(0, handPt.x, handPt.y, handPt.z); a.setXYZ(1, collarPt.x, collarPt.y, collarPt.z); a.needsUpdate = true; ud.lead.geometry.computeBoundingSphere(); ud.lead.visible = D.visible;
+        }
       });
       bikes.forEach(b => {
         b.u = wrap(b.u + b.dir * b.speed * dt / LEN); b.ph += dt * b.speed * 1.75;
@@ -2814,10 +2917,31 @@
     const stopPts = signBoards.map(s => s.g.position.clone());
     const marks = [
       { p: frameAt(uOf(0) + 0.022).p, c: '#ffffff', label: 'S' },
-      { p: frameAt(uOf(0.128)).p.clone().addScaledVector(frameAt(uOf(0.128)).n, 14), c: '#d4a83a', sq: true },
-      { p: frameAt(uOf(0.325)).p.clone().addScaledVector(frameAt(uOf(0.325)).n, -30), c: '#c25b3c', sq: true, tag: 'RHUL' },
-      { p: frameAt(uOf(0.63)).p.clone().addScaledVector(frameAt(uOf(0.63)).n, -22), c: '#a3a39e', sq: true, tag: 'SKCET' }
-    ];
+      { p: placeAt(uOf(0.128), 1, 14).pos, icon: 'shield' },
+      { p: placeAt(uOf(0.325), -1, 30).pos, icon: 'uni', tag: 'RHUL' },
+      { p: placeAt(uOf(0.63), -1, 22).pos, icon: 'uni', tag: 'SKCET' },
+      { p: placeAt(uOf(0.27), -1, 31).pos, icon: 'palace' },
+      { p: placeAt(uOf(0.53), -1, 32).pos, icon: 'church' }
+    ].concat(MAP_MARKS);
+    // small hand-drawn icons on round badges
+    function icon(type, x, y, r) {
+      const bg = { uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
+      ctx.save(); ctx.translate(x, y);
+      ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.stroke();
+      ctx.fillStyle = '#ffffff'; ctx.strokeStyle = '#ffffff'; const k = r * 0.55;
+      ctx.beginPath();
+      if (type === 'uni') { ctx.moveTo(-k, -k * 0.1); ctx.lineTo(0, -k * 0.6); ctx.lineTo(k, -k * 0.1); ctx.lineTo(0, k * 0.4); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.5, 0, k, k * 0.55); ctx.fillStyle = '#f0c94f'; ctx.fillRect(k * 0.75, -k * 0.1, k * 0.14, k * 0.8); }
+      else if (type === 'church') { ctx.arc(0, k * 0.15, k * 0.6, Math.PI, 0); ctx.fill(); ctx.fillRect(-k * 0.8, k * 0.15, k * 1.6, k * 0.7); ctx.fillRect(-k * 0.08, -k * 0.95, k * 0.16, k * 0.6); ctx.fillRect(-k * 0.3, -k * 0.75, k * 0.6, k * 0.14); }
+      else if (type === 'palace') { ctx.fillStyle = '#f0c94f'; ctx.moveTo(-k, k * 0.6); ctx.lineTo(-k, -k * 0.5); ctx.lineTo(-k * 0.5, 0); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.5, 0); ctx.lineTo(k, -k * 0.5); ctx.lineTo(k, k * 0.6); ctx.closePath(); ctx.fill(); }
+      else if (type === 'zoo') { ctx.arc(0, k * 0.35, k * 0.45, 0, Math.PI * 2); ctx.fill(); [[-0.6, -0.25], [-0.22, -0.65], [0.22, -0.65], [0.6, -0.25]].forEach(([a, b]) => { ctx.beginPath(); ctx.arc(a * k, b * k, k * 0.22, 0, Math.PI * 2); ctx.fill(); }); }
+      else if (type === 'park') { ctx.arc(0, -k * 0.25, k * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-k * 0.12, 0, k * 0.24, k * 0.9); }
+      else if (type === 'school') { ctx.moveTo(-k * 0.9, -k * 0.05); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.9, -k * 0.05); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.7, -k * 0.05, k * 1.4, k * 0.85); ctx.fillStyle = bg; ctx.fillRect(-k * 0.18, k * 0.3, k * 0.36, k * 0.5); }
+      else if (type === 'hospital') { ctx.font = '900 ' + Math.round(r * 1.25) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', 0, r * 0.08); }
+      else if (type === 'eye') { ctx.lineWidth = Math.max(1, r * 0.14); ctx.arc(0, -k * 0.1, k * 0.7, 0, Math.PI * 2); ctx.stroke(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(Math.cos(a) * k * 0.7, -k * 0.1 + Math.sin(a) * k * 0.7); ctx.lineTo(-Math.cos(a) * k * 0.7, -k * 0.1 - Math.sin(a) * k * 0.7); } ctx.moveTo(-k * 0.5, k * 0.9); ctx.lineTo(0, -k * 0.1); ctx.lineTo(k * 0.5, k * 0.9); ctx.stroke(); }
+      else if (type === 'shield') { ctx.fillStyle = '#d4a83a'; ctx.moveTo(0, -k * 0.95); ctx.lineTo(k * 0.8, -k * 0.6); ctx.lineTo(k * 0.7, k * 0.2); ctx.lineTo(0, k * 0.95); ctx.lineTo(-k * 0.7, k * 0.2); ctx.lineTo(-k * 0.8, -k * 0.6); ctx.closePath(); ctx.fill(); }
+      ctx.restore();
+    }
     const riverA = RIV.p.clone().addScaledVector(RIV.n, -RIVER_LEN / 2), riverB = RIV.p.clone().addScaledVector(RIV.n, RIVER_LEN / 2);
     let size = 0;
     function resize() {
@@ -2839,7 +2963,7 @@
       ctx.beginPath(); road.forEach((p, i) => i ? ctx.lineTo(X(p.x), Y(p.z)) : ctx.moveTo(X(p.x), Y(p.z))); ctx.closePath(); ctx.stroke();
       ctx.strokeStyle = 'rgba(212, 168, 58, 0.55)'; ctx.lineWidth = Math.max(1, S * 0.006); ctx.stroke();
       // landmarks
-      marks.forEach(m => { ctx.fillStyle = m.c; const r = S * (m.tag ? 0.028 : 0.022); if (m.sq) ctx.fillRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); else { ctx.beginPath(); ctx.arc(X(m.p.x), Y(m.p.z), r, 0, Math.PI * 2); ctx.fill(); }
+      marks.forEach(m => { if (m.icon) { icon(m.icon, X(m.p.x), Y(m.p.z), S * 0.045); return; } ctx.fillStyle = m.c; const r = S * (m.tag ? 0.028 : 0.022); if (m.sq) ctx.fillRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); else { ctx.beginPath(); ctx.arc(X(m.p.x), Y(m.p.z), r, 0, Math.PI * 2); ctx.fill(); }
         if (m.tag) { ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, S * 0.008); ctx.strokeRect(X(m.p.x) - r, Y(m.p.z) - r, r * 2, r * 2); ctx.font = '700 ' + Math.round(S * 0.05) + 'px Arial, sans-serif'; } });
       // traffic
       (trafficRef.list || []).forEach(o => { ctx.fillStyle = o.isBus ? '#e0303f' : '#b9b4a8'; ctx.beginPath(); ctx.arc(X(o.v.position.x), Y(o.v.position.z), S * (o.isBus ? 0.013 : 0.009), 0, Math.PI * 2); ctx.fill(); });
@@ -3130,6 +3254,7 @@
     // cars and buses keep their original smooth look
     const ownMat = new Map();
     const keep = [rider].concat((trafficRef.list || []).map(o => o.v));
+    scene.traverse(o => { if (o.userData.keepSmooth) keep.push(o); });
     keep.forEach(root => root && root.traverse(o => {
       o.userData.noVox = true;
       if (o.isMesh && o.material && !Array.isArray(o.material)) { let c = ownMat.get(o.material); if (!c) { c = o.material.clone(); ownMat.set(o.material, c); } o.material = c; }
