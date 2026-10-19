@@ -1548,12 +1548,24 @@
   (function () {
     const { pos, heading } = placeAt(uOf(0.53), -1, 40);
     const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = heading; scene.add(g);
+    g.userData.keepSmooth = true; // the cathedral keeps the smooth (non-voxel) look
     mk(new THREE.BoxGeometry(16, 11, 34), PORTLAND, 0, 5.5, 0, g);
+    // smooth-edition detail: plinth and west steps, cornice, arched windows down the nave
+    mk(new THREE.BoxGeometry(17.4, 0.6, 35.4), '#d9d1c2', 0, 0.3, 0, g);
+    for (let k = 0; k < 3; k++) mk(new THREE.BoxGeometry(1.2, 0.3 * (3 - k), 10), '#e3dccd', -9.3 - k * 1.1 + 1.1, 0.15 * (3 - k), 0, g);
+    mk(new THREE.BoxGeometry(16.6, 0.6, 34.6), '#f1ebdf', 0, 11.1, 0, g);
+    const WIN = '#3b4554';
+    [-1, 1].forEach(sx => { for (let z = -14; z <= 14; z += 3.5) { if (Math.abs(z) < 1) continue;
+      mk(new THREE.BoxGeometry(0.12, 3.2, 1.4), WIN, sx * 8.03, 5.2, z, g);
+      mk(new THREE.CylinderGeometry(0.7, 0.7, 0.12, 12, 1, false, 0, Math.PI), WIN, sx * 8.03, 6.8, z, g, { rz: Math.PI / 2, ry: sx > 0 ? 0 : Math.PI });
+      mk(new THREE.BoxGeometry(0.3, 8.5, 0.5), '#f4efe4', sx * 8.1, 5.6, z + 1.75, g); } });
     for (let k = -2; k <= 2; k++) mk(new THREE.CylinderGeometry(0.5, 0.55, 8, 10), '#f1ebdf', -8.6, 4, k * 1.8, g);
     mk(new THREE.ConeGeometry(5.5, 3, 4, 1), PORTLAND, -8.4, 9.5, 0, g, { ry: Math.PI / 4 }).scale.set(0.35, 1, 1.3);
-    mk(new THREE.CylinderGeometry(7, 7.4, 6, 20), PORTLAND, 0, 14, 0, g);
+    mk(new THREE.CylinderGeometry(7, 7.4, 6, 40), PORTLAND, 0, 14, 0, g);
     for (let k = 0; k < 20; k++) { const a = k / 20 * Math.PI * 2; mk(new THREE.CylinderGeometry(0.3, 0.3, 5.5, 6), '#f4efe4', Math.cos(a) * 7.6, 14, Math.sin(a) * 7.6, g); }
-    mk(new THREE.SphereGeometry(7, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2), '#8f9aa6', 0, 17, 0, g);
+    mk(new THREE.SphereGeometry(7, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), '#8f9aa6', 0, 17, 0, g);
+    for (let k = 0; k < 16; k++) { const a = k / 16 * Math.PI * 2; const rib = mk(new THREE.TorusGeometry(7.05, 0.08, 4, 24, Math.PI / 2), '#a8b2bc', 0, 17, 0, g); rib.rotation.set(0, a, 0); }
+    mk(new THREE.CylinderGeometry(7.3, 7.3, 0.4, 40), '#f1ebdf', 0, 17.1, 0, g);
     mk(new THREE.CylinderGeometry(1.1, 1.3, 3.4, 10), PORTLAND, 0, 25.6, 0, g);
     mk(new THREE.SphereGeometry(0.55, 10, 8), GOLD, 0, 27.8, 0, g);
     mk(new THREE.BoxGeometry(0.15, 1.3, 0.15), GOLD, 0, 28.8, 0, g); mk(new THREE.BoxGeometry(0.7, 0.15, 0.15), GOLD, 0, 29, 0, g);
@@ -1744,10 +1756,10 @@
       return g;
     }
     const boats = [
-      { g: cruiser('SHIELD  I'), xmin: 16, xmax: 190, x: 60, z: -7, h: 0, v: 4.2 },
-      { g: tug(), xmin: 16, xmax: 190, x: 150, z: 7, h: Math.PI, v: 3.4 },
-      { g: cruiser('SHIELD  II'), xmin: -190, xmax: -16, x: -90, z: 7, h: Math.PI, v: 4.0 },
-      { g: yacht(), xmin: -190, xmax: -16, x: -40, z: -7, h: 0, v: 3.0 }
+      { g: cruiser('SHIELD  I'), xmin: 48, xmax: 190, x: 80, z: -7, h: 0, v: 4.2 }, // boats turn well clear of the bridge and road
+      { g: tug(), xmin: 48, xmax: 190, x: 150, z: 7, h: Math.PI, v: 3.4 },
+      { g: cruiser('SHIELD  II'), xmin: -190, xmax: -48, x: -110, z: 7, h: Math.PI, v: 4.0 },
+      { g: yacht(), xmin: -190, xmax: -48, x: -70, z: -7, h: 0, v: 3.0 }
     ];
     boats.forEach((b, i) => { sg.add(b.g); b.turning = 0; b.ph = i * 1.7; });
     function sail(dt, now) {
