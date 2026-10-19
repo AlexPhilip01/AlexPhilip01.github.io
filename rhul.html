@@ -693,7 +693,7 @@
     const up = keys.arrowup || keys.w || touch.up, down = keys.arrowdown || keys.s || touch.down;
     const left = keys.arrowleft || keys.a || touch.left, right = keys.arrowright || keys.d || touch.right;
     const here = classAt(rider.position.x, rider.position.z);
-    const vmax = here === 3 ? 17 : here === 7 ? 10 : 7;
+    const vmax = here === 3 ? 30 : here === 7 ? 16 : 11;
     if (touring) {
       // follow the campus loop (after driving in from the gates): steer at a point a few metres ahead
       let target;
@@ -709,15 +709,15 @@
       const want = Math.atan2(target.x - rider.position.x, target.z - rider.position.z);
       let dh = want - car.heading; dh = Math.atan2(Math.sin(dh), Math.cos(dh));
       car.heading += clamp(dh, -1.6 * dt, 1.6 * dt);
-      const slow = Math.abs(dh) > 0.35 ? 6 : 9;
+      const slow = Math.abs(dh) > 0.35 ? 9 : 15;
       car.speed += (slow - car.speed) * Math.min(1, dt * 1.5);
       if (!leadIn) { const p = TOUR.getPointAt(tourT); if (p.distanceTo(rider.position) > 12) { tourT = (tourT + 0.0005) % 1; } }
     } else {
-      if (up) car.speed += (car.speed < 0 ? 14 : 7) * dt;
+      if (up) car.speed += (car.speed < 0 ? 18 : 13) * dt;
       else if (down) car.speed -= (car.speed > 0 ? 16 : 5) * dt;
       else car.speed -= Math.sign(car.speed) * Math.min(Math.abs(car.speed), 3.5 * dt);
       if (keys[' ']) car.speed -= Math.sign(car.speed) * Math.min(Math.abs(car.speed), 22 * dt);
-      car.speed = clamp(car.speed, -6, vmax);
+      car.speed = clamp(car.speed, -8, Math.max(vmax, car.speed - 20 * dt));
       const steerIn = (left ? 1 : 0) - (right ? 1 : 0);
       car.steer += (steerIn - car.steer) * Math.min(1, dt * 6);
       car.heading += car.steer * clamp(car.speed / 6, -1, 1) * 1.5 * dt;
