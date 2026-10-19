@@ -554,7 +554,7 @@
   const pts = wig.map((d, k) => { const a = Math.PI + k / wig.length * Math.PI * 2, r = 185 + d; return new THREE.Vector3(LOOP_C.x + Math.cos(a) * r * 1.18, 0, LOOP_C.z + Math.sin(a) * r); });
   const curve = new THREE.CatmullRomCurve3(pts, true, 'centripetal');
   const LEN = curve.getLength();
-  const ROAD_W = 4.2;
+  const ROAD_W = 6.5;
   const SEG = 1200;
   const frames = [];
   for (let i = 0; i <= SEG; i++) {
@@ -577,7 +577,7 @@
     const m = new THREE.Mesh(g, new THREE.MeshLambertMaterial({ color, side: THREE.DoubleSide }));
     m.receiveShadow = true; scene.add(m); return m;
   }
-  ribbon(ROAD_W + 2.2, 0.02, '#cdc6bb');
+  ribbon(ROAD_W + 3.4, 0.02, '#cdc6bb');
   ribbon(ROAD_W + 0.35, 0.04, '#e6e0d6');
   ribbon(ROAD_W, 0.06, '#3a3741');
   // double yellow lines along both kerbs
@@ -2158,9 +2158,9 @@
     const f = frameAt(d / LEN);
     for (const side of [-1, 1]) {
       for (let row = 0; row < 3; row++) {
-        if (rand() < (row === 0 ? 0.08 : 0.25)) continue;
+        if (rand() < (row === 0 ? 0.3 : 0.45)) continue; // fewer, more spread-out buildings
         const w = 5 + rand() * 3, dd = 6 + rand() * 4;
-        const off = ROAD_W + 6.5 + row * 12 + rand() * 2 + dd / 2;
+        const off = ROAD_W + 10 + row * 16 + rand() * 3 + dd / 2; // set further back from the road
         const along = (rand() - 0.5) * 1.5;
         const x = f.p.x + f.n.x * side * off + f.t.x * along, z = f.p.z + f.n.z * side * off + f.t.z * along;
         const r = Math.max(w, dd) * 0.6;
@@ -2475,7 +2475,7 @@
     });
     function place(o) {
       const f = frameAt(o.u);
-      o.v.position.copy(f.p).addScaledVector(f.n, 2.0); // oncoming lane: we keep left, as in the UK
+      o.v.position.copy(f.p).addScaledVector(f.n, 3.3); // oncoming lane: we keep left, as in the UK
       o.v.rotation.y = Math.atan2(f.t.x, f.t.z) + Math.PI;
     }
     fleet.forEach(place);
@@ -2484,7 +2484,7 @@
     const stopsU = BUS_STOP_PROGS.map(uOf);
     const aheadDist = (from, to) => ((((from - to) % 1) + 1) % 1) * LEN; // we travel towards smaller u
     const d0 = d => d.uStart;
-    const laneAt = u => { const f = frameAt(u); return f.p.clone().addScaledVector(f.n, 2.0).setY(0); };
+    const laneAt = u => { const f = frameAt(u); return f.p.clone().addScaledVector(f.n, 3.3).setY(0); };
     DETOURS.forEach(d => { d.pts[0] = laneAt(d.uStart); d.pts[d.pts.length - 1] = laneAt(d.uEnd); d.curve = new THREE.CatmullRomCurve3(d.pts, false, 'centripetal'); d.len = d.curve.getLength(); });
     const nearLane = (u, m) => fleet.some(q => !q.det && (aheadDist(q.u, u) < m + 18 || aheadDist(u, q.u) < m));
     function followDetour(o, dt) {
@@ -2596,7 +2596,7 @@
     for (let k = 0; k < (isPhone ? 6 : 12); k++) {
       const c = cyclist(); scene.add(c);
       const oncoming = k % 2 === 1;
-      bikes.push({ c, u: rand(), lane: oncoming ? 3.6 : -3.45, dir: oncoming ? -1 : 1, speed: 3.4 + rand() * 1.6, ph: rand() * 6 });
+      bikes.push({ c, u: rand(), lane: oncoming ? 5.8 : -5.6, dir: oncoming ? -1 : 1, speed: 3.4 + rand() * 1.6, ph: rand() * 6 });
     }
     // King's Guard column marching along the palace pavement, led by a flag bearer
     const palaceU = uOf(0.27);
@@ -2885,7 +2885,7 @@
       let car = null; try { car = rider; } catch (e) { /* the car is built after the scenery */ }
       if (car && car.userData.u !== undefined) {
         const ahead = frameAt(car.userData.u + 17 / LEN);
-        tmp.copy(ahead.p).addScaledVector(ahead.n, -1.4);
+        tmp.copy(ahead.p).addScaledVector(ahead.n, -3.0);
         // look further ahead the faster the car is going, so the escort is already up when an obstacle arrives
         const spd = escort.prevU === undefined || dt <= 0 ? 0 : Math.min(200, Math.abs(car.userData.u - escort.prevU) * LEN / dt); escort.prevU = car.userData.u;
         tmp.y = climb(escort, 5.6 + Math.sin(now * 0.0015) * 0.35, tmp, ahead.t.x, ahead.t.z, dt, 14 + spd * 0.7);
@@ -3315,7 +3315,7 @@
     const f = frameAt(u);
     const fAhead = frameAt(u + 0.008);
     const heading = Math.atan2(f.t.x, f.t.z);
-    const lanePos = f.p.clone().addScaledVector(f.n, -1.7);
+    const lanePos = f.p.clone().addScaledVector(f.n, -3.0);
     rider.position.copy(lanePos);
     if (!reduceMotion) rider.position.y = Math.abs(speed) > 0.5 ? Math.sin(now * 0.03) * 0.015 : Math.sin(now * 0.004) * 0.02;
     rider.rotation.y = heading;
