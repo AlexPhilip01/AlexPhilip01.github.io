@@ -1173,7 +1173,7 @@
     // ===== Kingsgate Zoo (right-hand side, where the road keeps it in view) =====
     {
       const { g, toW } = site(0.255, 1, ROAD_W + 3.2);
-      reserve(toW, -2, -44, -28, 28); MAP_MARKS.push({ p: toW(-20, 0), icon: 'zoo' });
+      reserve(toW, -2, -44, -28, 28); MAP_MARKS.push({ p: toW(-20, 0), icon: 'zoo', name: 'Kingsgate Zoo' });
       ground(g, 44, 58, -22, 0, '#7da55a');
       ground(g, 6, 10, -3, 0, '#cbbd9a'); ground(g, 4, 56, -24, 0, '#cbbd9a'); // entrance plaza and main path
       // entrance: two stone pillars and a big arch board
@@ -1256,7 +1256,7 @@
 
     // ===== Thameside General Hospital (left, opposite the playground; generic hospital signs) =====
     {
-      const { g, toW } = site(0.565, -1, ROAD_W + 3.2);
+      const { g, toW } = site(0.565, -1, ROAD_W + 10.5); // set well back: the road bends towards it here
       reserve(toW, -2, -42, -20, 20);
       ground(g, 34, 30, -24, 0, '#9a9a96'); // kept clear of the road, which bends towards the hospital
       const HB = '#e9eef2', BLUE = '#1f5fae';
@@ -1287,13 +1287,13 @@
       const amb1 = ambulance(); amb1.position.set(-9, 0, 11); amb1.rotation.y = -Math.PI / 2 - 0.45; g.add(amb1);
       const amb2 = ambulance(); amb2.position.set(-6, 0, 4); amb2.rotation.y = -Math.PI / 2 - 0.1; g.add(amb2);
       for (let i = 0; i < 4; i++) kid(g, -11 - i * 0.8, 0, 4 + i * 1.5, false).scale.setScalar(1.45);
-      MAP_MARKS.push({ p: toW(-18, 0), icon: 'hospital' });
+      MAP_MARKS.push({ p: toW(-18, 0), icon: 'hospital', name: 'Thameside General Hospital' });
     }
 
     // ===== Little Acorns Playground (right-hand side) =====
     {
       const { g, toW } = site(0.565, 1, ROAD_W + 3.2);
-      reserve(toW, -2, -30, -20, 20); MAP_MARKS.push({ p: toW(-13, 0), icon: 'park' });
+      reserve(toW, -2, -30, -20, 20); MAP_MARKS.push({ p: toW(-13, 0), icon: 'park', name: 'Little Acorns Playground' });
       ground(g, 26, 38, -14, 0, '#5fa14a');
       ground(g, 16, 26, -12, 0, '#3f7fbf'); // soft play surface
       [[-6, -8, '#e53935'], [-15, 6, '#fdd835'], [-9, 9, '#43a047']].forEach(([x, z, c]) => { const d = new THREE.Mesh(new THREE.CircleGeometry(2.2, 20), M(c)); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.16, z); g.add(d); });
@@ -1347,7 +1347,7 @@
     // ===== Hollybrook Primary School =====
     {
       const { g, toW } = site(SCHOOL_PROG, SCHOOL_SIDE, ROAD_W + 3.2);
-      reserve(toW, -2, -40, -22, 22); MAP_MARKS.push({ p: toW(-24, 0), icon: 'school' });
+      reserve(toW, -2, -40, -22, 22); MAP_MARKS.push({ p: toW(-24, 0), icon: 'school', name: 'Hollybrook Primary School' });
       ground(g, 38, 44, -20, 0, '#8c8c88'); // tarmac playground
       const hop = canvasTex(256, 256, (x, w, h) => { x.fillStyle = '#8c8c88'; x.fillRect(0, 0, w, h); x.strokeStyle = '#fdd835'; x.lineWidth = 6; for (let i = 0; i < 6; i++) x.strokeRect(100, 10 + i * 40, 56, 40); x.fillStyle = '#ffffff'; x.font = '700 30px Arial'; for (let i = 0; i < 6; i++) x.fillText(String(i + 1), 118, 42 + i * 40); x.strokeStyle = '#e53935'; x.beginPath(); x.arc(40, 200, 30, 0, Math.PI * 2); x.stroke(); });
       const hp = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.MeshLambertMaterial({ map: hop })); hp.rotation.x = -Math.PI / 2; hp.position.set(-8, 0.16, -12); g.add(hp);
@@ -1665,7 +1665,8 @@
 
     // The London Eye: cantilevered white wheel on its A-frame, with 32 egg-shaped glass capsules on the outside of the rim
     const R = 25, cy = R + 4;
-    const eye = new THREE.Group(); eye.position.set(-(ROAD_W + 50), 0, -(RIVER_HALF - 1)); eye.rotation.y = 0.5; g.add(eye);
+    const EYE_X = ROAD_W + 50, EYE_R = -0.5; // on the left of the road
+    const eye = new THREE.Group(); eye.position.set(EYE_X, 0, -(RIVER_HALF - 1)); eye.rotation.y = EYE_R; g.add(eye);
     const WHITE = new THREE.MeshPhongMaterial({ color: '#f4f5f7', shininess: 40, specular: '#ffffff' });
     const wheel = new THREE.Group(); wheel.position.y = cy; eye.add(wheel);
     // rim truss: two outer rims, an inner rim and diagonal lacing between them
@@ -1725,15 +1726,32 @@
     mk(new THREE.BoxGeometry(14.4, 0.25, 5), '#5fb0ff', 0, 3.3, 4.5, eye);
     // keep buildings clear of the whole wheel, its legs and backstays
     for (let ex = -32; ex <= 32; ex += 6) for (let ez = -38; ez <= 6; ez += 6) {
-      const lx = -(ROAD_W + 50) + ex * Math.cos(0.5) + ez * Math.sin(0.5), lz = -(RIVER_HALF - 1) - ex * Math.sin(0.5) + ez * Math.cos(0.5);
+      const lx = EYE_X + ex * Math.cos(EYE_R) + ez * Math.sin(EYE_R), lz = -(RIVER_HALF - 1) - ex * Math.sin(EYE_R) + ez * Math.cos(EYE_R);
       const w = toWorld(lx, lz); occupied.push({ x: w.x, z: w.z, r: 5 });
     }
-    MAP_MARKS.push({ p: toWorld(-(ROAD_W + 50), -(RIVER_HALF - 1)), icon: 'eye' });
+    MAP_MARKS.push({ p: toWorld(EYE_X, -(RIVER_HALF - 1)), icon: 'eye', name: 'London Eye' });
+    MAP_MARKS.push({ p: RIV.p.clone(), icon: 'bridge', name: 'Tower Bridge' });
     spinners.push(dt => {
       wheel.rotation.z += dt * 0.035;
       pods.forEach(p => { p.pg.rotation.z = -wheel.rotation.z; });
     });
   })();
+
+  // ---------- Name boards for the big landmarks: black and gold, angled towards approaching drivers ----------
+  function nameBoard(prog, side, along, title, sub) {
+    const { f, pos } = placeAt(prog, side, ROAD_W + 2.4, along);
+    const toRoad = f.n.clone().multiplyScalar(-side), nrm = toRoad.multiplyScalar(Math.cos(0.6)).addScaledVector(f.t, -Math.sin(0.6));
+    const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = Math.atan2(nrm.x, nrm.z); scene.add(g);
+    const tex = canvasTex(768, 176, (x, w, h) => { x.fillStyle = '#121215'; x.fillRect(0, 0, w, h); x.strokeStyle = '#d4a83a'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#e9c45a'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 64px Cinzel, Georgia, serif'; x.fillText(title, w / 2, sub ? 72 : h / 2); if (sub) { x.fillStyle = '#cfc8b8'; x.font = '600 26px Arial, Helvetica, sans-serif'; x.fillText(sub, w / 2, 132); } });
+    const face = new THREE.Mesh(new THREE.PlaneGeometry(7.6, 1.75), new THREE.MeshBasicMaterial({ map: tex })); face.position.set(0, 3.7, 0.08); g.add(face);
+    mk(new THREE.BoxGeometry(7.9, 2.05, 0.12), '#121215', 0, 3.7, 0, g);
+    [-3.6, 3.6].forEach(x => { mk(new THREE.BoxGeometry(0.22, 4.7, 0.22), '#1a1a1e', x, 2.35, -0.1, g); mk(new THREE.SphereGeometry(0.2, 10, 8), GOLD, x, 4.85, -0.1, g); });
+    occupied.push({ x: pos.x, z: pos.z, r: 4 });
+  }
+  nameBoard(uOf(0.27), -1, -24, 'BUCKINGHAM PALACE', 'THE KING’S LONDON RESIDENCE');
+  nameBoard(uOf(0.53), -1, -30, 'ST PAUL’S CATHEDRAL', 'SIR CHRISTOPHER WREN · 1710');
+  nameBoard(RIVER_U, -1, -36, 'LONDON EYE', 'ON THE RIVERBANK');
+  nameBoard(RIVER_U, 1, -36, 'TOWER BRIDGE', 'OVER THE THAMES · 1894');
 
   // ---------- Boats on the river, all flying SHIELD flags ----------
   (function () {
@@ -2960,6 +2978,15 @@
   const miniMap = (function () {
     const mm = document.createElement('canvas'); mm.className = 'minimap'; mm.setAttribute('role', 'img'); mm.setAttribute('aria-label', 'Map of the route');
     document.body.appendChild(mm);
+    { // tap the map (or press M) to open a big labelled map; tap again or Esc to close
+      const st = document.createElement('style');
+      st.textContent = '.minimap{pointer-events:auto!important;cursor:zoom-in}.minimap.big{border-radius:14px!important;width:min(88vw,84vh)!important;height:min(88vw,84vh)!important;right:50%!important;bottom:50%!important;top:auto!important;transform:translate(50%,50%);z-index:40;cursor:zoom-out;box-shadow:0 0 0 2px #d4a83a,0 0 0 100vmax rgba(0,0,0,.55)}';
+      document.head.appendChild(st);
+      mm.title = 'Tap to open the map'; mm.setAttribute('role', 'button'); mm.tabIndex = 0; mm.setAttribute('aria-label', 'Map of the route: tap or press M to open the big map with place names');
+      const tog = on => mm.classList.toggle('big', on);
+      mm.addEventListener('click', () => tog());
+      addEventListener('keydown', e => { if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return; if (e.key === 'm' || e.key === 'M') tog(); else if (e.key === 'Escape') tog(false); });
+    }
     const ctx = mm.getContext('2d');
     const road = []; for (let i = 0; i <= SEG; i += 6) road.push(frames[i].p);
     let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity;
@@ -2967,16 +2994,16 @@
     const cx0 = (minX + maxX) / 2, cz0 = (minZ + maxZ) / 2, span = Math.max(maxX - minX, maxZ - minZ) * 1.18;
     const stopPts = signBoards.map(s => s.g.position.clone());
     const marks = [
-      { p: frameAt(uOf(0) + 0.022).p, c: '#ffffff', label: 'S' },
-      { p: placeAt(uOf(0.128), 1, 14).pos, icon: 'shield' },
-      { p: placeAt(uOf(0.325), -1, 30).pos, icon: 'uni', tag: 'RHUL' },
-      { p: placeAt(uOf(0.63), -1, 22).pos, icon: 'uni', tag: 'SKCET' },
-      { p: placeAt(uOf(0.27), -1, 31).pos, icon: 'palace' },
-      { p: placeAt(uOf(0.53), -1, 40).pos, icon: 'church' }
+      { p: frameAt(uOf(0) + 0.022).p, c: '#ffffff', label: 'S', name: 'Start' },
+      { p: placeAt(uOf(0.128), 1, 14).pos, icon: 'shield', name: 'SHIELD Store' },
+      { p: placeAt(uOf(0.325), -1, 30).pos, icon: 'uni', tag: 'RHUL', name: 'Royal Holloway (tribute)' },
+      { p: placeAt(uOf(0.63), -1, 22).pos, icon: 'uni', tag: 'SKCET', name: 'SKCET (tribute)' },
+      { p: placeAt(uOf(0.27), -1, 31).pos, icon: 'palace', name: 'Buckingham Palace' },
+      { p: placeAt(uOf(0.53), -1, 40).pos, icon: 'church', name: "St Paul's Cathedral" }
     ].concat(MAP_MARKS);
     // small hand-drawn icons on round badges
     function icon(type, x, y, r) {
-      const bg = { uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
+      const bg = { bridge: '#2f5d86', uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
       ctx.save(); ctx.translate(x, y);
       ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.stroke();
@@ -2988,6 +3015,7 @@
       else if (type === 'zoo') { ctx.arc(0, k * 0.35, k * 0.45, 0, Math.PI * 2); ctx.fill(); [[-0.6, -0.25], [-0.22, -0.65], [0.22, -0.65], [0.6, -0.25]].forEach(([a, b]) => { ctx.beginPath(); ctx.arc(a * k, b * k, k * 0.22, 0, Math.PI * 2); ctx.fill(); }); }
       else if (type === 'park') { ctx.arc(0, -k * 0.25, k * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-k * 0.12, 0, k * 0.24, k * 0.9); }
       else if (type === 'school') { ctx.moveTo(-k * 0.9, -k * 0.05); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.9, -k * 0.05); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.7, -k * 0.05, k * 1.4, k * 0.85); ctx.fillStyle = bg; ctx.fillRect(-k * 0.18, k * 0.3, k * 0.36, k * 0.5); }
+      else if (type === 'bridge') { ctx.fillRect(-k * 0.75, -k * 0.7, k * 0.32, k * 1.5); ctx.fillRect(k * 0.43, -k * 0.7, k * 0.32, k * 1.5); ctx.fillRect(-k * 0.75, -k * 0.6, k * 1.5, k * 0.18); ctx.fillRect(-k, k * 0.25, k * 2, k * 0.2); }
       else if (type === 'hospital') { ctx.font = '900 ' + Math.round(r * 1.25) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', 0, r * 0.08); }
       else if (type === 'eye') { ctx.lineWidth = Math.max(1, r * 0.14); ctx.arc(0, -k * 0.1, k * 0.7, 0, Math.PI * 2); ctx.stroke(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(Math.cos(a) * k * 0.7, -k * 0.1 + Math.sin(a) * k * 0.7); ctx.lineTo(-Math.cos(a) * k * 0.7, -k * 0.1 - Math.sin(a) * k * 0.7); } ctx.moveTo(-k * 0.5, k * 0.9); ctx.lineTo(0, -k * 0.1); ctx.lineTo(k * 0.5, k * 0.9); ctx.stroke(); }
       else if (type === 'shield') { ctx.fillStyle = '#d4a83a'; ctx.moveTo(0, -k * 0.95); ctx.lineTo(k * 0.8, -k * 0.6); ctx.lineTo(k * 0.7, k * 0.2); ctx.lineTo(0, k * 0.95); ctx.lineTo(-k * 0.7, k * 0.2); ctx.lineTo(-k * 0.8, -k * 0.6); ctx.closePath(); ctx.fill(); }
@@ -3001,11 +3029,12 @@
     }
     return function draw(pos, t) {
       resize(); if (!size) return;
-      const S = size, R = S / 2, k = S / span;
+      const big = mm.classList.contains('big');
+      const S = size, R = S / 2, k = S / (span * (big ? 1.04 : 1));
       const X = x => R + (x - cx0) * k, Y = z => R + (z - cz0) * k;
       ctx.clearRect(0, 0, S, S);
-      ctx.save(); ctx.beginPath(); ctx.arc(R, R, R - 1, 0, Math.PI * 2); ctx.clip();
-      ctx.fillStyle = 'rgba(11, 11, 13, 0.88)'; ctx.fillRect(0, 0, S, S);
+      ctx.save(); ctx.beginPath(); if (big) ctx.rect(0, 0, S, S); else ctx.arc(R, R, R - 1, 0, Math.PI * 2); ctx.clip();
+      ctx.fillStyle = big ? 'rgba(11, 11, 13, 0.97)' : 'rgba(11, 11, 13, 0.88)'; ctx.fillRect(0, 0, S, S);
       // river
       ctx.strokeStyle = '#2f5d86'; ctx.lineWidth = Math.max(6, S * 0.045); ctx.lineCap = 'round';
       ctx.beginPath(); ctx.moveTo(X(riverA.x), Y(riverA.z)); ctx.lineTo(X(riverB.x), Y(riverB.z)); ctx.stroke();
@@ -3021,6 +3050,24 @@
       // numbered stops
       ctx.font = '700 ' + Math.round(S * 0.055) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       stopPts.forEach((p, i) => { ctx.fillStyle = '#d4a83a'; ctx.beginPath(); ctx.arc(X(p.x), Y(p.z), S * 0.036, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = '#0b0b0d'; ctx.fillText(String(i + 1), X(p.x), Y(p.z) + 1); })
+      // big map: every place named beside its icon, placed where it does not overlap another label or icon
+      if (big) {
+        const fs = Math.round(S * 0.026), th = fs * 1.35, ir = S * 0.045, boxes = [];
+        ctx.font = '700 ' + fs + 'px Arial, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+        marks.forEach(m => { if (m.icon) boxes.push([X(m.p.x) - ir, Y(m.p.z) - ir, ir * 2, ir * 2]); });
+        stopPts.forEach(p => boxes.push([X(p.x) - S * 0.036, Y(p.z) - S * 0.036, S * 0.072, S * 0.072]));
+        const hit = (a, b) => a[0] < b[0] + b[2] && b[0] < a[0] + a[2] && a[1] < b[1] + b[3] && b[1] < a[1] + a[3];
+        marks.forEach(m => { if (!m.name) return;
+          const x = X(m.p.x), y = Y(m.p.z), w = ctx.measureText(m.name).width + 10, g = ir + 4;
+          const cands = [[x + g, y - th / 2], [x - g - w, y - th / 2], [x - w / 2, y - g - th], [x - w / 2, y + g], [x + g, y - g - th * 0.6], [x - g - w, y - g - th * 0.6], [x + g, y + g * 0.6], [x - g - w, y + g * 0.6]];
+          let best = null, bestN = 1e9;
+          cands.forEach(([bx, by]) => { const bx2 = Math.min(Math.max(bx, 4), S - w - 4), by2 = Math.min(Math.max(by, 4), S - th - 4); const b = [bx2, by2, w, th]; const n = boxes.filter(o => hit(o, b)).length + (bx2 !== bx || by2 !== by ? 0.5 : 0); if (n < bestN) { bestN = n; best = b; } });
+          boxes.push(best);
+          ctx.fillStyle = 'rgba(11,11,13,.9)'; ctx.fillRect(best[0], best[1], best[2], best[3]); ctx.strokeStyle = 'rgba(212,168,58,.6)'; ctx.lineWidth = 1; ctx.strokeRect(best[0] + 0.5, best[1] + 0.5, best[2] - 1, best[3] - 1);
+          ctx.fillStyle = '#f0c94f'; ctx.fillText(m.name, best[0] + 5, best[1] + th / 2 + 1);
+        });
+        ctx.textAlign = 'center';
+      } else
       // tribute labels on top, nudged towards the centre
       marks.forEach(m => { if (!m.tag) return; ctx.font = '700 ' + Math.round(S * 0.05) + 'px Arial, sans-serif'; const dx = R - X(m.p.x), dy = R - Y(m.p.z), dl = Math.hypot(dx, dy) || 1, lx = X(m.p.x) + dx / dl * S * 0.17, ly = Y(m.p.z) + dy / dl * S * 0.13; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'rgba(11,11,13,.85)'; const tw = ctx.measureText(m.tag).width; ctx.fillRect(lx - tw / 2 - 3, ly - S * 0.032, tw + 6, S * 0.064); ctx.fillStyle = '#f0c94f'; ctx.fillText(m.tag, lx, ly + 1); });;
       // you
@@ -3031,8 +3078,9 @@
       ctx.restore();
       ctx.restore();
       // rim and north
-      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(2, S * 0.014); ctx.beginPath(); ctx.arc(R, R, R - ctx.lineWidth / 2, 0, Math.PI * 2); ctx.stroke();
-      ctx.fillStyle = '#d4a83a'; ctx.font = '700 ' + Math.round(S * 0.07) + 'px Cinzel, Georgia, serif'; ctx.fillText('N', R, S * 0.085);
+      ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(2, S * (big ? 0.006 : 0.014)); ctx.beginPath(); if (big) ctx.rect(ctx.lineWidth / 2, ctx.lineWidth / 2, S - ctx.lineWidth, S - ctx.lineWidth); else ctx.arc(R, R, R - ctx.lineWidth / 2, 0, Math.PI * 2); ctx.stroke();
+      if (big) { ctx.fillStyle = '#cfc8b8'; ctx.font = '600 ' + Math.round(S * 0.022) + 'px Arial, sans-serif'; ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'; ctx.fillText('Tap the map or press Esc to close', S - S * 0.02, S - S * 0.015); ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; }
+      ctx.fillStyle = '#d4a83a'; ctx.font = '700 ' + Math.round(S * 0.07) + 'px Cinzel, Georgia, serif'; ctx.fillText('N', big ? S * 0.05 : R, S * (big ? 0.06 : 0.085));
     };
   })();
 
