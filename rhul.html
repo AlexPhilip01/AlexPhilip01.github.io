@@ -729,7 +729,7 @@
     bx.strokeStyle = '#d7dae2'; bx.lineWidth = 10; bx.beginPath(); bx.arc(128, 128, 112, 0, Math.PI * 2); bx.stroke();
     bx.strokeStyle = '#d4a83a'; bx.lineWidth = 8; bx.beginPath(); bx.arc(128, 128, 96, 0, Math.PI * 2); bx.stroke();
     bx.fillStyle = '#ffffff'; bx.textAlign = 'center'; bx.textBaseline = 'middle'; bx.font = '800 92px Unbounded, "Arial Black", sans-serif'; bx.fillText('AP', 128, 134);
-    { const im = new Image(); im.onload = () => { bx.save(); bx.beginPath(); bx.arc(128, 128, 90, 0, Math.PI * 2); bx.clip(); bx.fillStyle = '#0b0b0d'; bx.fillRect(0, 0, 256, 256); bx.drawImage(im, 150, 18, 212, 272, 76, 60, 104, 134); bx.restore(); badgeTex.needsUpdate = true; }; im.src = SHIELD_LOGO; } // SHIELD emblem replaces the AP monogram
+    // the badge shows Alex's initials on this page (no logo)
     const badgeTex = new THREE.CanvasTexture(bc); badgeTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
     const badgeMat = new THREE.MeshBasicMaterial({ map: badgeTex });
     const badge = (r, x, y, z, rx, ry, parent = lean) => { const m = new THREE.Mesh(new THREE.CircleGeometry(r, 32), badgeMat); m.position.set(x, y, z); m.rotation.set(rx, ry, 0); parent.add(m); return m; };
@@ -771,7 +771,17 @@
   })();
   rider.scale.setScalar(1.15);
   scene.add(rider);
-  const START = { x: -255, z: 74, h: Math.atan2(-186 + 255, 8.5 - 74) }; // on the ring road, Founder's Building on your right
+  // entrance arch on the drive in from Egham Hill, with Alex's name
+  {
+    const [ax, az] = ROADS.west[1], [bx, bz] = ROADS.west[0];
+    const gx = bx + (ax - bx) * 0.32, gz = bz + (az - bz) * 0.32, hd = Math.atan2(bx - ax, bz - az);
+    const g = new THREE.Group(); g.position.set(gx, 0, gz); g.rotation.y = hd; scene.add(g);
+    [-1, 1].forEach(sd => { mk(new THREE.BoxGeometry(1.2, 8.6, 1.2), RH.slate, sd * 5.4, 4.3, 0, g); mk(new THREE.BoxGeometry(1.5, 0.5, 1.5), RH.orange, sd * 5.4, 8.85, 0, g); });
+    mk(new THREE.BoxGeometry(12.4, 2.6, 0.5), RH.slate, 0, 7.8, 0, g);
+    const t = canvasTex(1024, 220, (x, w, h) => { x.fillStyle = RH.slate; x.fillRect(0, 0, w, h); x.strokeStyle = RH.orange; x.lineWidth = 10; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = RH.grey; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 38px Arial, Helvetica, sans-serif'; x.fillText('ROYAL HOLLOWAY CAMPUS DRIVE BY', w / 2, 62); x.fillStyle = RH.orange; x.font = '800 96px Arial, Helvetica, sans-serif'; x.fillText('ALEX PHILIP', w / 2, 146); });
+    [1, -1].forEach(sd => { const f = new THREE.Mesh(new THREE.PlaneGeometry(11.6, 2.4), new THREE.MeshBasicMaterial({ map: t })); f.position.set(0, 7.8, sd * 0.27); if (sd < 0) f.rotation.y = Math.PI; g.add(f); });
+  }
+  const START = (() => { const [ax, az] = ROADS.west[1], [bx, bz] = ROADS.west[0]; return { x: bx + (ax - bx) * 0.62, z: bz + (az - bz) * 0.62, h: Math.atan2(bx - ax, bz - az) }; })(); // outside the entrance arch, facing in
   rider.position.set(START.x, 0, START.z); rider.rotation.y = START.h;
 
   // ---------- Traffic: buses and cars on the campus loop and along Egham Hill ----------
