@@ -1171,7 +1171,7 @@
     for (let z = -3.5; z <= 2.5; z += 0.4) add(new THREE.BoxGeometry(0.8, 0.05, 0.05), LAD, 0, 3.12, z);
     add(new THREE.BoxGeometry(0.3, 0.2, 0.3), LAD, 0, 3.0, 2.4);
     const lights = [-0.7, 0.7].map(x => { const m = new THREE.MeshBasicMaterial({ color: '#1e5bff' }); add(new THREE.BoxGeometry(0.5, 0.18, 0.3), m, x, 2.62, 3.4); return m; });
-    ambBlink.push(lights);
+    lights.owner = g; g.userData.siren = 'wail'; ambBlink.push(lights);
     [[-1.05, 2.6], [1.05, 2.6], [-1.05, -2.4], [1.05, -2.4], [-1.05, -3.4], [1.05, -3.4]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.36, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.5, z); g.add(w); });
     return g;
   }
@@ -1188,11 +1188,11 @@
     const word = canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#f7f7f2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b8a3a'; x.font = '900 34px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('AMBULANCE', w / 2, h / 2 + 2); });
     [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.6), new THREE.MeshBasicMaterial({ map: word })); b.position.set(sd * 1.06, 2.2, -0.6); b.rotation.y = sd * Math.PI / 2; g.add(b); });
     const lights = [-0.6, 0.6].map(x => { const m = new THREE.MeshBasicMaterial({ color: '#1e5bff' }); const l = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.2, 0.3), m); l.position.set(x, 2.8, 1.35); g.add(l); return m; });
-    ambBlink.push(lights);
+    lights.owner = g; g.userData.siren = 'twotone'; ambBlink.push(lights);
     [[-0.92, 1.8], [0.92, 1.8], [-0.92, -1.8], [0.92, -1.8]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.42, 0.42, 0.3, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.42, z); g.add(w); });
     return g;
   }
-  spinners.push((dt, now) => { const on = Math.floor(now / 180) % 2 === 0; ambBlink.forEach(([a, b]) => { a.color.set(on ? '#2f6bff' : '#0b1a44'); b.color.set(on ? '#0b1a44' : '#2f6bff'); }); });
+  spinners.push((dt, now) => { ambBlink.forEach(L => { const ud = L.owner.userData, [a, b] = L; if (ud.calm) { a.color.set('#1a2a55'); b.color.set('#1a2a55'); return; } const on = Math.floor(now / (ud.onCall ? 110 : 180)) % 2 === 0; a.color.set(on ? '#2f6bff' : '#0b1a44'); b.color.set(on ? '#0b1a44' : '#2f6bff'); }); });
   // ---------- A zoo, a children's playground and a primary school (invented names) ----------
   const SCHOOL_PROG = 0.83, SCHOOL_SIDE = 1;
   (function () {
@@ -2658,11 +2658,25 @@
     }
     const fleet = [];
     [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.415, ambulance, 13.5], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.76, fireEngine, 12.5], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
-      const v = make(); scene.add(v); fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus });
+      const v = make(); scene.add(v); const emerg = !!v.userData.siren; if (emerg) v.userData.calm = true;
+      fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus, emerg, call: 0, nextCall: emerg ? 6 + fleet.filter(q => q.emerg).length * 22 : 0, lane: 3.3, laneT: 3.3 });
+    });
+    let siren = null;
+    spinners.push((dt, now) => {
+      let best = null, bd = 1e9;
+      fleet.forEach(o => { if (o.emerg && o.call > 0) { const d = o.v.position.distanceTo(camera.position); if (d < bd) { bd = d; best = o; } } });
+      let A = null; try { A = soundOn && audio ? audio : null; } catch (e) { A = null; }
+      if (!A) { if (siren) siren.g.gain.value = 0; return; }
+      if (!siren) { const ctx = A.ctx, osc = ctx.createOscillator(), lp = ctx.createBiquadFilter(), g = ctx.createGain(); osc.type = 'square'; lp.type = 'lowpass'; lp.frequency.value = 1800; g.gain.value = 0; osc.connect(lp); lp.connect(g); g.connect(A.master); osc.start(); siren = { osc, g, ctx }; }
+      const t = siren.ctx.currentTime;
+      if (!best) { siren.g.gain.setTargetAtTime(0, t, 0.3); return; }
+      const f = best.v.userData.siren === 'wail' ? 700 + 550 * (0.5 - 0.5 * Math.cos(now / 4200 * Math.PI * 2)) : (Math.floor(now / 600) % 2 ? 770 : 960);
+      siren.osc.frequency.setTargetAtTime(f, t, best.v.userData.siren === 'wail' ? 0.05 : 0.01);
+      siren.g.gain.setTargetAtTime(0.09 * clamp(1 - bd / 260, 0, 1) ** 1.5, t, 0.15);
     });
     function place(o) {
       const f = frameAt(o.u);
-      o.v.position.copy(f.p).addScaledVector(f.n, 3.3); // oncoming lane: we keep left, as in the UK
+      o.v.position.copy(f.p).addScaledVector(f.n, o.lane == null ? 3.3 : o.lane); // oncoming lane: we keep left, as in the UK (emergencies run down the centre, others pull in)
       o.v.rotation.y = Math.atan2(f.t.x, f.t.z) + Math.PI;
     }
     fleet.forEach(place);
@@ -2690,7 +2704,16 @@
       fleet.forEach(o => {
         if (o.det) { followDetour(o, dt); return; }
         if (o.cool > 0) o.cool -= dt;
-        let target = o.speed;
+        // blue-light runs: now and then an ambulance or fire engine sets off on a call, sirens on, down the centre line
+        if (o.emerg) {
+          if (o.call > 0) { o.call -= dt; if (o.call <= 0) { o.v.userData.onCall = false; o.v.userData.calm = true; o.nextCall = 30 + rand() * 35; } }
+          else if ((o.nextCall -= dt) <= 0) { o.call = 20 + rand() * 8; o.v.userData.onCall = true; o.v.userData.calm = false; }
+        }
+        const onCall = o.emerg && o.call > 0;
+        o.laneT = onCall ? 0.5 : 3.3;
+        if (!onCall) fleet.forEach(e => { if (e.emerg && e.call > 0 && !e.det && aheadDist(e.u, o.u) < 70) o.laneT = 4.9; }); // pull in to the kerb to let it through
+        o.lane += (o.laneT - o.lane) * Math.min(1, dt * 1.8);
+        let target = onCall ? 21 : o.laneT > 4 ? Math.min(o.speed, 3.5) : o.speed;
         if (o.wait > 0) { o.wait -= dt; target = 0; }
         else if (o.isBus) {
           stopsU.forEach((s, i) => {
@@ -2703,13 +2726,14 @@
           });
         }
         let gap = Infinity;
-        fleet.forEach(q => { if (q !== o && !q.det) gap = Math.min(gap, aheadDist(o.u, q.u)); });
+        // on a call it only queues behind another vehicle on a call; everything else is pulling in, so it goes past down the middle
+        fleet.forEach(q => { if (q !== o && !q.det && (!onCall || (q.emerg && q.call > 0))) gap = Math.min(gap, aheadDist(o.u, q.u)); });
         const safe = 11.5;
         if (gap < safe + 14) target = Math.min(target, o.speed * clamp((gap - safe) / 14, 0, 1));
         o.cur += (target - o.cur) * Math.min(1, dt * (target < o.cur ? 4 : 1.1));
         const nu = (((o.u - o.cur * dt / LEN) % 1) + 1) % 1;
         const turn = !(o.cool > 0) && DETOURS.find(d => aheadDist(o.u, d.uStart) <= o.cur * dt / LEN * LEN + 1e-6 && aheadDist(o.u, d.uStart) < 2 && !d.busy);
-        if (turn && rand() < 0.45) { o.u = d0(turn); o.det = { d: turn, s: 0, parked: false }; turn.busy = true; o.v.userData.onDet = turn; return; }
+        if (turn && !onCall && !o.emerg && rand() < 0.45) { o.u = d0(turn); o.det = { d: turn, s: 0, parked: false }; turn.busy = true; o.v.userData.onDet = turn; return; }
         o.u = nu;
         place(o);
       });
