@@ -1124,13 +1124,66 @@
 
   // boxy ambulance in yellow-and-green chequers with flashing blue lights (generic, no organisation's logo)
   const ambBlink = [];
+  // ---------- People: seated crew for vehicle cabs, and firefighters in kit ----------
+  const SKIN = ['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e', '#e8b893'];
+  function crewSeat(parent, x, y, z, uniform, helmet) {
+    mk(new THREE.BoxGeometry(0.42, 0.42, 0.28), uniform, x, y + 0.1, z, parent);
+    mk(new THREE.BoxGeometry(0.24, 0.26, 0.24), pick(SKIN), x, y + 0.45, z, parent);
+    if (helmet) { mk(new THREE.SphereGeometry(0.17, 10, 8, 0, Math.PI * 2, 0, Math.PI / 2), helmet, x, y + 0.56, z, parent); mk(new THREE.CylinderGeometry(0.22, 0.22, 0.03, 12), helmet, x, y + 0.56, z, parent); }
+    else mk(new THREE.BoxGeometry(0.26, 0.07, 0.26), pick(['#2a1d14', '#141414', '#6b4a2b']), x, y + 0.6, z, parent);
+  }
+  function firefighter(parent, x, z, ry, pose = 'stand') {
+    const f = new THREE.Group(); f.position.set(x, 0, z); f.rotation.y = ry; parent.add(f);
+    const NAVY = '#252c38', HI = '#e8e23a', legs = [], arms = [];
+    [-0.12, 0.12].forEach(xx => { const pv = new THREE.Group(); pv.position.set(xx, 0.82, 0); f.add(pv); mk(new THREE.BoxGeometry(0.17, 0.78, 0.18), NAVY, 0, -0.39, 0, pv); mk(new THREE.BoxGeometry(0.19, 0.06, 0.2), HI, 0, -0.55, 0, pv); mk(new THREE.BoxGeometry(0.2, 0.12, 0.3), '#111', 0, -0.76, 0.04, pv); legs.push(pv); });
+    mk(new THREE.BoxGeometry(0.5, 0.66, 0.3), NAVY, 0, 1.16, 0, f);
+    [0.98, 1.3].forEach(y => mk(new THREE.BoxGeometry(0.52, 0.06, 0.32), HI, 0, y, 0, f));
+    [-0.31, 0.31].forEach(xx => { const pv = new THREE.Group(); pv.position.set(xx, 1.44, 0); f.add(pv); mk(new THREE.BoxGeometry(0.13, 0.6, 0.15), NAVY, 0, -0.3, 0, pv); mk(new THREE.BoxGeometry(0.14, 0.05, 0.16), HI, 0, -0.4, 0, pv); mk(new THREE.BoxGeometry(0.12, 0.12, 0.12), '#222', 0, -0.62, 0, pv); arms.push(pv); });
+    mk(new THREE.BoxGeometry(0.26, 0.28, 0.26), pick(SKIN), 0, 1.64, 0, f);
+    mk(new THREE.SphereGeometry(0.2, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), '#f2c919', 0, 1.76, 0, f);
+    mk(new THREE.CylinderGeometry(0.25, 0.25, 0.03, 12), '#f2c919', 0, 1.76, 0, f);
+    mk(new THREE.BoxGeometry(0.2, 0.08, 0.02), '#cfe6f5', 0, 1.7, 0.14, f); // visor
+    if (pose === 'hose') { arms.forEach(a => a.rotation.x = -1.2); const h = mk(new THREE.CylinderGeometry(0.06, 0.06, 1.2, 8), '#c7c2b2', 0, 1.15, 0.7, f); h.rotation.x = Math.PI / 2; mk(new THREE.CylinderGeometry(0.05, 0.08, 0.25, 8), '#9aa0a6', 0, 1.15, 1.35, f, { rx: Math.PI / 2 }); }
+    if (pose === 'wave') arms[1].rotation.z = -2.6;
+    f.userData = { legs, arms }; return f;
+  }
+  // ---------- Fire engine: red, white band, chevrons on the back, ladder on the roof, crew in the cab (generic, no brigade logo) ----------
+  function fireEngine() {
+    const g = new THREE.Group(); g.userData.keepSmooth = true;
+    const RED = new THREE.MeshPhongMaterial({ color: '#c8161d', shininess: 60, specular: '#ffd0d0' });
+    const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; g.add(m); return m; };
+    add(new THREE.BoxGeometry(2.4, 2.4, 5.6), RED, 0, 1.75, -1.2);                       // body with lockers
+    add(new THREE.BoxGeometry(2.42, 0.25, 5.62), M('#f4f4f0'), 0, 1.25, -1.2);            // white reflective band
+    for (let i = 0; i < 4; i++) add(new THREE.BoxGeometry(2.43, 0.03, 1.1), M('#9c1015'), 0, 1.75 + 0.2, -3.4 + i * 1.4); // locker shutters
+    add(new THREE.BoxGeometry(2.4, 1.05, 2.2), RED, 0, 1.05, 2.6);                         // cab lower
+    add(new THREE.BoxGeometry(2.36, 0.85, 2.1), new THREE.MeshPhongMaterial({ color: '#9fc3dd', transparent: true, opacity: 0.35, shininess: 90 }), 0, 2.0, 2.6); // crew-cab glass
+    add(new THREE.BoxGeometry(2.4, 0.12, 2.2), RED, 0, 2.48, 2.6);
+    [[-0.55, 3.2], [0.55, 3.2], [-0.55, 2.1], [0.55, 2.1]].forEach(([x, z]) => crewSeat(g, x, 1.45, z, '#252c38', '#f2c919')); // four firefighters in helmets
+    add(new THREE.BoxGeometry(2.2, 0.35, 0.1), M('#20242b'), 0, 0.85, 3.72);             // grille
+    [-0.85, 0.85].forEach(x => add(new THREE.CylinderGeometry(0.16, 0.16, 0.06, 12), BasicM('#fff4d0'), x, 0.95, 3.73).rotation.x = Math.PI / 2);
+    const chev = canvasTex(256, 128, (x, w, h) => { for (let i = -4; i < 12; i++) { x.fillStyle = i % 2 ? '#e8e23a' : '#d4141b'; x.beginPath(); x.moveTo(i * 32, h); x.lineTo(i * 32 + 32, h); x.lineTo(i * 32 + 32 + 64, 0); x.lineTo(i * 32 + 64, 0); x.fill(); } });
+    const back = new THREE.Mesh(new THREE.PlaneGeometry(2.3, 1.2), new THREE.MeshBasicMaterial({ map: chev })); back.position.set(0, 1.3, -4.02); back.rotation.y = Math.PI; g.add(back);
+    const word = canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#c8161d'; x.fillRect(0, 0, w, h); x.fillStyle = '#ffffff'; x.font = '900 30px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('FIRE & RESCUE', w / 2, h / 2 + 2); });
+    [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 0.6), new THREE.MeshBasicMaterial({ map: word })); b.position.set(sd * 1.22, 2.45, -1.2); b.rotation.y = sd * Math.PI / 2; g.add(b); });
+    // roof ladder
+    const LAD = M('#c9ccd1');
+    [-0.4, 0.4].forEach(x => add(new THREE.BoxGeometry(0.08, 0.1, 6.2), LAD, x, 3.12, -0.6));
+    for (let z = -3.5; z <= 2.5; z += 0.4) add(new THREE.BoxGeometry(0.8, 0.05, 0.05), LAD, 0, 3.12, z);
+    add(new THREE.BoxGeometry(0.3, 0.2, 0.3), LAD, 0, 3.0, 2.4);
+    const lights = [-0.7, 0.7].map(x => { const m = new THREE.MeshBasicMaterial({ color: '#1e5bff' }); add(new THREE.BoxGeometry(0.5, 0.18, 0.3), m, x, 2.62, 3.4); return m; });
+    ambBlink.push(lights);
+    [[-1.05, 2.6], [1.05, 2.6], [-1.05, -2.4], [1.05, -2.4], [-1.05, -3.4], [1.05, -3.4]].forEach(([x, z]) => { const w = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.36, 14), M('#151519')); w.rotation.z = Math.PI / 2; w.position.set(x, 0.5, z); g.add(w); });
+    return g;
+  }
   function ambulance() {
     const g = new THREE.Group(); g.userData.keepSmooth = true;
     const chk = canvasTex(256, 64, (x, w, h) => { for (let i = 0; i < 16; i++) for (let j = 0; j < 2; j++) { x.fillStyle = (i + j) % 2 ? '#f6e900' : '#1b8a3a'; x.fillRect(i * 16, j * 32, 16, 32); } });
     const body = new THREE.MeshLambertMaterial({ color: '#f7f7f2' });
     const box = new THREE.Mesh(new THREE.BoxGeometry(2.1, 2.3, 4.2), body); box.position.set(0, 1.55, -0.6); g.add(box);
-    const cab = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.4, 1.4), body); cab.position.set(0, 1.1, 2.1); g.add(cab);
-    const ws = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.6, 0.06), new THREE.MeshPhongMaterial({ color: '#2a3442', shininess: 90 })); ws.position.set(0, 1.45, 2.81); ws.rotation.x = -0.3; g.add(ws);
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.85, 1.4), body); cab.position.set(0, 0.83, 2.1); g.add(cab);
+    const glass = new THREE.Mesh(new THREE.BoxGeometry(1.96, 0.6, 1.36), new THREE.MeshPhongMaterial({ color: '#9fc3dd', transparent: true, opacity: 0.35, shininess: 90 })); glass.position.set(0, 1.55, 2.1); g.add(glass);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.08, 1.4), body); roof.position.set(0, 1.88, 2.1); g.add(roof);
+    crewSeat(g, -0.45, 1.25, 2.05, '#1f6b3a'); crewSeat(g, 0.45, 1.25, 2.05, '#1f6b3a'); // driver and paramedic in green
     [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 0.5), new THREE.MeshBasicMaterial({ map: chk })); b.position.set(sd * 1.06, 0.9, 0.1); b.rotation.y = sd * Math.PI / 2; g.add(b); });
     const word = canvasTex(256, 48, (x, w, h) => { x.fillStyle = '#f7f7f2'; x.fillRect(0, 0, w, h); x.fillStyle = '#1b8a3a'; x.font = '900 34px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('AMBULANCE', w / 2, h / 2 + 2); });
     [-1, 1].forEach(sd => { const b = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.6), new THREE.MeshBasicMaterial({ map: word })); b.position.set(sd * 1.06, 2.2, -0.6); b.rotation.y = sd * Math.PI / 2; g.add(b); });
@@ -1256,7 +1309,7 @@
 
     // ===== Thameside General Hospital (left, opposite the playground; generic hospital signs) =====
     {
-      const { g, toW } = site(0.565, -1, ROAD_W + 10.5); // set well back: the road bends towards it here
+      const { g, toW } = site(0.955, -1, ROAD_W + 4); // moved to the open stretch before the finish
       reserve(toW, -2, -42, -20, 20);
       ground(g, 34, 30, -24, 0, '#9a9a96'); // kept clear of the road, which bends towards the hospital
       const HB = '#e9eef2', BLUE = '#1f5fae';
@@ -1287,7 +1340,60 @@
       const amb1 = ambulance(); amb1.position.set(-9, 0, 11); amb1.rotation.y = -Math.PI / 2 - 0.45; g.add(amb1);
       const amb2 = ambulance(); amb2.position.set(-6, 0, 4); amb2.rotation.y = -Math.PI / 2 - 0.1; g.add(amb2);
       for (let i = 0; i < 4; i++) kid(g, -11 - i * 0.8, 0, 4 + i * 1.5, false).scale.setScalar(1.45);
+      [[-7.5, 8.2], [-4.6, 7.4]].forEach(([x, z]) => { const p = kid(g, x, 0, z, false); p.scale.setScalar(1.45); p.children[2].material = M('#1f6b3a'); }); // paramedics in green
       MAP_MARKS.push({ p: toW(-18, 0), icon: 'hospital', name: 'Thameside General Hospital' });
+    }
+
+    // ===== Riverside Fire Station (right-hand side; invented name, no brigade logo) =====
+    {
+      const { g, toW } = site(0.435, 1, ROAD_W + 4);
+      reserve(toW, -2, -44, -22, 22); MAP_MARKS.push({ p: toW(-20, 0), icon: 'fire', name: 'Riverside Fire Station' });
+      ground(g, 13, 34, -7.5, 0, '#a9a59c');   // concrete apron
+      ground(g, 30, 44, -29, 0, '#8f8b84');    // yard
+      const keep = canvasTex(256, 256, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#f2c200'; x.lineWidth = 10; x.strokeRect(8, 8, w - 16, h - 16); for (let i = -h; i < w; i += 40) { x.beginPath(); x.moveTo(i, h); x.lineTo(i + h, 0); x.stroke(); } });
+      const kb = new THREE.Mesh(new THREE.PlaneGeometry(9, 30), new THREE.MeshBasicMaterial({ map: keep, transparent: true })); kb.rotation.x = -Math.PI / 2; kb.position.set(-6.5, 0.14, 0); g.add(kb);
+      const BR = '#a5432f', ST = '#e6dfd0';
+      mk(new THREE.BoxGeometry(16, 10, 34), BR, -22, 5, 0, g);
+      mk(new THREE.BoxGeometry(16.6, 0.6, 34.6), ST, -22, 10.2, 0, g);
+      mk(new THREE.BoxGeometry(16.2, 0.4, 34.2), ST, -22, 6.4, 0, g);
+      const bays = [-11, 0, 11];
+      bays.forEach((z, i) => {
+        mk(new THREE.BoxGeometry(0.3, 6.0, 0.8), ST, -13.9, 3, z - 4.4, g); mk(new THREE.BoxGeometry(0.3, 6.0, 0.8), ST, -13.9, 3, z + 4.4, g);
+        mk(new THREE.BoxGeometry(0.3, 0.6, 9.6), ST, -13.9, 6.1, z, g);
+        if (i === 2) { const sh = canvasTex(64, 256, (x, w, h) => { x.fillStyle = '#c8161d'; x.fillRect(0, 0, w, h); x.fillStyle = '#a01016'; for (let y = 0; y < h; y += 12) x.fillRect(0, y, w, 3); });
+          const d = new THREE.Mesh(new THREE.PlaneGeometry(8, 5.8), new THREE.MeshLambertMaterial({ map: sh })); d.position.set(-13.95, 2.9, z); d.rotation.y = Math.PI / 2; g.add(d); }
+        else { const d = new THREE.Mesh(new THREE.PlaneGeometry(8, 5.8), M('#1b1b20')); d.position.set(-14.4, 2.9, z); d.rotation.y = Math.PI / 2; g.add(d); }
+        const num = canvasTex(64, 64, (x) => { x.fillStyle = '#fff'; x.beginPath(); x.arc(32, 32, 28, 0, Math.PI * 2); x.fill(); x.fillStyle = '#c8161d'; x.font = '900 40px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(String(i + 1), 32, 34); });
+        facing(g, num, 0.9, 0.9, -13.7, 6.1, z);
+      });
+      // first-floor windows, name board and a clock
+      const win = canvasTex(128, 64, (x, w, h) => { x.fillStyle = BR; x.fillRect(0, 0, w, h); x.fillStyle = ST; x.fillRect(14, 8, 36, 50); x.fillRect(78, 8, 36, 50); x.fillStyle = '#ffe6a6'; x.fillRect(18, 12, 28, 42); x.fillStyle = '#9ec3e6'; x.fillRect(82, 12, 28, 42); });
+      win.wrapS = THREE.RepeatWrapping; win.repeat.set(8, 1);
+      const wf = new THREE.Mesh(new THREE.PlaneGeometry(34, 2.6), new THREE.MeshLambertMaterial({ map: win, emissive: '#ffffff', emissiveMap: win, emissiveIntensity: 0.18 })); wf.position.set(-13.92, 8.2, 0); wf.rotation.y = Math.PI / 2; g.add(wf);
+      facing(g, board('RIVERSIDE FIRE STATION', 'FIRE & RESCUE SERVICE', '#c8161d', '#ffffff', 1024, 128), 14, 1.75, -13.6, 11.6, 0);
+      // drill tower with ladders and a firefighter climbing
+      mk(new THREE.BoxGeometry(5, 19, 5), BR, -24, 9.5, 19.4, g);
+      mk(new THREE.BoxGeometry(5.6, 0.6, 5.6), ST, -24, 19.2, 19.4, g);
+      for (let y = 3; y < 18; y += 3.6) mk(new THREE.BoxGeometry(0.2, 1.8, 1.6), '#1e2228', -21.45, y, 19.4, g);
+      [-0.45, 0.45].forEach(dz => mk(new THREE.BoxGeometry(0.08, 14, 0.08), '#c9ccd1', -21.2, 7, 18 + dz, g));
+      for (let y = 0.4; y < 14; y += 0.45) mk(new THREE.BoxGeometry(0.06, 0.05, 0.9), '#c9ccd1', -21.2, y, 18, g);
+      const climber = firefighter(g, -20.9, 18, -Math.PI / 2); climber.position.y = 5.2;
+      // engines: one on the apron with lights going, one in bay 1, one parked in the yard
+      const e1 = fireEngine(); e1.position.set(-7, 0, 0); e1.rotation.y = Math.PI / 2; g.add(e1);
+      const e2 = fireEngine(); e2.position.set(-17.5, 0, -11); e2.rotation.y = Math.PI / 2; g.add(e2);
+      const e3 = fireEngine(); e3.position.set(-38, 0, 12); e3.rotation.y = Math.PI; g.add(e3);
+      // firefighters: crew by the engine, one rolling out a hose, one waving, two on drill
+      const crew = [firefighter(g, -4.2, 2.6, Math.PI / 2, 'wave'), firefighter(g, -9.5, 2.8, Math.PI / 2 + 0.6), firefighter(g, -10.2, -2.6, 0.4), firefighter(g, -4.6, -6, Math.PI / 2 + 0.3, 'hose'), firefighter(g, -26, 13.5, 1.2), firefighter(g, -28, 15.5, -2.4)];
+      const hose = mk(new THREE.BoxGeometry(5.5, 0.06, 0.16), '#c7c2b2', -7.6, 0.12, -6, g); hose.rotation.y = 0.15;
+      const spray = new THREE.Mesh(new THREE.ConeGeometry(0.5, 4, 10, 1, true), new THREE.MeshBasicMaterial({ color: '#cfe8f7', transparent: true, opacity: 0.45, side: THREE.DoubleSide, depthWrite: false }));
+      spray.rotation.z = -Math.PI / 2 - 0.25; spray.position.set(-1.0, 1.7, -6); g.add(spray);
+      spinners.push((dt, now) => {
+        crew.forEach((c, i) => { if (i === 1 || i === 4) { const sw = Math.sin(now * 0.006 + i) * 0.4; c.userData.legs[0].rotation.x = sw; c.userData.legs[1].rotation.x = -sw; c.position.z += Math.sin(now * 0.0012 + i) * dt * 0.6; } });
+        if (crew[0].userData.arms[1]) crew[0].userData.arms[1].rotation.z = -2.4 + Math.sin(now * 0.008) * 0.4;
+        climber.position.y = 2.5 + (Math.sin(now * 0.0005) * 0.5 + 0.5) * 9; const cl = Math.sin(now * 0.01) * 0.5; climber.userData.legs[0].rotation.x = cl; climber.userData.legs[1].rotation.x = -cl; climber.userData.arms.forEach((a, k) => a.rotation.x = -2.6 + (k ? cl : -cl));
+        spray.scale.set(1, 0.9 + Math.sin(now * 0.02) * 0.1, 1);
+      });
+      compound(g, -1, -45, 22.5, 17, { col: BR, cap: ST, pier: '#8e3826' }); // fire station yard wall, open across the apron
     }
 
     // ===== Little Acorns Playground (right-hand side) =====
@@ -2291,8 +2397,13 @@
   instanced(peakGeo, new THREE.MeshPhongMaterial({ color: '#ffffff', flatShading: true, shininess: 4 }), peaks, it => it.color);
 
   // ---------- Plane trees & Victorian lamps ----------
-  const trunks = [], crowns = [];
-  const greens = ['#4f7f4a', '#5f8f55', '#6b9a5c', '#3f6e45'];
+  const trunks = [], crowns = [], cTrunks = [], cCrowns = [], petals = [];
+  const greens = ['#4f7f4a', '#5f8f55', '#6b9a5c', '#3f6e45'], pinks = ['#f7b7cf', '#f4a3c2', '#fbcfe0', '#ee94b8', '#fde3ec'];
+  function cherry(x, z, s) { // a spreading cherry blossom: dark trunk, three pink puffs and fallen petals
+    cTrunks.push({ x, z, sx: s, sy: s * 0.95, sz: s });
+    [[0, 2.7, 0, 1.15], [0.9, 2.35, 0.4, 0.8], [-0.8, 2.45, -0.5, 0.85], [0.2, 2.5, -0.9, 0.75]].forEach(([dx, y, dz, k]) => cCrowns.push({ x: x + dx * s, y: y * s, z: z + dz * s, sx: s * k * 1.15, sy: s * k * 0.8, sz: s * k * 1.15, ry: rand() * 3, color: new THREE.Color(pick(pinks)) }));
+    petals.push({ x, y: 0.1, z, rx: -Math.PI / 2, sx: s * (1.6 + rand() * 0.6), sy: s * (1.6 + rand() * 0.6), sz: 1 });
+  }
   for (let d = 3; d < LEN; d += 8) {
     const f = frameAt(d / LEN);
     for (const side of [-1, 1]) {
@@ -2302,6 +2413,7 @@
       if (roadDist(x, z) < ROAD_W + 2.6 || !free(x, z, 1.4)) continue;
       occupied.push({ x, z, r: 1.4 });
       const s = 0.9 + rand() * 0.5;
+      if (rand() < 0.3) { cherry(x, z, s); continue; }
       trunks.push({ x, z, sx: s, sy: s, sz: s });
       crowns.push({ x, y: 2.6 * s, z, sx: s, sy: s * (1 + rand() * 0.4), sz: s, ry: rand() * 3, color: new THREE.Color(pick(greens)) });
     }
@@ -2312,12 +2424,17 @@
     if (roadDist(x, z) < ROAD_W + 4 || !free(x, z, 1.6)) continue;
     occupied.push({ x, z, r: 1.6 });
     const s = 1 + rand() * 0.9;
+    if (rand() < 0.35) { cherry(x, z, s); continue; }
     trunks.push({ x, z, sx: s, sy: s, sz: s });
     crowns.push({ x, y: 2.6 * s, z, sx: s, sy: s * (1 + rand() * 0.4), sz: s, ry: rand() * 3, color: new THREE.Color(pick(greens)) });
   }
   const trunkGeo = new THREE.CylinderGeometry(0.18, 0.26, 2.2, 6); trunkGeo.translate(0, 1.1, 0);
   instanced(trunkGeo, M('#6b5a4a'), trunks);
   instanced(new THREE.IcosahedronGeometry(1.5, 1), new THREE.MeshPhongMaterial({ color: '#ffffff', shininess: 4 }), crowns, it => it.color);
+  const cTrunkGeo = new THREE.CylinderGeometry(0.14, 0.24, 2.4, 6); cTrunkGeo.translate(0, 1.2, 0);
+  instanced(cTrunkGeo, M('#4a3530'), cTrunks);
+  instanced(new THREE.IcosahedronGeometry(1.5, 1), new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#5a2338', emissiveIntensity: 0.25 }), cCrowns, it => it.color);
+  instanced(new THREE.CircleGeometry(1, 14), new THREE.MeshLambertMaterial({ color: '#f6c3d5', transparent: true, opacity: 0.75, depthWrite: false }), petals);
 
   const posts = [], bulbs = [];
   let lampSide = 1;
@@ -2539,7 +2656,7 @@
       return g;
     }
     const fleet = [];
-    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.415, ambulance, 13.5], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
+    [[0.03, () => suv('#111114'), 12], [0.08, bus, 9.5], [0.15, () => bus('SL8  UXBRIDGE', true), 11], [0.22, cab, 13], [0.27, () => sedan('#f2f2f0'), 13], [0.31, () => suv('#e9e9ea'), 12], [0.37, bus, 9], [0.415, ambulance, 13.5], [0.45, () => sedan('#111114'), 13], [0.52, cab, 12], [0.6, () => bus('SL8  UXBRIDGE', true), 11], [0.66, bus, 10], [0.72, () => suv('#4a4e57'), 12], [0.76, fireEngine, 12.5], [0.8, cab, 13], [0.86, () => sedan('#7d1b22'), 13], [0.93, bus, 9]].forEach(([u, make, speed]) => {
       const v = make(); scene.add(v); fleet.push({ v, u, speed, cur: speed, wait: 0, lastStop: -1, isBus: !!v.userData.isBus });
     });
     function place(o) {
@@ -3003,7 +3120,7 @@
     ].concat(MAP_MARKS);
     // small hand-drawn icons on round badges
     function icon(type, x, y, r) {
-      const bg = { bridge: '#2f5d86', uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
+      const bg = { fire: '#c8161d', bridge: '#2f5d86', uni: '#7a2e2e', church: '#5b6470', palace: '#7a1f2b', zoo: '#3f6e2a', park: '#2e7d32', school: '#1e5aa8', hospital: '#1f5fae', eye: '#2f5d86', shield: '#0b0b0d' }[type] || '#333';
       ctx.save(); ctx.translate(x, y);
       ctx.fillStyle = bg; ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.fill();
       ctx.strokeStyle = '#d4a83a'; ctx.lineWidth = Math.max(1, r * 0.14); ctx.stroke();
@@ -3015,6 +3132,7 @@
       else if (type === 'zoo') { ctx.arc(0, k * 0.35, k * 0.45, 0, Math.PI * 2); ctx.fill(); [[-0.6, -0.25], [-0.22, -0.65], [0.22, -0.65], [0.6, -0.25]].forEach(([a, b]) => { ctx.beginPath(); ctx.arc(a * k, b * k, k * 0.22, 0, Math.PI * 2); ctx.fill(); }); }
       else if (type === 'park') { ctx.arc(0, -k * 0.25, k * 0.6, 0, Math.PI * 2); ctx.fill(); ctx.fillRect(-k * 0.12, 0, k * 0.24, k * 0.9); }
       else if (type === 'school') { ctx.moveTo(-k * 0.9, -k * 0.05); ctx.lineTo(0, -k * 0.8); ctx.lineTo(k * 0.9, -k * 0.05); ctx.closePath(); ctx.fill(); ctx.fillRect(-k * 0.7, -k * 0.05, k * 1.4, k * 0.85); ctx.fillStyle = bg; ctx.fillRect(-k * 0.18, k * 0.3, k * 0.36, k * 0.5); }
+      else if (type === 'fire') { ctx.fillStyle = '#ffd24a'; ctx.moveTo(0, -k * 0.95); ctx.quadraticCurveTo(k * 0.85, -k * 0.1, k * 0.55, k * 0.55); ctx.quadraticCurveTo(0, k * 1.05, -k * 0.55, k * 0.55); ctx.quadraticCurveTo(-k * 0.8, 0, -k * 0.15, -k * 0.35); ctx.quadraticCurveTo(0, -k * 0.6, 0, -k * 0.95); ctx.fill(); }
       else if (type === 'bridge') { ctx.fillRect(-k * 0.75, -k * 0.7, k * 0.32, k * 1.5); ctx.fillRect(k * 0.43, -k * 0.7, k * 0.32, k * 1.5); ctx.fillRect(-k * 0.75, -k * 0.6, k * 1.5, k * 0.18); ctx.fillRect(-k, k * 0.25, k * 2, k * 0.2); }
       else if (type === 'hospital') { ctx.font = '900 ' + Math.round(r * 1.25) + 'px Arial, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('H', 0, r * 0.08); }
       else if (type === 'eye') { ctx.lineWidth = Math.max(1, r * 0.14); ctx.arc(0, -k * 0.1, k * 0.7, 0, Math.PI * 2); ctx.stroke(); for (let i = 0; i < 4; i++) { const a = i * Math.PI / 4; ctx.moveTo(Math.cos(a) * k * 0.7, -k * 0.1 + Math.sin(a) * k * 0.7); ctx.lineTo(-Math.cos(a) * k * 0.7, -k * 0.1 - Math.sin(a) * k * 0.7); } ctx.moveTo(-k * 0.5, k * 0.9); ctx.lineTo(0, -k * 0.1); ctx.lineTo(k * 0.5, k * 0.9); ctx.stroke(); }
