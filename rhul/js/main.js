@@ -34,7 +34,7 @@ async function main() {
   // ---------------------------------------------------------------- renderer and scene
   const canvas = $('scene');
   let renderer;
-  try { renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); }
+  try { renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: /[?&]capture/.test(location.search) }); }
   catch (e) { document.body.classList.add('no-webgl'); fail('Your browser could not start WebGL, which this 3D campus needs.'); return; }
   const maxPR = Math.min(devicePixelRatio || 1, 2);
   let pr = isPhone ? Math.min(maxPR, 1.5) : maxPR;
@@ -234,13 +234,15 @@ async function main() {
     if (opts.fromSearch) focusOn(it.entry, it);
   }
   // tap/click on a building in the 3D view selects it
-  canvas.addEventListener('pointerup', () => setTimeout(() => {
-    const tap = rig.lastTap; if (!tap || performance.now() - tap.t > 400) return; rig.lastTap = null;
+  // (the camera rig's own pointerup handler is registered first, so lastTap is already set; it is read now, not after a
+  // timeout, so that a slow frame cannot make a genuine tap look stale)
+  canvas.addEventListener('pointerup', () => { const tap = rig.lastTap; rig.lastTap = null; if (tap) setTimeout(() => pickAt(tap), 0); });
+  function pickAt(tap) {
     const r = canvas.getBoundingClientRect(), ndc = new T.Vector2((tap.x - r.left) / r.width * 2 - 1, -((tap.y - r.top) / r.height * 2 - 1));
     const ray = new T.Raycaster(); ray.setFromCamera(ndc, camera);
     const o = ray.ray.origin, d = ray.ray.direction;
     for (let s = 1; s < 900; s += 0.6) { const x = o.x + d.x * s, y = o.y + d.y * s, z = o.z + d.z * s; if (y < 0) break; const own = grid.ownerAt(x, z); if (own >= 0 && y <= items[own].height + 0.5) { selectItem(items[own]); return; } }
-  }, 0));
+  }
 
   // ---------------------------------------------------------------- input
   const keys = {};
@@ -281,7 +283,7 @@ async function main() {
 
   // ---------------------------------------------------------------- HUD controls
   const camBtn = $('camBtn');
-  function setCamButton() { camBtn.textContent = 'View: ' + MODE_LABEL[rig.mode]; camBtn.setAttribute('aria-label', 'Camera view: ' + MODE_LABEL[rig.mode] + '. Press to change.'); }
+  function setCamButton() { camBtn.textContent = (isPhone ? '' : 'View: ') + MODE_LABEL[rig.mode]; camBtn.setAttribute('aria-label', 'Camera view: ' + MODE_LABEL[rig.mode] + '. Press to change.'); }
   function cycleCam() { const i = MODES.indexOf(rig.mode); const m = MODES[(i + 1) % MODES.length]; if (m === 'orbit') rig.setMode('orbit', { target: [driver.x, 1.5, driver.z], dist: 30 }); else rig.setMode(m); setCamButton(); toast(MODE_LABEL[m] + ' view' + (m === 'drone' ? ': arrows or WASD to fly, Q/E down/up, drag to look' : m === 'orbit' ? ': drag to orbit, scroll or pinch to zoom' : '')); }
   camBtn.addEventListener('click', () => { cycleCam(); started(); });
   setCamButton();
@@ -293,7 +295,7 @@ async function main() {
   $('tourStop').addEventListener('click', () => tour.stop());
   function tourUI(st) {
     const bar = $('tourBar'), on = st.active || !!st.autopilot;
-    bar.hidden = !on; tourBtn.setAttribute('aria-pressed', String(st.active)); tourBtn.textContent = st.active ? 'Stop tour' : 'Auto tour';
+    bar.hidden = !on; tourBtn.setAttribute('aria-pressed', String(st.active)); tourBtn.textContent = st.active ? (isPhone ? 'Stop' : 'Stop tour') : (isPhone ? 'Tour' : 'Auto tour');
     $('tourPause').hidden = !st.active; $('tourSkip').hidden = !st.active;
     $('tourPause').textContent = st.paused ? 'Resume' : 'Pause';
     if (st.autopilot) $('tourTitle').textContent = 'Driving to ' + st.autopilot.label;
@@ -310,7 +312,11 @@ async function main() {
   $('mapOut').addEventListener('click', () => { const r = $('bigmap').getBoundingClientRect(); map.zoomAt(r.left + r.width / 2, r.top + r.height / 2, 1 / 1.4); });
   $('minimap').addEventListener('click', () => { map.setOpen(true); started(); });
   $('minimap').addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); map.setOpen(true); } });
-  $('helpBtn').addEventListener('click', () => { $('help').hidden = !$('help').hidden; });
+  $('helpBtn').addEventListener('click', () => { $('help').hidden = !$('help').hidden; closeMore(); });
+  const moreBtn = $('moreBtn'); function closeMore() { document.body.classList.remove('more-open'); moreBtn.setAttribute('aria-expanded', 'false'); }
+  moreBtn.addEventListener('click', () => { const o = document.body.classList.toggle('more-open'); moreBtn.setAttribute('aria-expanded', String(o)); });
+  for (const id of ['rulesBtn', 'resetBtn', 'soundBtn']) $(id).addEventListener('click', () => setTimeout(closeMore, 400));
+  if (isPhone) tourBtn.textContent = 'Tour';
   $('helpClose').addEventListener('click', () => { $('help').hidden = true; });
   $('resetBtn').addEventListener('click', () => { tour.stop(); driver.resetToRoad(); toast('Car moved to the nearest road.'); });
   function setRoadRules(v) { driver.roadRules = v; const b = $('rulesBtn'); b.setAttribute('aria-pressed', String(!v)); b.textContent = v ? 'Roads only' : 'Free roam'; toast(v ? 'Roads only: the car stays on campus roads and car parks.' : 'Free roam: footpaths, lawns and woods at walking pace.'); }

@@ -39,7 +39,9 @@ class Kit {
   build(group, M) {
     if (!this.list.length) return;
     for (const [k, g] of Object.entries(this.parts)) {
-      const im = instanced(g, M[k], this.list, { shadow: k !== 'glass', receive: true });
+      // fine detail (window frames, glazing, pilasters, balusters) is too small for the shadow map to resolve
+      const cast = k !== 'glass' && k !== 'paint' && !/^(sash|sash2|ground|top|arched|arched-big|bullseye|pilaster|baluster)$/.test(this.name);
+      const im = instanced(g, M[k], this.list, { shadow: cast, receive: true });
       im.name = 'founders:' + this.name + ':' + k; group.add(im);
     }
   }
@@ -66,9 +68,9 @@ function windowParts({ w, h, arched = false, key = true, sill = true, bars = 2, 
     st.box(0, h / 2 + 0.42, d / 2 + 0.02, w + jw * 2 + 0.4, 0.1, d + 0.1, 0, 1); // little entablature
   }
   if (sill) st.box(0, -h / 2 - 0.08, 0.15, w + 0.55, 0.16, 0.3, 0, 1);
-  if (bal) { // balustrade panel under the sill
+  if (bal) { // balustrade panel under the sill (balusters suggested by a recessed panel and rails)
     st.box(0, -h / 2 - 0.95, 0.1, w + 0.4, 0.12, 0.22, 0, 1);
-    for (let i = 0; i < 5; i++) st.box(-w / 2 + (i + 0.5) * w / 5, -h / 2 - 0.55, 0.1, 0.11, 0.7, 0.11, 0, 1);
+    st.box(0, -h / 2 - 0.55, 0.04, w + 0.2, 0.7, 0.08, 0, 1);
   }
   // white-painted sash frames and glazing bars (four-pane sashes)
   const b = 0.06, z = 0.05;

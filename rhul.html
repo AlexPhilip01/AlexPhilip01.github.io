@@ -31,6 +31,8 @@
   .brand span { font: 500 10px/1.2 'JetBrains Mono', monospace; color: var(--grey); letter-spacing: .06em; text-transform: uppercase; }
   .spacer { flex: 1; }
   .tools { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; pointer-events: none; }
+  .tools .opt { display: contents; }
+  .btn.more { display: none; }
   .btn { pointer-events: auto; font: 500 11px/1 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: .08em; color: var(--almond); background: var(--glass); border: 2px solid var(--orange); padding: 10px 12px; cursor: pointer; box-shadow: 4px 4px 0 #000; white-space: nowrap; }
   .btn:hover { background: #2c3a42; }
   .btn[aria-pressed="true"] { background: var(--orange); color: #fff; }
@@ -106,16 +108,21 @@
     .hud-top { padding: max(10px, env(safe-area-inset-top)) 10px 0; gap: 6px; }
     .brand span { display: none; } .brand { padding: 6px 8px; } .brand b { font-size: 9px; }
     .btn { padding: 8px 8px; font-size: 10px; box-shadow: 3px 3px 0 #000; }
+    .btn.more { display: inline-block; }
+    .tools .opt { display: none; }
+    body.more-open .tools .opt { display: flex; flex-direction: column; gap: 6px; position: absolute; right: 10px; top: calc(max(10px, env(safe-area-inset-top)) + 44px); z-index: 8; }
+    .tools { flex-wrap: nowrap; }
     #card { top: auto; bottom: calc(96px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%, 140%); max-height: 38vh; width: calc(100vw - 20px); padding: 12px 14px; }
+    #card h1 { font-size: 17px; } #card p { font-size: 13px; }
     #card.on { transform: translate(-50%, 0); }
-    #minimap { width: 112px; height: 112px; top: calc(max(10px, env(safe-area-inset-top)) + 96px); right: 10px; bottom: auto; }
+    #minimap { width: 112px; height: 112px; top: calc(max(10px, env(safe-area-inset-top)) + 54px); right: 10px; bottom: auto; }
     .pad { bottom: calc(14px + env(safe-area-inset-bottom)); }
     .speed { display: none; }
-    #hint { bottom: auto; top: calc(max(10px, env(safe-area-inset-top)) + 96px); left: 10px; transform: none; max-width: calc(100vw - 140px); font-size: 11px; text-align: left; }
+    #hint { bottom: auto; top: calc(max(10px, env(safe-area-inset-top)) + 54px); left: 10px; transform: none; max-width: calc(100vw - 140px); font-size: 11px; text-align: left; }
     #tourBar { top: auto; bottom: calc(92px + env(safe-area-inset-bottom)); flex-wrap: wrap; justify-content: center; }
     .legend { display: none; } .map-note { display: none; }
   }
-  @media (max-width: 760px) and (pointer: coarse) { #card { bottom: calc(100px + env(safe-area-inset-bottom)); max-height: 30vh; } #tourBar { bottom: calc(100px + env(safe-area-inset-bottom)); } }
+  @media (max-width: 760px) and (pointer: coarse) { #card { bottom: calc(166px + env(safe-area-inset-bottom)); max-height: 32vh; } #tourBar { bottom: calc(166px + env(safe-area-inset-bottom)); } .pad.left { bottom: calc(14px + env(safe-area-inset-bottom)); } }
   body.no-webgl #card { transform: none; }
 </style>
 </head>
@@ -129,10 +136,13 @@
     <button class="btn" id="tourBtn" type="button" aria-pressed="false">Auto tour</button>
     <button class="btn" id="mapBtn" type="button">Map</button>
     <button class="btn" id="camBtn" type="button">View: Chase</button>
-    <button class="btn" id="rulesBtn" type="button" aria-pressed="false" title="Keep the car on roads, or roam off-road at walking pace">Roads only</button>
-    <button class="btn" id="resetBtn" type="button" title="Move the car to the nearest road (R)">Reset car</button>
-    <button class="btn" id="soundBtn" type="button" aria-pressed="false">Sound off</button>
-    <button class="btn" id="helpBtn" type="button" aria-label="Controls and about">?</button>
+    <button class="btn more" id="moreBtn" type="button" aria-expanded="false" aria-controls="moreItems" aria-label="More options">⋯</button>
+    <span class="opt" id="moreItems">
+      <button class="btn" id="rulesBtn" type="button" aria-pressed="false" title="Keep the car on roads, or roam off-road at walking pace">Roads only</button>
+      <button class="btn" id="resetBtn" type="button" title="Move the car to the nearest road (R)">Reset car</button>
+      <button class="btn" id="soundBtn" type="button" aria-pressed="false">Sound off</button>
+      <button class="btn" id="helpBtn" type="button" aria-label="Controls and about">?</button>
+    </span>
   </div>
 </header>
 

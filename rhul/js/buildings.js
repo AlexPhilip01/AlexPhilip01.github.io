@@ -195,12 +195,11 @@ export function buildBuildings(data, founders) {
       if (arch === 'panel_block' && b.area > 700) {
         for (const t of [-0.28, 0.28]) { const x = box.cx + box.dx * box.L * t, z = box.cz + box.dz * box.L * t; if (pointInRing(x, z, inner) && pointInRing(x + 3, z, inner) && pointInRing(x - 3, z, inner) && pointInRing(x, z + 3, inner) && pointInRing(x, z - 3, inner)) lanterns.push({ x, z, y: wallTop, ry: Math.atan2(box.dx, box.dz) }); }
       }
-      if (arch === 'library') { // roof terrace (official virtual tour) on the part of the roof facing Founder's Square
-        const fc = founders ? founders.features.foundersSquareFront : [box.cx, box.cz];
-        const d = Math.hypot(fc[0] - box.cx, fc[1] - box.cz) || 1, ux = (fc[0] - box.cx) / d, uz = (fc[1] - box.cz) / d;
-        const tx = box.cx + ux * box.W * 0.22, tz = box.cz + uz * box.W * 0.22, tw = box.L * 0.6, td = box.W * 0.3, ry = Math.atan2(box.dx, box.dz);
-        const deck = new Soup(); deck.box(tx, wallTop + 0.12, tz, tw, 0.1, td, ry, 0.5); S(terraceDeck).p.push(...deck.p); S(terraceDeck).n.push(...deck.n); S(terraceDeck).u.push(...deck.u);
-        const gb = new Soup(); gb.box(tx, top + 0.5, tz, tw, 1.0, 0.04, ry, 1); const s2 = S(glassBal); s2.p.push(...gb.p); s2.n.push(...gb.n); s2.u.push(...gb.u);
+      if (arch === 'library') { // roof terrace (official virtual tour): a timber deck inside the parapet; its extent is an estimate
+        const deckRing = offsetRing(ring, -2.2);
+        S(terraceDeck).cap(deckRing, wallTop + 0.16, [], false, 1 / 2);
+        // glass screen standing just inside the parapet
+        for (let i = 0; i < deckRing.length; i++) { const [x0, z0] = deckRing[i], [x1, z1] = deckRing[(i + 1) % deckRing.length]; S(glassBal).wall(x0, z0, x1, z1, wallTop + 0.16, top + 0.9, 0, 1, 1); S(glassBal).wall(x1, z1, x0, z0, wallTop + 0.16, top + 0.9, 0, 1, 1); }
       }
     } else {
       S(roofFlat).cap(ring, wallTop, holes, false, 1 / 4);

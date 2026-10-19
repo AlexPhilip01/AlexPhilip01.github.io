@@ -65,8 +65,8 @@ export function buildTrees(data, lc, founders, { phone = false } = {}) {
   // dimensions in metres for a map size of 1 (mature campus trees are typically 10-20 m tall; estimates)
   const low = () => new T.IcosahedronGeometry(1, 0);
   const species = {
-    broad: { crown: blobCrown(11, 9, 0.7), crownLow: low(), trunkH: 2.6, crownY: 6.0, crownS: [4.4, 3.9, 4.4], colors: ['#557a3e', '#5f8344', '#6a8a4a', '#4e7139', '#71894f', '#5a7d40'] },
-    oak: { crown: blobCrown(23, 10, 0.82), crownLow: low(), trunkH: 2.4, crownY: 6.2, crownS: [5.2, 4.1, 5.2], colors: ['#4f7037', '#5a7a3c', '#476734', '#63803f'] },
+    broad: { crown: blobCrown(11, 7, 0.7), crownLow: low(), trunkH: 2.6, crownY: 6.0, crownS: [4.4, 3.9, 4.4], colors: ['#557a3e', '#5f8344', '#6a8a4a', '#4e7139', '#71894f', '#5a7d40'] },
+    oak: { crown: blobCrown(23, 8, 0.82), crownLow: low(), trunkH: 2.4, crownY: 6.2, crownS: [5.2, 4.1, 5.2], colors: ['#4f7037', '#5a7a3c', '#476734', '#63803f'] },
     conifer: { crown: coneCrown(5), crownLow: (() => { const g = new T.ConeGeometry(1, 2.4, 6).toNonIndexed(); g.translate(0, 1.0, 0); return g; })(), trunkH: 2.4, crownY: 2.6, crownS: [2.7, 5.0, 2.7], colors: ['#344f36', '#3a573c', '#2f4732'] },
     birch: { crown: blobCrown(31, 6, 0.45), crownLow: low(), trunkH: 3.2, crownY: 7.0, crownS: [2.6, 4.2, 2.6], colors: ['#7a9450', '#86a05a', '#6f8b4a'], bark: '#bdb7aa' },
     cedar: { crown: cedarCrown(), crownLow: (() => { const g = new T.CylinderGeometry(1, 1, 1.6, 8).toNonIndexed(); g.translate(0, 0.9, 0); return g; })(), trunkH: 3.8, crownY: 3.4, crownS: [7.2, 4.4, 7.2], colors: ['#2e4a34', '#33523a', '#3a5a40'] }
@@ -111,7 +111,7 @@ export function buildTrees(data, lc, founders, { phone = false } = {}) {
   }
   // switch chunks between detailed and simple crowns by distance from the camera
   function update(camPos) {
-    for (const L of lods) { const d = Math.hypot(L.centre.x - camPos.x, L.centre.z - camPos.z) - CH * 0.7; const far = d > (phone ? 180 : 300); L.hi.visible = !far; L.lo.visible = far; }
+    for (const L of lods) { const d = Math.hypot(L.centre.x - camPos.x, L.centre.z - camPos.z) - CH * 0.7; const far = d > (phone ? 170 : 240); L.hi.visible = !far; L.lo.visible = far; }
   }
   return { group, update, skipped, count: [...chunks.values()].reduce((n, ch) => n + Object.values(ch).reduce((a, l) => a + l.length, 0), 0) };
 }
@@ -202,7 +202,7 @@ export function buildEntrance(data, lc) {
   const stoneP = MT.std('gate:stone', { tex: MT.stone('gate', { base: '#d9d3c2', tile: 1.0 }), rough: 0.75 });
   const brickM = MT.std('gate:brick', { tex: MT.brick('lodge', { base: '#a8553c', tile: 0.9, size: 256 }), rough: 0.9 });
   const iron = MT.std('iron:gates', { color: '#141418', rough: 0.45, metal: 0.7 });
-  const roofM = MT.std('lodge:roof', { tex: MT.roofTiles('lodge', { base: '#6e3d2e', tile: 1.0 }), rough: 0.85, envI: 0.2 });
+  const roofM = MT.std('lodge:roof', { tex: MT.roofTiles('lodge', { base: '#5a3a31', vary: 0.08, tile: 1.0 }), rough: 0.9, envI: 0.15 });
   const mk = (geo, m, x, y, z, parent = g) => { const o = new T.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; parent.add(o); return o; };
   // five stone piers topped with urns (NHLE); spacing estimated
   const pier = (x, hh, w) => {
@@ -288,7 +288,7 @@ export function buildExtras(data) {
   const g = new T.Group(); g.name = 'lodge and tennis courts';
   const [lx, lz, lr] = data.extras.lodge2;
   const brickM = MT.std('lodge2:brick', { tex: MT.brick('lodge2', { base: '#c0623f', tile: 0.9, size: 256 }), rough: 0.9 });
-  const stoneM = MT.std('lodge2:stone', { color: '#e2d9c6', rough: 0.7 }), roofM = MT.std('lodge:roof2', { tex: MT.roofTiles('lodge2', { base: '#6e3d2e' }), rough: 0.85, envI: 0.2 });
+  const stoneM = MT.std('lodge2:stone', { color: '#e2d9c6', rough: 0.7 }), roofM = MT.std('lodge:roof2', { tex: MT.roofTiles('lodge2', { base: '#5a3a31', vary: 0.08 }), rough: 0.9, envI: 0.15 });
   const lg = new T.Group(); lg.position.set(lx, 0, lz); lg.rotation.y = lr; g.add(lg);
   const mk = (geo, m, x, y, z, p = lg) => { const o = new T.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; p.add(o); return o; };
   mk(new T.BoxGeometry(11, 3.8, 7.5), brickM, 0, 1.9, 0);
