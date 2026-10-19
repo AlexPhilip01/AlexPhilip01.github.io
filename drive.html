@@ -738,6 +738,32 @@
     parent.add(m); return m;
   };
   const UP = new THREE.Vector3(0, 1, 0);
+  // ---------- Compound walls round the important places ----------
+  // wallRun: one straight wall in a group's local frame, with coping and piers; compound: a rectangle of them
+  // with a gate gap in the road-facing (+x) side. Points along the wall are marked occupied so nothing grows through.
+  function wallRun(parent, x0, z0, x1, z1, o) {
+    const len = Math.hypot(x1 - x0, z1 - z0); if (len < 0.3) return;
+    const ry = Math.atan2(x1 - x0, z1 - z0), cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, h = o.h || 2.2;
+    mk(new THREE.BoxGeometry(0.5, h, len), o.col, cx, h / 2, cz, parent, { ry });
+    mk(new THREE.BoxGeometry(0.75, 0.2, len + 0.2), o.cap, cx, h + 0.1, cz, parent, { ry });
+    if (o.rail) { mk(new THREE.BoxGeometry(0.07, 0.07, len), o.rail, cx, h + 1.05, cz, parent, { ry });
+      const n = Math.max(1, Math.round(len / 0.5)); const bars = [];
+      for (let i = 0; i <= n; i++) bars.push({ x: x0 + (x1 - x0) * i / n, z: z0 + (z1 - z0) * i / n });
+      const im = new THREE.InstancedMesh(new THREE.BoxGeometry(0.05, 1.0, 0.05), M(o.rail), bars.length);
+      bars.forEach((b, i) => { dummy.position.set(b.x, h + 0.6, b.z); dummy.rotation.set(0, 0, 0); dummy.scale.set(1, 1, 1); dummy.updateMatrix(); im.setMatrixAt(i, dummy.matrix); });
+      parent.add(im); }
+    const np = Math.max(1, Math.round(len / 6));
+    for (let i = 0; i <= np; i++) { const x = x0 + (x1 - x0) * i / np, z = z0 + (z1 - z0) * i / np;
+      mk(new THREE.BoxGeometry(0.9, h + 0.5, 0.9), o.pier || o.cap, x, (h + 0.5) / 2, z, parent);
+      mk(new THREE.BoxGeometry(1.1, 0.2, 1.1), o.cap, x, h + 0.6, z, parent); }
+    parent.updateMatrixWorld(true);
+    for (let d = 0; d <= len; d += 3) { const t = d / len, w = parent.localToWorld(new THREE.Vector3(x0 + (x1 - x0) * t, 0, z0 + (z1 - z0) * t)); occupied.push({ x: w.x, z: w.z, r: 1.6 }); }
+  }
+  function compound(parent, xf, xb, zh, gate, o) { // xf = road-side x, xb = back x, z from -zh to zh, gate = half-width of the opening (null: no front wall)
+    wallRun(parent, xf, -zh, xb, -zh, o); wallRun(parent, xb, -zh, xb, zh, o); wallRun(parent, xb, zh, xf, zh, o);
+    if (gate != null) { wallRun(parent, xf, -zh, xf, -gate, o); wallRun(parent, xf, gate, xf, zh, o); }
+  }
+  const WALL_BRICK = { col: '#a9573f', cap: '#e3dccd', pier: '#b9634a' }, WALL_STONE = { col: '#d6cdb8', cap: '#efe9de', pier: '#c9bfa8' };
   // keep the big ground plane safely below the road and pavements so it can never show through them
   ground.position.y = -0.08; ground.material = ground.material.clone(); Object.assign(ground.material, { polygonOffset: true, polygonOffsetFactor: 2, polygonOffsetUnits: 4 });
   const MAP_MARKS = []; // landmarks shown with an icon on the mini-map
@@ -897,6 +923,7 @@
       [0.9, 2.1, 3.3].forEach(y => mk(new THREE.BoxGeometry(1.78, 0.08, 1.78), '#d4c7ad', 0, y, z, g)); // rusticated bands
     }
     [-4.6, 4.6, -16, 16, -34, 34].forEach(z => pier(z));
+    compound(g, 0, -62, 41, null, { col: BRICK, cap: DRESS, pier: BRICK_D }); [-1, 1].forEach(s => wallRun(g, 0, s * 34.9, 0, s * 41, { col: BRICK, cap: DRESS, pier: BRICK_D })); // campus boundary wall
     const balT = canvasTex(256, 64, (x, w, h) => { x.fillStyle = 'rgba(0,0,0,0)'; x.clearRect(0, 0, w, h); x.fillStyle = DRESS; x.fillRect(0, 0, w, 10); x.fillRect(0, h - 8, w, 8); for (let i = 0; i < 10; i++) { x.beginPath(); x.ellipse(12 + i * 25.6, 34, 6, 20, 0, 0, Math.PI * 2); x.fill(); } });
     balT.wrapS = THREE.RepeatWrapping;
     [[-4.6, -16], [4.6, 16], [-16, -34], [16, 34]].forEach(([a, b]) => {
@@ -1061,6 +1088,7 @@
     const cab = new THREE.Group(); cab.position.set(GX - 3.2, 0, -6.4 + 3.3); g.add(cab);
     mk(new THREE.BoxGeometry(2.6, 0.3, 2.4), CON_D, 0, 2.75, 0, cab);
     const cg = new THREE.Mesh(new THREE.BoxGeometry(2.3, 2.5, 2.1), new THREE.MeshPhongMaterial({ color: '#7f9cb0', transparent: true, opacity: 0.55, shininess: 90 })); cg.position.y = 1.3; cab.add(cg);
+    compound(g, GX, -46, 24, null, { col: '#c9c4b8', cap: CON_L, pier: CON_D }); // campus compound wall
     // low boundary walls with railings either side
     [-1, 1].forEach(s => {
       const z0 = s * 18.4, z1 = s * 24, len = Math.abs(z1 - z0), zc = (z0 + z1) / 2;
@@ -1153,7 +1181,7 @@
       mk(new THREE.BoxGeometry(0.6, 1.9, 9.6), '#2f5d2f', -1, 6.1, 0, g);
       const zt = canvasTex(640, 128, (x, w, h) => { x.fillStyle = '#2f5d2f'; x.fillRect(0, 0, w, h); x.strokeStyle = '#f2c94c'; x.lineWidth = 6; x.strokeRect(6, 6, w - 12, h - 12); x.fillStyle = '#f2c94c'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '900 60px Arial, Helvetica, sans-serif'; x.fillText('KINGSGATE ZOO', w / 2, 56); x.font = '700 22px Arial, Helvetica, sans-serif'; x.fillStyle = '#ffffff'; x.fillText('GIRAFFES · ELEPHANTS · LIONS · PENGUINS', w / 2, 102); });
       facing(g, zt, 9.4, 1.85, -0.68, 6.1, 0);
-      fenceLine(g, -1, -28, -1, -4.5, '#6b4a2b', 1.4); fenceLine(g, -1, 4.5, -1, 28, '#6b4a2b', 1.4);
+      compound(g, -1, -45, 28.5, 5, { col: '#8e6a3c', cap: '#c9a46a', pier: '#7a5a32' }); // zoo boundary wall
       // giraffe paddock with zebras (front right, tall enough to see over the fence)
       ground(g, 16, 20, -14, 16, '#d8c27a'); fenceLine(g, -6, 6, -6, 26, '#8a6a42'); fenceLine(g, -22, 6, -22, 26, '#8a6a42'); fenceLine(g, -6, 6, -22, 6, '#8a6a42'); fenceLine(g, -6, 26, -22, 26, '#8a6a42');
       const acacia = (x, z) => { mk(new THREE.BoxGeometry(0.5, 4.2, 0.5), '#6b4a2b', x, 2.1, z, g); mk(new THREE.BoxGeometry(4.6, 0.9, 4.6), '#5b8c3a', x, 4.6, z, g); };
@@ -1254,7 +1282,7 @@
       // blue hospital road sign at the gate
       mk(new THREE.BoxGeometry(0.1, 3, 0.1), '#7d828c', -0.6, 1.5, 6, g);
       facing(g, canvasTex(128, 128, (x) => { x.fillStyle = BLUE; x.fillRect(0, 0, 128, 128); x.strokeStyle = '#fff'; x.lineWidth = 8; x.strokeRect(6, 6, 116, 116); x.fillStyle = '#fff'; x.font = '900 84px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 64, 70); }), 1.2, 1.2, -0.5, 3.2, 6);
-      fenceLine(g, -1, -20, -1, -4, '#555', 0.9); fenceLine(g, -1, 4, -1, 20, '#555', 0.9);
+      compound(g, -1, -43, 20.5, 4.5, { col: '#c9ced3', cap: '#eef1f4', pier: '#1f5fae', h: 1.2, rail: '#2b2f36' }); // hospital boundary wall with railings
       // parked ambulances with flashing lights, staff and patients by the doors
       const amb1 = ambulance(); amb1.position.set(-9, 0, 11); amb1.rotation.y = -Math.PI / 2 - 0.45; g.add(amb1);
       const amb2 = ambulance(); amb2.position.set(-6, 0, 4); amb2.rotation.y = -Math.PI / 2 - 0.1; g.add(amb2);
@@ -1269,7 +1297,7 @@
       ground(g, 26, 38, -14, 0, '#5fa14a');
       ground(g, 16, 26, -12, 0, '#3f7fbf'); // soft play surface
       [[-6, -8, '#e53935'], [-15, 6, '#fdd835'], [-9, 9, '#43a047']].forEach(([x, z, c]) => { const d = new THREE.Mesh(new THREE.CircleGeometry(2.2, 20), M(c)); d.rotation.x = -Math.PI / 2; d.position.set(x, 0.16, z); g.add(d); });
-      fenceLine(g, -1, -19, -1, -2, '#2e7d32', 1.0); fenceLine(g, -1, 2, -1, 19, '#2e7d32', 1.0); fenceLine(g, -1, -19, -27, -19, '#2e7d32', 1.0); fenceLine(g, -1, 19, -27, 19, '#2e7d32', 1.0);
+      compound(g, -1, -31, 19.5, 2.4, { col: '#b8ad98', cap: '#e3dccd', pier: '#a89c84', h: 0.8, rail: '#2e7d32' }); // low park wall with green railings
       const sign = board('LITTLE ACORNS', 'PLAYGROUND · AGES 2–12', '#2e7d32', '#ffffff');
       [-2.2, 2.2].forEach(z => mk(new THREE.BoxGeometry(0.15, 3.2, 0.15), '#2e7d32', -0.6, 1.6, z, g));
       facing(g, sign, 4.4, 1.1, -0.5, 3.0, 0);
@@ -1341,7 +1369,7 @@
       const name = board('HOLLYBROOK PRIMARY SCHOOL', 'LEARN · GROW · SHINE', '#1e5aa8', '#ffffff', 768, 128);
       facing(g, name, 9, 1.5, bx + 5.08, 6.4, 0);
       // railings, gate sign, basketball hoop
-      fenceLine(g, -1, -22, -1, -3, '#1e5aa8', 1.6); fenceLine(g, -1, 3, -1, 22, '#1e5aa8', 1.6);
+      compound(g, -1, -41, 22.5, 3.2, { col: '#b4553a', cap: '#efe9de', pier: '#9c4630', h: 1.0, rail: '#1e5aa8' }); // school wall with blue railings
       [-2.6, 2.6].forEach(z => mk(new THREE.BoxGeometry(0.4, 2.4, 0.4), '#1e5aa8', -1, 1.2, z, g));
       facing(g, board('HOLLYBROOK', 'PRIMARY SCHOOL', '#ffffff', '#1e5aa8'), 3.4, 0.85, -0.5, 2.0, 0);
       mk(new THREE.BoxGeometry(0.2, 3.4, 0.2), '#777', -16, 1.7, 14, g); mk(new THREE.BoxGeometry(0.1, 1.1, 1.6), '#fff', -15.8, 3.6, 14, g); mk(new THREE.TorusGeometry(0.3, 0.04, 6, 14), '#ff6f00', -15.4, 3.2, 14, g, { rx: Math.PI / 2 });
@@ -1465,6 +1493,7 @@
     spinners.push((dt, now) => { for (let i = 0; i < fpos.count; i++) { const xx = fbase[i * 3]; fpos.array[i * 3 + 2] = Math.sin(xx * 1.6 - now * 0.004) * 0.2 * (xx + 2.2) / 4.4; } fpos.needsUpdate = true; });
     // forecourt gravel
     const grav = new THREE.Mesh(new THREE.PlaneGeometry(10, 52), M('#cdbf9f')); grav.rotation.x = -Math.PI / 2; grav.rotation.z = 0; grav.position.set(9, 0.03, 0); grav.receiveShadow = true; g.add(grav);
+    compound(g, 14, -36, 31, null, { col: '#d9d0bd', cap: '#efe9de', pier: '#c9bfa8', h: 2.6 }); [-1, 1].forEach(s => wallRun(g, 14, s * 26, 14, s * 31, { col: '#d9d0bd', cap: '#efe9de', pier: '#c9bfa8', h: 2.6 })); // palace garden wall
     // black railings with gilded spear tips and the gilded centre gates
     const bars = [], tips = [];
     for (let z = -26; z <= 26; z += 0.6) if (Math.abs(z) > 3) { bars.push({ x: 14, y: 1.2, z }); tips.push({ x: 14, y: 2.5, z }); }
@@ -1571,6 +1600,7 @@
     mk(new THREE.BoxGeometry(0.15, 1.3, 0.15), GOLD, 0, 28.8, 0, g); mk(new THREE.BoxGeometry(0.7, 0.15, 0.15), GOLD, 0, 29, 0, g);
     [-13, 13].forEach(z => { mk(new THREE.BoxGeometry(4, 16, 4), PORTLAND, -6, 8, z, g); mk(new THREE.ConeGeometry(1.6, 4, 8), '#8f9aa6', -6, 18, z, g); });
     g.scale.setScalar(1.7); // a grand St Paul's-sized cathedral
+    { const cw = new THREE.Group(); cw.position.copy(pos); cw.rotation.y = heading + Math.PI; scene.add(cw); compound(cw, 40 - ROAD_W - 5, -30, 36, 6, WALL_STONE); } // cathedral close wall
     occupied.push({ x: pos.x, z: pos.z, r: 34 });
   })();
 
