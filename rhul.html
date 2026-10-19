@@ -81,7 +81,7 @@
 <aside id="card" aria-live="polite"><div id="cardBody"></div></aside>
 <canvas id="minimap" role="img" aria-label="Map of the campus around you"></canvas>
 <div class="speed" id="speed">0 mph</div>
-<div id="hint"><span class="keys">Drive with <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> · </span>Drive up to a building to learn about it · or press <b>Auto tour</b></div>
+<div id="hint"><span class="keys">Drive with <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> · </span>Drag to look around 360° · drive up to a building to learn about it · or press <b>Auto tour</b></div>
 
 <div class="pad left" aria-hidden="true"><button data-pad="left" type="button">◀</button><button data-pad="right" type="button">▶</button></div>
 <div class="pad right" aria-hidden="true"><button data-pad="up" type="button">▲</button><button data-pad="down" type="button">▼</button></div>
@@ -948,12 +948,23 @@
 
   // ---------- Camera: a chase camera that swings round smoothly ----------
   const camPos = new THREE.Vector3(START.x - Math.sin(START.h) * 12, 6, START.z - Math.cos(START.h) * 12), camLook = new THREE.Vector3();
+  // 360° look-around: drag on the scene to orbit the car, double-click (or double-tap) to reset;
+  // the view drifts back behind the car a few seconds after you let go while driving
+  const orbit = { yaw: 0, pitch: 0, drag: null, idle: 99 };
+  canvas.addEventListener('pointerdown', e => { orbit.drag = { x: e.clientX, y: e.clientY, yaw: orbit.yaw, pitch: orbit.pitch, id: e.pointerId }; canvas.setPointerCapture(e.pointerId); started(); });
+  canvas.addEventListener('pointermove', e => { const d = orbit.drag; if (!d || d.id !== e.pointerId) return; orbit.yaw = d.yaw - (e.clientX - d.x) * 0.008; orbit.pitch = clamp(d.pitch + (e.clientY - d.y) * 0.005, -0.35, 0.9); orbit.idle = 0; });
+  const endDrag = e => { if (orbit.drag && orbit.drag.id === e.pointerId) orbit.drag = null; };
+  canvas.addEventListener('pointerup', endDrag); canvas.addEventListener('pointercancel', endDrag);
+  canvas.addEventListener('dblclick', () => { orbit.yaw = 0; orbit.pitch = 0; });
   function chase(dt) {
     fwd.set(Math.sin(car.heading), 0, Math.cos(car.heading));
-    const back = car.speed < -0.5 ? -1 : 1;
-    const want = rider.position.clone().addScaledVector(fwd, -9.5 * back).setY(4.4);
-    camPos.lerp(want, Math.min(1, dt * 3.2));
-    camLook.copy(rider.position).addScaledVector(fwd, 6).setY(1.3);
+    orbit.idle += dt;
+    if (!orbit.drag && orbit.idle > 2.5 && Math.abs(car.speed) > 1) { orbit.yaw *= Math.max(0, 1 - dt * 1.5); orbit.pitch *= Math.max(0, 1 - dt * 1.5); }
+    const back = car.speed < -0.5 && Math.abs(orbit.yaw) < 0.2 ? -1 : 1;
+    const ang = car.heading + Math.PI * (back < 0 ? 0 : 1) + orbit.yaw, dist = 9.5 * Math.cos(orbit.pitch * 0.6), hgt = 4.4 + orbit.pitch * 9;
+    const want = new THREE.Vector3(rider.position.x + Math.sin(ang) * dist, Math.max(1.2, hgt), rider.position.z + Math.cos(ang) * dist);
+    camPos.lerp(want, Math.min(1, dt * (orbit.drag ? 12 : 3.2)));
+    camLook.copy(rider.position).addScaledVector(fwd, Math.abs(orbit.yaw) < 0.3 ? 6 : 0).setY(1.3);
     camera.position.copy(camPos); camera.lookAt(camLook);
   }
 
