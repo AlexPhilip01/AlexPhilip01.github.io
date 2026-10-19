@@ -3307,7 +3307,7 @@
       wheels.push(w);
     });
   })();
-  rider.scale.setScalar(1.02);
+  rider.scale.set(1.3, 1.3, 1.55); // a long, grand car
   scene.add(rider);
 
   // ---------- Camera framing ----------
@@ -3590,12 +3590,12 @@
     const leanTarget = clamp(-turn * Math.abs(speed) * 0.12, -0.06, 0.06);
     leanCur += (leanTarget - leanCur) * Math.min(1, dt * 5);
     rider.rotation.z = leanCur;
-    wheels.forEach(w => w.rotation.x += dist / (0.42 * 1.15));
+    wheels.forEach(w => w.rotation.x += dist / (0.47 * 1.3));
 
     // camera rides the road itself (never cuts through buildings): high and wide at the start, then a close chase cam
     const intro = smooth(0.0, 0.07, prog);
-    const back = (isPhone ? 9.5 : 8) + (1 - intro) * 7;
-    const up = (isPhone ? 4.4 : 3.6) + (1 - intro) * 3.4;
+    const back = (isPhone ? 12.5 : 11) + (1 - intro) * 7; // further back for the long car
+    const up = (isPhone ? 5.2 : 4.4) + (1 - intro) * 3.4;
     const fc = frameAt(u - back / LEN);
     camPos.copy(fc.p).addScaledVector(fc.n, -0.6 + (1 - intro) * 1.8).add(tmpA.set(0, up, 0));
     camLook.copy(lanePos).addScaledVector(f.t, 6).add(tmpB.set(0, 1.4 + (1 - intro) * 1.6, 0));
