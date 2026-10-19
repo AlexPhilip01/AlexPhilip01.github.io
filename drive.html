@@ -1344,10 +1344,11 @@
       MAP_MARKS.push({ p: toW(-18, 0), icon: 'hospital', name: 'Thameside General Hospital' });
     }
 
-    // ===== Riverside Fire Station (right-hand side; invented name, no brigade logo) =====
+    // ===== Riverside Fire Station (left-hand side; invented name, no brigade logo) =====
     {
-      const { g, toW } = site(0.435, 1, ROAD_W + 4);
-      reserve(toW, -2, -44, -22, 22); MAP_MARKS.push({ p: toW(-20, 0), icon: 'fire', name: 'Riverside Fire Station' });
+      const { g, toW } = site(0.39, -1, ROAD_W + 12); // on the left, where the road runs straight at it
+      reserve(toW, -2, -44, -22, 22); reserve(toW, 7, 0, -15, 15);
+      ground(g, 9, 30, 4.3, 0, '#a9a59c'); // driveway out to the road MAP_MARKS.push({ p: toW(-20, 0), icon: 'fire', name: 'Riverside Fire Station' });
       ground(g, 13, 34, -7.5, 0, '#a9a59c');   // concrete apron
       ground(g, 30, 44, -29, 0, '#8f8b84');    // yard
       const keep = canvasTex(256, 256, (x, w, h) => { x.clearRect(0, 0, w, h); x.strokeStyle = '#f2c200'; x.lineWidth = 10; x.strokeRect(8, 8, w - 16, h - 16); for (let i = -h; i < w; i += 40) { x.beginPath(); x.moveTo(i, h); x.lineTo(i + h, 0); x.stroke(); } });
@@ -2081,7 +2082,7 @@
       name: 'Paper & Co', tagline: 'NEWSAGENT · SNACKS · TOP-UP', fascia: '#1b2b4a', ink: '#ffffff', awning: ['#1b2b4a', '#ffffff'], window: shelves,
       extras: g => { [-5.4, -4.6].forEach((z, i) => { mk(new THREE.BoxGeometry(0.6, 1.0, 0.7), '#2b2f3a', 1.0, 0.5, z, g); mk(new THREE.BoxGeometry(0.55, 0.06, 0.62), i ? '#e8e4da' : '#f2d24a', 1.0, 1.03, z, g); }); }
     });
-    shopfront(0.4, -1, {
+    shopfront(0.565, -1, {
       name: 'Chapter One', tagline: 'BOOKS · NEW & SECOND-HAND', fascia: '#5a1e3a', ink: '#f3ead2', awning: ['#5a1e3a', '#f3ead2'], wall: '#e9e1cf', door: '#5a1e3a',
       window: (x, w, h) => { x.fillStyle = '#3a2a1e'; x.fillRect(0, 0, w, h); const cols = ['#8f1d22', '#1b4f8a', '#2e7d4f', '#d4a83a', '#5a1e3a', '#e9e1cf', '#2b2f3a', '#c98a3e']; for (let r = 0; r < 3; r++) { x.fillStyle = '#6b4a2b'; x.fillRect(0, 40 + r * 42, w, 5); for (let i = 0; i < 60; i++) { const bw = 5 + (i * 7 % 5); x.fillStyle = cols[(i * 3 + r) % cols.length]; x.fillRect(i * 8.5, 8 + r * 42, bw, 32 - (i % 4) * 2); } } }
     });
