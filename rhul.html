@@ -250,7 +250,7 @@
   }
   // ================= Free-drive controller for the Royal Holloway campus =================
   // ---------- Road network (traced from the campus map, in metres: x east, z south) ----------
-  const ROADS = {"A30": [[-477.2, 83.5], [-301.2, -18.9], [-141.2, -121.3], [2.8, -210.9], [121.2, -281.3], [242.8, -377.3], [345.2, -447.7]], "inner": [[-186, 8.5], [-93.2, -76.5], [18.8, -130.9], [130.8, -201.3]], "east": [[130.8, -201.3], [108.4, -146.9], [98.8, 13.1], [89.2, 141.1], [130.8, 237.1], [242.8, 278.7], [332.4, 301.1]], "prune": [[345.2, -447.7], [377.2, -306.9], [396.4, -146.9], [370.8, 13.1], [332.4, 141.1], [332.4, 349.1]], "south": [[-186, 158.5], [-77.2, 230.7], [18.8, 205.1], [130.8, 237.1]], "chestnut": [[-96.4, -159.7], [-86.8, -258.9], [-38.8, -313.3]], "kw": [[121.2, -281.3], [108.4, -354.9]], "ring": [[-186, 8.5], [-111, 83.5], [-186, 158.5], [-261, 83.5], [-186, 8.5]], "west": [[-261, 83.5], [-301, -19]]};
+  const ROADS = {"A30": [[-477.2, 83.5], [-301.2, -18.9], [-141.2, -121.3], [2.8, -210.9], [121.2, -281.3], [242.8, -377.3], [345.2, -447.7]], "inner": [[-186, 8.5], [-93.2, -76.5], [18.8, -130.9], [130.8, -201.3]], "east": [[130.8, -201.3], [108.4, -146.9], [98.8, 13.1], [89.2, 141.1], [130.8, 237.1], [242.8, 278.7], [332.4, 301.1]], "prune": [[345.2, -447.7], [377.2, -306.9], [396.4, -146.9], [370.8, 13.1], [332.4, 141.1], [332.4, 349.1]], "south": [[-186, 158.5], [-77.2, 230.7], [18.8, 205.1], [130.8, 237.1]], "chestnut": [[-96.4, -159.7], [-86.8, -258.9], [-38.8, -313.3]], "kw": [[121.2, -281.3], [108.4, -354.9]], "ring": [[-186, 8.5], [-111, 83.5], [-186, 158.5], [-261, 83.5], [-186, 8.5]], "drive": [[-297.0, -28.0], [-219.2, 50.3]]};
   const ROAD_STYLE = { A30: { w: 9, col: '#3a3741', lines: true }, east: { w: 7, col: '#3a3741', lines: true }, prune: { w: 7, col: '#3a3741', lines: true }, inner: { w: 7, col: '#3a3741', lines: true }, ring: { w: 6.5, col: '#3a3741', lines: false }, west: { w: 6.5, col: '#3a3741', lines: false }, chestnut: { w: 6, col: '#3a3741', lines: false }, kw: { w: 6, col: '#3a3741', lines: false }, south: { w: 5, col: '#8d8576', lines: false } };
   const SEGS = [];
   Object.entries(ROADS).forEach(([name, pts]) => { const st = ROAD_STYLE[name] || { w: 6, col: '#3a3741' }; for (let i = 0; i < pts.length - 1; i++) SEGS.push({ a: pts[i], b: pts[i + 1], w: st.w, name }); });
@@ -452,37 +452,6 @@
     }
     cedar(-9, 27, 1.2); cedar(-6, 37, 1.05);
     [[-14, 13], [-10, -12]].forEach(([x, z]) => { mk(new THREE.CylinderGeometry(0.25, 0.35, 3, 6), '#5a4636', x, 1.5, z, g); mk(new THREE.IcosahedronGeometry(2.6, 0), '#4f7f4a', x, 4.6, z, g); });
-
-    // ---- entrance: stone piers with finials, brick walls with balustrades, iron gates, name boards ----
-    function pier(z, h = 4.2) {
-      mk(new THREE.BoxGeometry(1.7, h, 1.7), DRESS, 0, h / 2, z, g);
-      mk(new THREE.BoxGeometry(2.0, 0.3, 2.0), '#d9cdb5', 0, h + 0.15, z, g);
-      mk(new THREE.CylinderGeometry(0.28, 0.36, 0.5, 10), DRESS, 0, h + 0.55, z, g);
-      mk(new THREE.SphereGeometry(0.48, 12, 10), DRESS, 0, h + 1.1, z, g);
-      [0.9, 2.1, 3.3].forEach(y => mk(new THREE.BoxGeometry(1.78, 0.08, 1.78), '#d4c7ad', 0, y, z, g)); // rusticated bands
-    }
-    [-4.6, 4.6, -16, 16, -34, 34].forEach(z => pier(z));
-    const balT = canvasTex(256, 64, (x, w, h) => { x.fillStyle = 'rgba(0,0,0,0)'; x.clearRect(0, 0, w, h); x.fillStyle = DRESS; x.fillRect(0, 0, w, 10); x.fillRect(0, h - 8, w, 8); for (let i = 0; i < 10; i++) { x.beginPath(); x.ellipse(12 + i * 25.6, 34, 6, 20, 0, 0, Math.PI * 2); x.fill(); } });
-    balT.wrapS = THREE.RepeatWrapping;
-    [[-4.6, -16], [4.6, 16], [-16, -34], [16, 34]].forEach(([a, b]) => {
-      const len = Math.abs(b - a) - 1.7, zc = (a + b) / 2;
-      mk(new THREE.BoxGeometry(0.9, 1.3, len), BRICK, 0, 0.65, zc, g);
-      mk(new THREE.BoxGeometry(1.0, 0.14, len), DRESS, 0, 1.36, zc, g);
-      const t = balT.clone(); t.needsUpdate = true; t.repeat.set(len / 2.5, 1);
-      [-1, 1].forEach(s => { const b2 = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.9), new THREE.MeshLambertMaterial({ map: t, transparent: true, side: THREE.DoubleSide })); b2.position.set(s * 0.12, 1.88, zc); b2.rotation.y = Math.PI / 2; g.add(b2); });
-      mk(new THREE.BoxGeometry(1.0, 0.12, len), DRESS, 0, 2.38, zc, g);
-    });
-    // open iron gates
-    [-1, 1].forEach(s => {
-      const leaf = new THREE.Group(); leaf.position.set(0, 0, s * 3.75); leaf.rotation.y = s * 1.2; g.add(leaf);
-      for (let k = 0; k < 14; k++) mk(new THREE.BoxGeometry(0.06, 3.2, 0.06), IRON, -0.0, 1.6 + Math.sin(k / 13 * Math.PI) * 0.25, -s * (0.15 + k * 0.26), leaf);
-      [0.4, 2.6].forEach(y => mk(new THREE.BoxGeometry(0.08, 0.1, 3.6), IRON, 0, y, -s * 1.85, leaf));
-    });
-    // name boards on the walls and the tribute plaque
-    const board = canvasTex(512, 128, (x, w, h) => { x.fillStyle = '#16233d'; x.fillRect(0, 0, w, h); x.strokeStyle = '#c9a43c'; x.lineWidth = 6; x.strokeRect(6, 6, w - 12, h - 12); x.fillStyle = '#e9d9a2'; x.textAlign = 'center'; x.font = '700 42px Georgia, serif'; x.fillText('ROYAL HOLLOWAY', w / 2, 58); x.font = '600 24px Georgia, serif'; x.fillText('UNIVERSITY OF LONDON', w / 2, 98); });
-    [-10.3, 10.3].forEach(z => { const b = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 1.1), new THREE.MeshBasicMaterial({ map: board })); b.position.set(0.47, 1.9, z); b.rotation.y = Math.PI / 2; g.add(b); });
-    const plaque = canvasTex(256, 192, (x, w, h) => { x.fillStyle = '#e2d6bd'; x.fillRect(0, 0, w, h); x.strokeStyle = '#8a7a5a'; x.lineWidth = 4; x.strokeRect(8, 8, w - 16, h - 16); x.fillStyle = '#3a3226'; x.textAlign = 'center'; x.font = '700 18px Georgia, serif'; x.fillText('IN TRIBUTE TO', w / 2, 44); x.font = '700 21px Georgia, serif'; x.fillText('ROYAL HOLLOWAY', w / 2, 76); x.font = '600 15px Georgia, serif'; x.fillText('ALEX PHILIP', w / 2, 116); x.fillText('MSc INFORMATION SECURITY', w / 2, 140); x.fillText('2022 – 2024', w / 2, 164); });
-    const pl = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.9), new THREE.MeshBasicMaterial({ map: plaque })); pl.position.set(0.87, 2.4, 4.6); pl.rotation.y = Math.PI / 2; g.add(pl);
 
     // ---- Founder's Building (angled a little towards oncoming drivers) ----
     const bg = new THREE.Group(); g.add(bg);
@@ -771,17 +740,99 @@
   })();
   rider.scale.setScalar(1.15);
   scene.add(rider);
-  // entrance arch on the drive in from Egham Hill, with Alex's name
+  // ---------- The main entrance on Egham Hill (the A30), as on Street View ----------
+  // stone gate piers with urn finials, brick walls with balustrades, open iron gates, the brick boundary wall,
+  // the red-brick gate lodge, a keep-left sign and the green footbridge over the road; the drive runs straight to the clock tower
+  const ENTRY = (() => {
+    const [ax, az] = ROADS.drive[0], [bx, bz] = ROADS.drive[1];
+    const L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L;
+    const n = nearestOnRoads(ax, az); // the A30 at the gate
+    const gx = ax + dx * 9, gz = az + dz * 9; // gate line, set back behind the pavement
+    return { gx, gz, dx, dz, h: Math.atan2(dx, dz), a30: { tx: n.tx, tz: n.tz } };
+  })();
   {
-    const [ax, az] = ROADS.west[1], [bx, bz] = ROADS.west[0];
-    const gx = bx + (ax - bx) * 0.32, gz = bz + (az - bz) * 0.32, hd = Math.atan2(bx - ax, bz - az);
-    const g = new THREE.Group(); g.position.set(gx, 0, gz); g.rotation.y = hd; scene.add(g);
-    [-1, 1].forEach(sd => { mk(new THREE.BoxGeometry(1.2, 8.6, 1.2), RH.slate, sd * 5.4, 4.3, 0, g); mk(new THREE.BoxGeometry(1.5, 0.5, 1.5), RH.orange, sd * 5.4, 8.85, 0, g); });
-    mk(new THREE.BoxGeometry(12.4, 2.6, 0.5), RH.slate, 0, 7.8, 0, g);
-    const t = canvasTex(1024, 220, (x, w, h) => { x.fillStyle = RH.slate; x.fillRect(0, 0, w, h); x.strokeStyle = RH.orange; x.lineWidth = 10; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = RH.grey; x.textAlign = 'center'; x.textBaseline = 'middle'; x.font = '700 38px Arial, Helvetica, sans-serif'; x.fillText('ROYAL HOLLOWAY CAMPUS DRIVE BY', w / 2, 62); x.fillStyle = RH.orange; x.font = '800 96px Arial, Helvetica, sans-serif'; x.fillText('ALEX PHILIP', w / 2, 146); });
-    [1, -1].forEach(sd => { const f = new THREE.Mesh(new THREE.PlaneGeometry(11.6, 2.4), new THREE.MeshBasicMaterial({ map: t })); f.position.set(0, 7.8, sd * 0.27); if (sd < 0) f.rotation.y = Math.PI; g.add(f); });
+    const STONEP = '#d9d3c2', STONEB = '#c9c2b0', BRK = '#a8553c', IRON = '#141418';
+    const g = new THREE.Group(); g.position.set(ENTRY.gx, 0, ENTRY.gz); g.rotation.y = ENTRY.h; scene.add(g); // local +z = into campus, local x = across the gateway
+    const pier = (x, h, w) => {
+      mk(new THREE.BoxGeometry(w, h, w), STONEP, x, h / 2, 0, g);
+      for (let y = 0.6; y < h - 0.5; y += 0.55) mk(new THREE.BoxGeometry(w + 0.08, 0.1, w + 0.08), STONEB, x, y, 0, g); // rustication
+      mk(new THREE.BoxGeometry(w + 0.35, 0.35, w + 0.35), STONEB, x, h + 0.17, 0, g);
+      mk(new THREE.BoxGeometry(w * 0.55, 0.3, w * 0.55), STONEP, x, h + 0.5, 0, g);
+      mk(new THREE.SphereGeometry(w * 0.32, 12, 10), STONEP, x, h + 0.95, 0, g); // urn
+      mk(new THREE.ConeGeometry(w * 0.16, w * 0.4, 8), STONEP, x, h + 1.4, 0, g);
+    };
+    [-1, 1].forEach(sd => { pier(sd * 4.3, 4.6, 1.3); pier(sd * 9.2, 3.6, 1.1); });
+    // brick walls with stone balustrades between the piers
+    const balT = canvasTex(256, 64, (x, w, h) => { x.clearRect(0, 0, w, h); x.fillStyle = STONEP; x.fillRect(0, 0, w, 9); x.fillRect(0, h - 7, w, 7); for (let i = 0; i < 10; i++) { x.beginPath(); x.ellipse(12 + i * 25.6, 34, 6, 19, 0, 0, Math.PI * 2); x.fill(); } });
+    balT.wrapS = THREE.RepeatWrapping;
+    [-1, 1].forEach(sd => {
+      const xc = sd * 6.75, len = 3.7;
+      mk(new THREE.BoxGeometry(len, 1.0, 0.7), BRK, xc, 0.5, 0, g);
+      mk(new THREE.BoxGeometry(len, 0.12, 0.8), STONEP, xc, 1.06, 0, g);
+      const t = balT.clone(); t.needsUpdate = true; t.repeat.set(len / 2.4, 1);
+      [-1, 1].forEach(f => { const b = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.8), new THREE.MeshLambertMaterial({ map: t, transparent: true, side: THREE.DoubleSide })); b.position.set(xc, 1.52, f * 0.1); g.add(b); });
+      mk(new THREE.BoxGeometry(len, 0.12, 0.7), STONEP, xc, 1.96, 0, g);
+      // name board on each wall (name only, no crest)
+      const nb = canvasTex(512, 128, (x, w, h) => { x.fillStyle = '#16181c'; x.fillRect(0, 0, w, h); x.fillStyle = '#f2f2ee'; x.textAlign = 'center'; x.font = '700 40px Georgia, serif'; x.fillText('ROYAL HOLLOWAY', w / 2, 56); x.font = '600 24px Georgia, serif'; x.fillText('UNIVERSITY OF LONDON', w / 2, 98); });
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.55), new THREE.MeshBasicMaterial({ map: nb })); m.position.set(xc, 1.5, -0.42); m.rotation.y = Math.PI; g.add(m);
+    });
+    // open iron gates swung back against the inner piers
+    [-1, 1].forEach(sd => {
+      const leaf = new THREE.Group(); leaf.position.set(sd * 3.6, 0, 0.2); leaf.rotation.y = sd * -1.35; g.add(leaf);
+      for (let k = 0; k < 12; k++) mk(new THREE.BoxGeometry(0.05, 3.0 + Math.sin(k / 11 * Math.PI) * 0.4, 0.05), IRON, 0, 1.6, -sd * 0 + k * 0.28 * -sd * 0 + 0, leaf).position.z = k * 0.28;
+      [0.35, 2.7].forEach(y => mk(new THREE.BoxGeometry(0.07, 0.08, 3.3), IRON, 0, y, 1.6, leaf));
+    });
+    // keep-left sign on a post by the right-hand pier
+    mk(new THREE.BoxGeometry(0.08, 2.4, 0.08), '#2b2f36', -2.9, 1.2, -0.8, g);
+    const kl = canvasTex(64, 64, (x) => { x.fillStyle = '#1f5fae'; x.beginPath(); x.arc(32, 32, 30, 0, Math.PI * 2); x.fill(); x.strokeStyle = '#fff'; x.lineWidth = 4; x.stroke(); x.fillStyle = '#fff'; x.beginPath(); x.moveTo(22, 20); x.lineTo(44, 42); x.lineTo(44, 30); x.moveTo(44, 42); x.lineTo(32, 42); x.fill(); x.lineWidth = 6; x.beginPath(); x.moveTo(20, 18); x.lineTo(42, 40); x.stroke(); x.beginPath(); x.moveTo(30, 42); x.lineTo(44, 42); x.lineTo(44, 28); x.stroke(); });
+    const kls = new THREE.Mesh(new THREE.CircleGeometry(0.42, 20), new THREE.MeshBasicMaterial({ map: kl, side: THREE.DoubleSide })); kls.position.set(-2.9, 2.35, -0.85); kls.rotation.y = Math.PI; g.add(kls);
+    // red-brick boundary wall with stone coping along Egham Hill, either side of the gates
+    {
+      const at = ENTRY.a30, ang = Math.atan2(at.tx, at.tz); // wall runs parallel to the road
+      [-1, 1].forEach(sd => {
+        const len = 140, w = new THREE.Group(); scene.add(w);
+        // start just beyond the outer pier, on the gate line
+        const sx = ENTRY.gx + Math.cos(ENTRY.h) * sd * 9.9, sz = ENTRY.gz - Math.sin(ENTRY.h) * sd * 9.9;
+        const dir = Math.sign((Math.cos(ENTRY.h) * at.tx - Math.sin(ENTRY.h) * at.tz) * sd) || sd;
+        w.position.set(sx + at.tx * dir * len / 2, 0, sz + at.tz * dir * len / 2); w.rotation.y = ang;
+        mk(new THREE.BoxGeometry(0.6, 1.9, len), BRK, 0, 0.95, 0, w);
+        mk(new THREE.BoxGeometry(0.8, 0.14, len), STONEP, 0, 1.97, 0, w);
+        for (let k = -len / 2 + 6; k < len / 2; k += 12) mk(new THREE.BoxGeometry(0.8, 2.2, 0.8), BRK, 0, 1.1, k, w); // buttresses
+      });
+    }
+    // Alex's name on a stone plaque set into the wall to the right of the gates
+    {
+      const pl = canvasTex(512, 200, (x, w, h) => { x.fillStyle = '#e2dccb'; x.fillRect(0, 0, w, h); x.strokeStyle = '#8a7a5a'; x.lineWidth = 8; x.strokeRect(10, 10, w - 20, h - 20); x.fillStyle = '#3a3226'; x.textAlign = 'center'; x.font = '600 26px Georgia, serif'; x.fillText('CAMPUS DRIVE BY', w / 2, 62); x.font = '700 60px Georgia, serif'; x.fillText('ALEX PHILIP', w / 2, 128); x.font = '500 20px Georgia, serif'; x.fillText('MSc Information Security 2022–2024', w / 2, 168); });
+      const m = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.94), new THREE.MeshBasicMaterial({ map: pl })); m.position.set(-12.5, 1.15, -0.32); m.rotation.y = Math.PI; g.add(m);
+      mk(new THREE.BoxGeometry(2.7, 1.2, 0.3), '#d0c8b4', -12.5, 1.15, -0.15, g);
+    }
+    // the red-brick gate lodge just inside, to the right of the drive
+    {
+      const lg = new THREE.Group(); lg.position.set(-14, 0, 9); g.add(lg);
+      mk(new THREE.BoxGeometry(13, 4.2, 8), '#b0503a', 0, 2.1, 0, lg);
+      const roof = mk(new THREE.ConeGeometry(1, 1, 4), '#4a4440', 0, 5.6, 0, lg, { ry: Math.PI / 4 }); roof.scale.set(10.2, 3, 6.6);
+      [[-4, 0.8], [3.5, -1.2]].forEach(([x, z]) => { mk(new THREE.BoxGeometry(1.1, 3.6, 1.1), '#9a4430', x, 7.2, z, lg); mk(new THREE.BoxGeometry(1.3, 0.3, 1.3), STONEP, x, 9.1, z, lg); });
+      [-4.5, -1.5, 1.5, 4.5].forEach(x => { mk(new THREE.BoxGeometry(1.1, 1.6, 0.08), '#f4f2ec', x, 2.2, -4.02, lg); mk(new THREE.BoxGeometry(0.9, 1.4, 0.06), '#2c3440', x, 2.2, -4.06, lg); });
+      mk(new THREE.BoxGeometry(13.4, 0.25, 8.4), STONEP, 0, 4.25, 0, lg);
+    }
+    // cedars either side of the drive
+    const cedar = (x, z, s) => { const t = new THREE.Group(); t.position.set(x, 0, z); t.scale.setScalar(s); g.add(t); mk(new THREE.CylinderGeometry(0.4, 0.6, 7, 7), '#5a4636', 0, 3.5, 0, t); [[3.5, 5.2], [5.8, 4.4], [8.0, 3.4], [10.2, 2.3], [12, 1.2]].forEach(([y, r]) => mk(new THREE.CylinderGeometry(r * 0.8, r, 1, 8), '#2f5136', 0, y, 0, t)); };
+    cedar(-9, 22, 1.25); cedar(11, 16, 1.1); // local +x is the left-hand side looking in
+    // green steel footbridge across Egham Hill, just to the left of the gates
+    {
+      const at = ENTRY.a30, hdBridge = Math.atan2(-ENTRY.dx, -ENTRY.dz);
+      const bxp = ENTRY.gx + Math.cos(ENTRY.h) * 24 - ENTRY.dx * 9, bzp = ENTRY.gz - Math.sin(ENTRY.h) * 24 - ENTRY.dz * 9; // over the road, left of the gate
+      const fb = new THREE.Group(); fb.position.set(bxp, 0, bzp); fb.rotation.y = hdBridge; scene.add(fb); // local z crosses the road
+      const GRN = '#7d9884', span = 26, H = 5.6;
+      mk(new THREE.BoxGeometry(2.4, 0.3, span), GRN, 0, H, 0, fb);
+      [-1.15, 1.15].forEach(x => { mk(new THREE.BoxGeometry(0.1, 0.1, span), GRN, x, H + 1.4, 0, fb); mk(new THREE.BoxGeometry(0.12, 0.12, span), GRN, x, H + 0.2, 0, fb); for (let z = -span / 2; z <= span / 2; z += 1.3) mk(new THREE.BoxGeometry(0.06, 1.3, 0.06), GRN, x, H + 0.85, z, fb); });
+      mk(new THREE.BoxGeometry(2.6, 0.12, span), '#9fb3a5', 0, H + 2.3, 0, fb); // canopy frame
+      [-span / 2, span / 2].forEach(z => { [-1.1, 1.1].forEach(x => mk(new THREE.BoxGeometry(0.4, H, 0.4), GRN, x, H / 2, z, fb)); });
+      // stairs down at both ends, running alongside the road
+      [-1, 1].forEach(e => { const st = new THREE.Group(); st.position.set(0, 0, e * span / 2); fb.add(st); beam(new THREE.Vector3(1.4, H, 0), new THREE.Vector3(1.4 + 9, 0.2, 0), 1.6, GRN, st); beam(new THREE.Vector3(2.2, H + 1, 0), new THREE.Vector3(2.2 + 9, 1.2, 0), 0.08, GRN, st); beam(new THREE.Vector3(0.6, H + 1, 0), new THREE.Vector3(0.6 + 9, 1.2, 0), 0.08, GRN, st); });
+    }
   }
-  const START = (() => { const [ax, az] = ROADS.west[1], [bx, bz] = ROADS.west[0]; return { x: bx + (ax - bx) * 0.62, z: bz + (az - bz) * 0.62, h: Math.atan2(bx - ax, bz - az) }; })(); // outside the entrance arch, facing in
+  const START = { x: ROADS.drive[0][0] - ENTRY.dx * 1.5, z: ROADS.drive[0][1] - ENTRY.dz * 1.5, h: ENTRY.h }; // on Egham Hill, looking in through the gates
   rider.position.set(START.x, 0, START.z); rider.rotation.y = START.h;
 
   // ---------- Traffic: buses and cars on the campus loop and along Egham Hill ----------
@@ -896,13 +947,22 @@
     b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('pointerleave', off);
   });
   const car = { speed: 0, heading: START.h, steer: 0 };
-  let touring = false, tourT = 0;
+  let touring = false, tourT = 0, leadIn = null;
   const tourBtn = document.getElementById('tourBtn');
   function stopTour() { if (touring) { touring = false; tourBtn.setAttribute('aria-pressed', 'false'); tourBtn.textContent = 'Auto tour'; } }
   tourBtn.addEventListener('click', () => {
     touring = !touring; tourBtn.setAttribute('aria-pressed', String(touring)); tourBtn.textContent = touring ? 'Stop tour' : 'Auto tour'; started();
-    if (touring) { // join the loop at its nearest point
-      let best = 0, bd = Infinity; for (let i = 0; i < 400; i++) { const p = TOUR.getPointAt(i / 400), d = p.distanceTo(rider.position); if (d < bd) { bd = d; best = i / 400; } } tourT = best;
+    if (touring) { // join the loop at its nearest point; from the gates, drive in along the main drive first
+      const nearestT = (pos) => { let best = 0, bd = Infinity; for (let i = 0; i < 600; i++) { const p = TOUR.getPointAt(i / 600), d = p.distanceTo(pos); if (d < bd) { bd = d; best = i / 600; } } return [best, bd]; };
+      const [t0, d0] = nearestT(rider.position);
+      leadIn = null; tourT = t0;
+      if (d0 > 12) {
+        const pts = DENSE.drive.map(([x, z]) => new THREE.Vector3(x, 0, z));
+        let k = 0, kd = Infinity; pts.forEach((p, i) => { const d = p.distanceTo(rider.position); if (d < kd) { kd = d; k = i; } });
+        const rest = pts.slice(k); let cut = rest.length - 1, cd = Infinity;
+        rest.forEach((p, i) => { const d = nearestT(p)[1]; if (d < cd) { cd = d; cut = i; } }); // where the drive meets the loop
+        leadIn = { pts: rest.slice(0, cut + 1), i: 0 }; tourT = nearestT(rest[cut])[0];
+      }
     }
   });
   let hasStarted = false;
@@ -914,16 +974,23 @@
     const near = nearestOnRoads(rider.position.x, rider.position.z), onRoad = near && near.d < near.hw + 1.5;
     const vmax = onRoad ? 17 : 8;
     if (touring) {
-      // follow the campus loop: steer at a point a few metres ahead
-      tourT = (tourT + Math.max(car.speed, 2) * dt / TOUR_LEN) % 1;
-      const look = TOUR.getPointAt((tourT + 9 / TOUR_LEN) % 1), tg = TOUR.getTangentAt(tourT);
-      const target = look.clone().add(new THREE.Vector3(tg.z * 1.7, 0, -tg.x * 1.7)); // keep left
+      // follow the campus loop (after driving in from the gates): steer at a point a few metres ahead
+      let target;
+      if (leadIn) {
+        while (leadIn.i < leadIn.pts.length - 1 && leadIn.pts[leadIn.i].distanceTo(rider.position) < 7) leadIn.i++;
+        target = leadIn.pts[leadIn.i];
+        if (leadIn.i >= leadIn.pts.length - 1 && target.distanceTo(rider.position) < 7) leadIn = null;
+      } else {
+        tourT = (tourT + Math.max(car.speed, 2) * dt / TOUR_LEN) % 1;
+        const look = TOUR.getPointAt((tourT + 9 / TOUR_LEN) % 1), tg = TOUR.getTangentAt(tourT);
+        target = look.clone().add(new THREE.Vector3(tg.z * 1.7, 0, -tg.x * 1.7)); // keep left
+      }
       const want = Math.atan2(target.x - rider.position.x, target.z - rider.position.z);
       let dh = want - car.heading; dh = Math.atan2(Math.sin(dh), Math.cos(dh));
       car.heading += clamp(dh, -1.6 * dt, 1.6 * dt);
       const slow = Math.abs(dh) > 0.35 ? 6 : 9;
       car.speed += (slow - car.speed) * Math.min(1, dt * 1.5);
-      const p = TOUR.getPointAt(tourT); if (p.distanceTo(rider.position) > 12) { tourT = (tourT + 0.0005) % 1; }
+      if (!leadIn) { const p = TOUR.getPointAt(tourT); if (p.distanceTo(rider.position) > 12) { tourT = (tourT + 0.0005) % 1; } }
     } else {
       if (up) car.speed += (car.speed < 0 ? 14 : 7) * dt;
       else if (down) car.speed -= (car.speed > 0 ? 16 : 5) * dt;
