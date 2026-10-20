@@ -12,7 +12,13 @@
 
     // Raise the visible content into the card's 3D plane, leaving click targets intact.
     Array.from(card.children).forEach((child, index) => {
-      if (child.classList.contains('card-3d-overlay')) return;
+      // These preview panels are absolutely positioned popovers; their transforms
+      // control the existing reveal animation, so keep them out of the depth stack.
+      if (
+        child.classList.contains('card-3d-overlay') ||
+        child.classList.contains('cert-preview') ||
+        child.classList.contains('featured-preview')
+      ) return;
       child.classList.add('card-3d-layer');
       child.style.setProperty('--layer-depth', Math.max(9, 27 - index * 5) + 'px');
     });
@@ -59,7 +65,7 @@
       frame = 0;
       card.style.setProperty('--tilt-x', '0deg');
       card.style.setProperty('--tilt-y', '0deg');
-      card.style.setProperty('--card-lift', '0px');
+      card.style.removeProperty('--card-lift');
       card.style.setProperty('--spotlight-opacity', '0');
       card.style.setProperty('--pointer-x', '50%');
       card.style.setProperty('--pointer-y', '50%');
