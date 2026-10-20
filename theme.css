@@ -514,3 +514,16 @@ img { max-width: 100%; }
   .soc-secondary-btn,.soc-primary-btn,.case-study-card,.case-link,.case-expand { transition:none !important; }
   .case-study-body { animation:none !important; }
 }
+
+
+/* Keep the expanded navigation usable after adding SOC Lab and Case Studies links. */
+@media (min-width: 901px) and (max-width: 1120px) {
+  nav { padding-inline: 1.25rem; }
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+}
+.soc-section .section-title em,
+.case-studies-section .section-title em {
+  color: var(--accent);
+  font-style: normal;
+}
