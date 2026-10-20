@@ -72,6 +72,9 @@
   @media (max-width: 760px) and (pointer: coarse) { #card { bottom: calc(170px + env(safe-area-inset-bottom)); } }
   body.no-webgl #card { transform: none; }
 </style>
+
+<link rel="stylesheet" href="button-polish.css">
+<script src="button-polish.js" defer></script>
 </head>
 <body>
 <canvas id="scene" aria-label="3D view of the Royal Holloway campus"></canvas>
@@ -1147,18 +1150,35 @@
   })();
 
   buildSolids();
+  let scheduledFrame = 0;
+  function scheduleFrame() {
+    if (document.hidden || scheduledFrame) return;
+    scheduledFrame = requestAnimationFrame(frame);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (scheduledFrame) cancelAnimationFrame(scheduledFrame);
+      scheduledFrame = 0;
+      return;
+    }
+    last = performance.now();
+    scheduleFrame();
+  });
+
   function frame(now) {
+    scheduledFrame = 0;
+    if (document.hidden) return;
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000)); last = now;
     drive(dt); if (!reduceMotion) { moveTraffic(dt); moveWalkers(dt); spinners.forEach(s => s(dt, now)); }
     chase(dt); updateCard(); drawMap(); engineSound();
     speedEl.textContent = Math.round(Math.abs(car.speed) * 3.6 * 0.621) + ' mph';
     sunLight.position.set(rider.position.x + 60, 120, rider.position.z + 40); sunLight.target.position.copy(rider.position);
     renderer.render(scene, camera);
-    requestAnimationFrame(frame);
+    scheduleFrame();
   }
   addEventListener('resize', () => { renderer.setSize(innerWidth, innerHeight, false); camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); });
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  requestAnimationFrame(frame);
+  scheduleFrame();
 
   const copyBtn = () => document.getElementById('copyBtn');
   document.addEventListener('click', e => { if (e.target && e.target.id === 'copyBtn') { navigator.clipboard && navigator.clipboard.writeText('alex.philip99@hotmail.com'); e.target.textContent = 'Copied'; } });
