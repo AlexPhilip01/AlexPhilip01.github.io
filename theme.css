@@ -210,3 +210,87 @@ img { max-width: 100%; }
   .card-3d-target { transform: none !important; }
   .card-3d-target > .card-3d-layer { transform: none !important; }
 }
+
+/* ── SHIELD layered visual depth ── */
+#depth-atmosphere {
+  position: fixed; inset: -3vh -3vw; z-index: 1;
+  pointer-events: none; overflow: hidden; contain: paint; isolation: isolate;
+  opacity: .78;
+}
+#depth-atmosphere::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 38%, transparent 22%, rgba(0,0,0,.22) 68%, rgba(0,0,0,.5) 115%);
+}
+.depth-light {
+  position: absolute; display: block; width: clamp(300px, 44vw, 720px);
+  aspect-ratio: 1; border-radius: 50%;
+  filter: blur(clamp(42px, 7vw, 100px)); mix-blend-mode: screen;
+  opacity: .3; will-change: transform;
+  transition: transform .55s cubic-bezier(.2,.8,.2,1);
+}
+.depth-light--gold {
+  top: -23%; right: 2%;
+  background: radial-gradient(circle at 45% 45%, rgba(212,168,58,.28), rgba(171,113,24,.09) 40%, transparent 70%);
+  transform: translate3d(var(--depth-gold-x, 0px), var(--depth-gold-y, 0px), 0);
+}
+.depth-light--amber {
+  left: -19%; bottom: 4%; width: clamp(280px, 38vw, 620px);
+  background: radial-gradient(circle at 52% 48%, rgba(165,96,24,.18), rgba(93,54,16,.07) 42%, transparent 71%);
+  opacity: .27;
+  transform: translate3d(var(--depth-amber-x, 0px), var(--depth-amber-y, 0px), 0);
+}
+.depth-light--shadow {
+  top: 42%; right: -22%; width: clamp(340px, 46vw, 760px);
+  background: radial-gradient(circle at 50% 50%, rgba(86,65,31,.12), rgba(34,28,18,.04) 48%, transparent 73%);
+  opacity: .55;
+}
+#hero { isolation: isolate; overflow: clip; }
+#hero .hero-glow { z-index: 0; }
+#hero .hero-inner {
+  position: relative; z-index: 3;
+  transform: translate3d(var(--depth-content-x, 0px), var(--depth-content-y, 0px), 0);
+  transition: transform .32s cubic-bezier(.2,.8,.2,1);
+}
+.depth-grid-floor {
+  position: absolute; z-index: 0; left: -30%; right: -30%; bottom: -38%;
+  height: 76%; pointer-events: none; transform-origin: 50% 100%;
+  transform: perspective(560px) rotateX(66deg) translate3d(var(--depth-grid-x, 0px), var(--depth-grid-y, 0px), 0) scale(1.28);
+  background-image:
+    linear-gradient(to bottom, rgba(212,168,58,.16) 1px, transparent 1px),
+    linear-gradient(to right, rgba(212,168,58,.13) 1px, transparent 1px);
+  background-size: 100% 50px, 50px 100%; background-position: center top;
+  opacity: .3; filter: drop-shadow(0 0 14px rgba(212,168,58,.06));
+  -webkit-mask-image: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.68) 34%, transparent 84%);
+  mask-image: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.68) 34%, transparent 84%);
+  animation: depthGridDrift 22s linear infinite;
+}
+.depth-grid-floor::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(233,207,122,.5) 25%, rgba(212,168,58,.68) 50%, rgba(233,207,122,.35) 75%, transparent);
+  box-shadow: 0 0 18px rgba(212,168,58,.25);
+}
+@keyframes depthGridDrift {
+  from { background-position: center 0, center 0; }
+  to { background-position: center 100px, center 100px; }
+}
+.hero-name { text-shadow: 0 2px 0 rgba(255,255,255,.025), 0 16px 40px rgba(0,0,0,.35); }
+.section-title { text-shadow: 0 12px 30px rgba(0,0,0,.35); }
+.section-label { text-shadow: 0 0 18px rgba(212,168,58,.11); }
+.divider { box-shadow: 0 1px 12px rgba(212,168,58,.035); }
+@media (max-width: 900px) {
+  #depth-atmosphere { opacity: .62; }
+  .depth-light--gold { right: -12%; }
+  .depth-grid-floor { opacity: .21; bottom: -43%; }
+  #hero .hero-inner { transform: none; }
+}
+@media (max-width: 600px) {
+  #depth-atmosphere { opacity: .48; }
+  .depth-light { filter: blur(50px); }
+  .depth-light--gold { top: -8%; right: -36%; }
+  .depth-light--amber { left: -38%; bottom: 2%; }
+  .depth-grid-floor { bottom: -46%; height: 72%; opacity: .14; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .depth-light, #hero .hero-inner { transition: none !important; }
+  .depth-grid-floor { animation: none !important; }
+}
