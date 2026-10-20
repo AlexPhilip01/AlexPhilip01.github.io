@@ -1,0 +1,206 @@
+/* SHIELD button system: restrained metallic detail, tactile feedback, accessible focus. */
+:root {
+  --shield-control-accent: var(--orange, var(--accent2, var(--accent, #d4a83a)));
+}
+
+button,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.btn-primary,
+.btn-ghost,
+.btn,
+.soc-primary-btn,
+.soc-secondary-btn,
+.soc-filter,
+.nav-hamburger,
+.ap-drive,
+a[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: center;
+  transition: transform .18s cubic-bezier(.2,.8,.2,1),
+              filter .18s ease,
+              border-color .22s ease,
+              box-shadow .22s ease,
+              background-color .22s ease,
+              color .22s ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .btn-primary,
+  .btn-ghost,
+  .btn,
+  .soc-primary-btn,
+  .soc-secondary-btn,
+  .soc-filter,
+  .nav-hamburger,
+  .ap-drive,
+  a[role="button"] {
+    cursor: pointer;
+  }
+
+  button:hover,
+  input[type="button"]:hover,
+  input[type="submit"]:hover,
+  input[type="reset"]:hover,
+  .btn-primary:hover,
+  .btn-ghost:hover,
+  .btn:hover,
+  .soc-primary-btn:hover,
+  .soc-secondary-btn:hover,
+  .soc-filter:hover,
+  .nav-hamburger:hover,
+  .ap-drive:hover,
+  a[role="button"]:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.055);
+  }
+
+  .btn-primary:hover,
+  .btn-ghost:hover,
+  .btn:hover,
+  .soc-primary-btn:hover,
+  .soc-secondary-btn:hover,
+  .ap-drive:hover {
+    border-color: var(--shield-control-accent);
+  }
+
+  .btn-primary:hover::before,
+  .btn-ghost:hover::before,
+  .btn:hover::before,
+  .soc-primary-btn:hover::before,
+  .soc-secondary-btn:hover::before,
+  .ap-drive:hover::before {
+    opacity: 1;
+  }
+}
+
+button:active,
+input[type="button"]:active,
+input[type="submit"]:active,
+input[type="reset"]:active,
+.btn-primary:active,
+.btn-ghost:active,
+.btn:active,
+.soc-primary-btn:active,
+.soc-secondary-btn:active,
+.soc-filter:active,
+.nav-hamburger:active,
+.ap-drive:active,
+a[role="button"]:active {
+  transform: translateY(0) scale(.975);
+  filter: brightness(.98);
+}
+
+button:focus-visible,
+input[type="button"]:focus-visible,
+input[type="submit"]:focus-visible,
+input[type="reset"]:focus-visible,
+.btn-primary:focus-visible,
+.btn-ghost:focus-visible,
+.btn:focus-visible,
+.soc-primary-btn:focus-visible,
+.soc-secondary-btn:focus-visible,
+.soc-filter:focus-visible,
+.nav-hamburger:focus-visible,
+.ap-drive:focus-visible,
+a[role="button"]:focus-visible {
+  outline: 2px solid var(--shield-control-accent);
+  outline-offset: 3px;
+}
+
+button:disabled,
+input:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+  filter: saturate(.45);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-primary,
+.btn-ghost,
+.btn,
+.soc-primary-btn,
+.soc-secondary-btn,
+.ap-drive {
+  position: relative;
+  isolation: isolate;
+}
+
+.btn-primary::before,
+.btn-ghost::before,
+.btn::before,
+.soc-primary-btn::before,
+.soc-secondary-btn::before,
+.ap-drive::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    linear-gradient(90deg, transparent 13%, var(--shield-control-accent) 50%, transparent 87%) top / 72% 1px no-repeat,
+    radial-gradient(130px circle at var(--button-x, 50%) var(--button-y, 50%), rgba(233, 207, 122, .14), transparent 74%);
+  transition: opacity .18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  input[type="button"],
+  input[type="submit"],
+  input[type="reset"],
+  .btn-primary,
+  .btn-ghost,
+  .btn,
+  .soc-primary-btn,
+  .soc-secondary-btn,
+  .soc-filter,
+  .nav-hamburger,
+  .ap-drive,
+  a[role="button"],
+  .btn-primary::before,
+  .btn-ghost::before,
+  .btn::before,
+  .soc-primary-btn::before,
+  .soc-secondary-btn::before,
+  .ap-drive::before {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  button:hover,
+  input[type="button"]:hover,
+  input[type="submit"]:hover,
+  input[type="reset"]:hover,
+  .btn-primary:hover,
+  .btn-ghost:hover,
+  .btn:hover,
+  .soc-primary-btn:hover,
+  .soc-secondary-btn:hover,
+  .soc-filter:hover,
+  .nav-hamburger:hover,
+  .ap-drive:hover,
+  a[role="button"]:hover,
+  button:active,
+  input[type="button"]:active,
+  input[type="submit"]:active,
+  input[type="reset"]:active,
+  .btn-primary:active,
+  .btn-ghost:active,
+  .btn:active,
+  .soc-primary-btn:active,
+  .soc-secondary-btn:active,
+  .soc-filter:active,
+  .nav-hamburger:active,
+  .ap-drive:active,
+  a[role="button"]:active {
+    transform: none !important;
+    filter: none !important;
+  }
+}
