@@ -35,7 +35,7 @@
     --rose: #a855f7;
     --rose-text: #7e3ae0;
     --line: rgba(34, 24, 58, .14);
-    --sky: #f3b08e;
+    --sky: #ba988c;
     --display: 'Unbounded', 'Arial Black', system-ui, sans-serif;
     --body: 'Manrope', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --mono: 'JetBrains Mono', ui-monospace, Menlo, Consolas, monospace;
@@ -277,17 +277,65 @@
 </style>
 
 <style>
-  /* ---- voxel edition ---- */
-  #scene { image-rendering: pixelated; image-rendering: crisp-edges; }
-  *, *::before, *::after { border-radius: 0 !important; }
-  h1, h2, h3, .brand-name { font-family: 'Press Start 2P', 'VT323', monospace !important; letter-spacing: .04em !important; line-height: 1.5 !important; }
-  h2 { font-size: 15px !important; }
-  h1 { font-size: 26px !important; }
-  .brand-name { font-size: 11px !important; }
-  [class*="card"], [class*="panel"], .stop-dots, .counter, .hud, button { box-shadow: 4px 4px 0 #000, inset 0 0 0 2px rgba(212,168,58,.25) !important; }
+  /* SHIELD cinematic render polish */
+  #scene { image-rendering: auto; image-rendering: smooth; }
+  .hud-actions { display:flex; align-items:center; justify-content:flex-end; gap:8px; pointer-events:auto; }
+  .hud-actions .btn { flex-shrink:0; box-shadow:0 8px 24px rgba(0,0,0,.22); transition:transform .2s ease,background .25s ease,border-color .25s ease,box-shadow .25s ease; }
+  .hud-actions .btn:hover { transform:translateY(-2px); box-shadow:0 12px 28px rgba(0,0,0,.34),0 0 18px rgba(212,168,58,.12); }
+  #cameraBtn[aria-pressed="true"] { background:linear-gradient(180deg,rgba(212,168,58,.2),rgba(11,11,13,.94)); border-color:#e9cf7a; color:#f0c94f; }
+  .panel {
+    filter:blur(7px);
+    transform:translateY(-46%) translateX(-14px) scale(.99);
+    transition:opacity .48s ease,transform .62s cubic-bezier(.2,.8,.2,1),filter .52s ease,visibility 0s linear .62s;
+  }
+  .panel.on {
+    filter:blur(0);
+    transform:translateY(-50%) translateX(0) scale(1);
+    transition-delay:0s;
+  }
+  .panel:not(.hero) {
+    background:linear-gradient(145deg,rgba(11,11,13,.92),rgba(17,14,12,.84));
+    border-color:rgba(212,168,58,.5);
+    box-shadow:0 30px 82px -32px rgba(0,0,0,.92),0 0 32px rgba(212,168,58,.055),inset 0 1px 0 rgba(233,207,122,.09);
+  }
+  .panel h2 { text-shadow:0 2px 18px rgba(212,168,58,.11); }
+  .stops { box-shadow:0 24px 58px rgba(0,0,0,.38),inset 0 1px 0 rgba(233,207,122,.08); }
+  .odo { box-shadow:0 16px 38px rgba(0,0,0,.32),inset 0 1px 0 rgba(233,207,122,.07); }
+  #drive-speed-lines {
+    position:fixed; z-index:2; inset:-7%; pointer-events:none; opacity:0;
+    overflow:hidden; mix-blend-mode:screen;
+    transition:opacity .45s ease;
+  }
+  #drive-speed-lines::before {
+    content:""; position:absolute; inset:0;
+    background:
+      repeating-linear-gradient(112deg,transparent 0 78px,rgba(233,207,122,.10) 79px,transparent 81px 142px),
+      radial-gradient(ellipse at center,transparent 15%,rgba(0,0,0,.22) 100%);
+    -webkit-mask-image:radial-gradient(ellipse at 50% 50%,transparent 8%,rgba(0,0,0,.12) 34%,black 88%);
+    mask-image:radial-gradient(ellipse at 50% 50%,transparent 8%,rgba(0,0,0,.12) 34%,black 88%);
+    transform:scale(1.04);
+  }
+  body.drive-speed-1 #drive-speed-lines { opacity:.045; }
+  body.drive-speed-2 #drive-speed-lines { opacity:.085; }
+  body.drive-speed-3 #drive-speed-lines { opacity:.14; }
+  @media (max-width:760px) {
+    .hud-top { align-items:flex-start; }
+    .hud-actions { gap:5px; }
+    .hud-actions .btn { padding:9px 10px; font-size:10px; }
+    #cameraLabel,#soundLabel { display:none; }
+    #cameraBtn,#soundBtn,#wxBtn { width:38px; height:38px; justify-content:center; padding:0; }
+    #cameraBtn span[aria-hidden="true"] { font-size:15px; }
+    .panel { transform:translateY(8px) scale(.99); }
+    .panel.on { transform:none; }
+  }
+  @media (prefers-reduced-motion:reduce) {
+    .panel,.panel.on,.hud-actions .btn,#drive-speed-lines { transition:none!important; }
+    .panel { filter:none!important; }
+  }
 </style>
 
 <canvas id="scene" aria-hidden="true"></canvas>
+<div id="drive-speed-lines" aria-hidden="true"></div>
 <div id="track"></div>
 
 <header class="hud-top">
@@ -296,9 +344,14 @@
     <span class="brand-name">Alex Philip</span>
     <span class="draft"><i class="live-dot"></i>Available for opportunities</span>
   </a>
+  <div class="hud-actions">
+    <button class="btn" id="cameraBtn" type="button" aria-pressed="false" title="Switch to cinematic wide camera">
+      <span aria-hidden="true">◉</span><span id="cameraLabel">Chase cam</span>
+    </button>
   <button class="btn" id="soundBtn" type="button" aria-pressed="false">
     <span class="bars" aria-hidden="true"><i></i><i></i><i></i></span><span id="soundLabel">Sound off</span>
   </button>
+  </div>
 </header>
 
 <nav aria-label="Stops on the drive">
@@ -313,7 +366,7 @@
   </div>
 </div>
 
-<div class="hint" id="hint"><span class="wheel"></span>↑ accelerate · ↓ brake &amp; reverse · or scroll · drag to look around</div>
+<div class="hint" id="hint"><span class="wheel"></span>↑ / W accelerate · ↓ / S brake · scroll to cruise · drag to look</div>
 
 <main>
   <section class="panel hero on" data-from="0" data-to="0.06" data-label="Start" id="start">
@@ -506,15 +559,17 @@
   try {
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
   } catch (e) { addEventListener('scroll', () => updatePanels(scrollProgress()), { passive: true }); return; }
-  const MAX_PR = Math.min(devicePixelRatio || 1, 2);
-  let curPR = Math.min(MAX_PR, isPhone ? 1.5 : 2);
+  const MAX_PR = Math.min(devicePixelRatio || 1, 1.75);
+  let curPR = Math.min(MAX_PR, isPhone ? 1.25 : 1.75);
   renderer.setPixelRatio(curPR);
   renderer.setSize(innerWidth, innerHeight, false);
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.08;
   renderer.shadowMap.enabled = !isPhone;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
   const scene = new THREE.Scene();
-  const FOG = new THREE.Color('#d6c2c8');
+  const FOG = new THREE.Color('#bda09a');
   scene.background = FOG;
   scene.fog = new THREE.Fog(FOG, 80, 440);
   const camera = new THREE.PerspectiveCamera(isPhone ? 62 : 48, innerWidth / innerHeight, 0.1, 1600);
@@ -527,7 +582,7 @@
   // ---------- Sky, sun, light ----------
   const sky = new THREE.Mesh(new THREE.SphereGeometry(1000, 32, 16), new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { top: { value: new THREE.Color('#3f4b7a') }, mid: { value: new THREE.Color('#b98fae') }, low: { value: FOG } },
+    uniforms: { top: { value: new THREE.Color('#1b2038') }, mid: { value: new THREE.Color('#986a78') }, low: { value: FOG } },
     vertexShader: 'varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
     fragmentShader: 'uniform vec3 top; uniform vec3 mid; uniform vec3 low; varying vec3 vP; void main(){ float h = vP.y; vec3 c = mix(low, mid, smoothstep(0.0, 0.12, h)); c = mix(c, top, smoothstep(0.12, 0.6, h)); gl_FragColor = vec4(c, 1.0); }'
   }));
@@ -536,20 +591,20 @@
 
   const sunDir = new THREE.Vector3(0.35, 0.16, -1).normalize();
   const sunDisc = new THREE.Mesh(new THREE.CircleGeometry(40, 48), new THREE.MeshBasicMaterial({ color: '#ffe6c2', fog: false }));
-  const sunGlow = new THREE.Mesh(new THREE.CircleGeometry(110, 48), new THREE.MeshBasicMaterial({ color: '#f1bfae', fog: false, transparent: true, opacity: 0.3, depthWrite: false }));
+  const sunGlow = new THREE.Mesh(new THREE.CircleGeometry(110, 48), new THREE.MeshBasicMaterial({ color: '#d4a83a', fog: false, transparent: true, opacity: 0.24, depthWrite: false }));
   scene.add(sunGlow, sunDisc);
 
   scene.add(new THREE.HemisphereLight('#f3e9f0', '#6f6478', 0.86));
   const sunLight = new THREE.DirectionalLight('#ffdcb8', 0.78);
   sunLight.castShadow = !isPhone;
-  sunLight.shadow.mapSize.set(isPhone ? 1024 : 4096, isPhone ? 1024 : 4096);
+  sunLight.shadow.mapSize.set(isPhone ? 1024 : 2048, isPhone ? 1024 : 2048);
   sunLight.shadow.normalBias = 0.03;
   Object.assign(sunLight.shadow.camera, { left: -60, right: 60, top: 60, bottom: -60, near: 1, far: 400 });
   sunLight.shadow.bias = -0.0008;
   scene.add(sunLight, sunLight.target);
 
   // ---------- Ground ----------
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), M('#b8b0a4'));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), M('#a69a8f'));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true;
   scene.add(ground);
 
@@ -3311,6 +3366,17 @@
   scene.add(rider);
 
   // ---------- Camera framing ----------
+  const baseFov = isPhone ? 62 : 48;
+  let wideCam = false;
+  let lastAppliedFov = camera.fov;
+  const cameraBtn = document.getElementById('cameraBtn');
+  const cameraLabel = document.getElementById('cameraLabel');
+  if (cameraBtn) cameraBtn.addEventListener('click', () => {
+    wideCam = !wideCam;
+    cameraBtn.setAttribute('aria-pressed', String(wideCam));
+    cameraLabel.textContent = wideCam ? 'Cinematic cam' : 'Chase cam';
+    cameraBtn.title = wideCam ? 'Switch back to the close chase camera' : 'Switch to the wider cinematic camera';
+  });
   function applyViewOffset() {
     const w = innerWidth, h = innerHeight;
     camera.aspect = w / h;
@@ -3443,7 +3509,7 @@
     const U = sky.material.uniforms;
     const looks = {
       clear: { fog: FOG.clone(), near: scene.fog.near, far: scene.fog.far, top: U.top.value.clone(), mid: U.mid.value.clone(), glowC: sunGlow.material.color.clone(), glowO: sunGlow.material.opacity,
-        hc: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sunLight.color.clone(), si: sunLight.intensity, css: '#f3b08e' },
+        hc: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sunLight.color.clone(), si: sunLight.intensity, css: '#ba988c' },
       rain: { fog: new THREE.Color('#5f6178'), near: 40, far: 340, top: new THREE.Color('#141a2e'), mid: new THREE.Color('#4a4566'), glowC: new THREE.Color('#a08cb4'), glowO: 0.14,
         hc: new THREE.Color('#aeb6d2'), hg: new THREE.Color('#34323f'), hi: 0.66, sc: new THREE.Color('#c7cde6'), si: 0.32, css: '#22253a' }
     };
@@ -3527,82 +3593,6 @@
   })();
 
 
-  // ================= VOXEL EDITION: everything rebuilt from blocks =================
-  (function voxelise() {
-    function mergeBoxes(list) { // [w, h, d, x, y, z] boxes merged into one geometry
-      const pos = [], nor = [], uv = [];
-      list.forEach(([w, h, d, x, y, z]) => {
-        const g = new THREE.BoxGeometry(Math.max(w, 0.02), Math.max(h, 0.02), Math.max(d, 0.02)).toNonIndexed(); g.translate(x, y, z);
-        pos.push(...g.attributes.position.array); nor.push(...g.attributes.normal.array); uv.push(...g.attributes.uv.array); g.dispose();
-      });
-      const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
-      g.computeBoundingBox(); g.computeBoundingSphere(); return g;
-    }
-    const cache = new Map();
-    function voxelGeo(geo) {
-      if (cache.has(geo.uuid)) return cache.get(geo.uuid);
-      const t = geo.type, pr = geo.parameters || {};
-      let out = null;
-      if (!geo.boundingBox) geo.computeBoundingBox();
-      const bb = geo.boundingBox, sz = bb.getSize(new THREE.Vector3()), c = bb.getCenter(new THREE.Vector3());
-      const ball = () => { // stacked slabs that follow a round profile; domes (half spheres) only get the top half
-        const dome = t === 'SphereGeometry' && (pr.thetaLength || Math.PI) < Math.PI * 0.75, n = Math.max(3, Math.min(7, Math.round(sz.y / (dome ? 0.7 : 1.0)))), L = [];
-        for (let i = 0; i < n; i++) {
-          const tt = dome ? (i + 0.5) / n : -1 + (2 * i + 1) / n, k = Math.max(0.22, Math.sqrt(1 - tt * tt));
-          L.push([sz.x * k, sz.y / n, sz.z * k, c.x, dome ? bb.min.y + (i + 0.5) * sz.y / n : c.y + tt * sz.y / 2, c.z]);
-        }
-        return mergeBoxes(L);
-      };
-      const steps = (n, down) => { const L = []; for (let i = 0; i < n; i++) { const k = 1 - i / n, y = bb.min.y + sz.y * (i + 0.5) / n; L.push([sz.x * k, sz.y / n, sz.z * k, c.x, down ? bb.max.y - (y - bb.min.y) : y, c.z]); } return mergeBoxes(L); };
-      if (/^(Sphere|Icosahedron|Dodecahedron|Octahedron)Geometry$/.test(t)) out = ball();
-      else if (t === 'ConeGeometry') out = steps(sz.y > 2 ? 4 : 2, (pr.height || 1) < 0);
-      else if (t === 'CylinderGeometry') {
-        const rt = pr.radiusTop ?? 1, rb = pr.radiusBottom ?? 1;
-        if (Math.min(rt, rb) < Math.max(rt, rb) * 0.45 && sz.y > 0.6) out = steps(3, rt > rb);
-        else out = mergeBoxes([[sz.x, sz.y, sz.z, c.x, c.y, c.z]]);
-      } else if (t === 'TorusGeometry') {
-        const R = pr.radius, tube = pr.tube, n = Math.max(8, Math.min(160, Math.round(2 * Math.PI * R / (tube * 2.2))));
-        const s = Math.max(tube * 2, 2 * Math.PI * R / n * 0.95), L = [];
-        for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2; L.push([s, s, tube * 2, Math.cos(a) * R, Math.sin(a) * R, 0]); }
-        out = mergeBoxes(L);
-      } else if (t === 'CircleGeometry') out = mergeBoxes([[sz.x, sz.y, 0.02, c.x, c.y, c.z]]);
-      cache.set(geo.uuid, out); return out;
-    }
-    // pixel grain: every surface gets a block-pixel pattern fixed in world space
-    const patched = new Set();
-    function pixelGrain(m) {
-      if (!m || patched.has(m) || !(m.isMeshPhongMaterial || m.isMeshLambertMaterial || m.isMeshStandardMaterial)) return;
-      patched.add(m); m.flatShading = true;
-      m.onBeforeCompile = sh => {
-        sh.vertexShader = 'varying vec3 vVoxW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vec4 vw = vec4(transformed, 1.0);\n  #ifdef USE_INSTANCING\n  vw = instanceMatrix * vw;\n  #endif\n  vVoxW = (modelMatrix * vw).xyz;');
-        sh.fragmentShader = 'varying vec3 vVoxW;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n  vec3 vc = floor(vVoxW * 3.0 + 0.002);\n  float vh = fract(sin(dot(vc, vec3(12.9898, 78.233, 37.719))) * 43758.5453);\n  diffuseColor.rgb *= 0.84 + 0.2 * vh;');
-      };
-      m.needsUpdate = true;
-    }
-    // cars and buses keep their original smooth look
-    const ownMat = new Map();
-    const keep = [rider].concat((trafficRef.list || []).map(o => o.v));
-    scene.traverse(o => { if (o.userData.keepSmooth) keep.push(o); });
-    keep.forEach(root => root && root.traverse(o => {
-      o.userData.noVox = true;
-      if (o.isMesh && o.material && !Array.isArray(o.material)) { let c = ownMat.get(o.material); if (!c) { c = o.material.clone(); ownMat.set(o.material, c); } o.material = c; }
-    }));
-    scene.traverse(o => {
-      if (!o.isMesh || o.userData.noVox) return;
-      const mats = Array.isArray(o.material) ? o.material : [o.material];
-      mats.forEach(m => { if (m && m.map) { m.map.magFilter = THREE.NearestFilter; m.map.minFilter = THREE.NearestFilter; m.map.generateMipmaps = false; m.map.needsUpdate = true; } });
-      mats.forEach(pixelGrain);
-      if (mats.some(m => m && m.map) || !o.geometry) return; // keep signs, flags and badges readable
-      const g2 = voxelGeo(o.geometry); if (g2) o.geometry = g2;
-    });
-    // chunky pixels: render at a lower resolution and scale up without smoothing
-    renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2) * 0.5); renderer.setSize(innerWidth, innerHeight, false);
-    renderer.domElement.style.width = '100vw'; renderer.domElement.style.height = '100vh';
-    adaptResolution = () => {};
-    addEventListener('resize', () => { renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 2) * 0.5); });
-  })();
-
   // ---------- Loop ----------
   const odoM = document.getElementById('odoM'), odoBar = document.getElementById('odoBar');
   document.getElementById('odoTotal').textContent = Math.round((U1 - U0) * LEN).toLocaleString('en');
@@ -3668,6 +3658,7 @@
     window.scrollTo(0, pedal.acc);
   }
   let prog = scrollProgress(), last = performance.now(), first = true, speed = 0, leanCur = 0;
+  let lastSpeedBand = -1;
 
   // ---- 360-degree look-around: drag on the street with the mouse (or swipe sideways on a phone) ----
   let orbitYaw = 0, orbitPitch = 0, dragging = false, lastLook = -1e9, px = 0, py = 0;
@@ -3690,7 +3681,21 @@
     if (Math.abs(target - prog) < 1e-5) prog = target;
     const dist = (prog - prev) * (U1 - U0) * LEN;
     speed += ((dt > 0 ? dist / dt : 0) - speed) * 0.2;
-    { const el = document.getElementById('speedo'); if (el) el.textContent = Math.min(199, Math.round(Math.abs(speed) * 2.237)); }
+    const mphNow = Math.min(199, Math.round(Math.abs(speed) * 2.237));
+    { const el = document.getElementById('speedo'); if (el) el.textContent = mphNow; }
+    const targetFov = baseFov + (wideCam ? 6 : 0) + (reduceMotion ? 0 : clamp((mphNow - 15) / 120, 0, 1) * 2.5);
+    camera.fov += (targetFov - camera.fov) * (1 - Math.exp(-dt * 2.2));
+    if (Math.abs(camera.fov - lastAppliedFov) > 0.18) {
+      applyViewOffset();
+      lastAppliedFov = camera.fov;
+    }
+    const speedBand = mphNow < 45 ? 0 : mphNow < 85 ? 1 : mphNow < 120 ? 2 : 3;
+    if (speedBand !== lastSpeedBand) {
+      document.body.classList.toggle('drive-speed-1', speedBand === 1);
+      document.body.classList.toggle('drive-speed-2', speedBand === 2);
+      document.body.classList.toggle('drive-speed-3', speedBand === 3);
+      lastSpeedBand = speedBand;
+    }
 
     const lapProg = ((prog % 1) + 1) % 1;
     const u = uOf(lapProg);
@@ -3710,11 +3715,12 @@
 
     // camera rides the road itself (never cuts through buildings): high and wide at the start, then a close chase cam
     const intro = smooth(0.0, 0.07, prog);
-    const back = (isPhone ? 12.5 : 11) + (1 - intro) * 7; // further back for the long car
-    const up = (isPhone ? 5.2 : 4.4) + (1 - intro) * 3.4;
+    const back = (isPhone ? 12.5 : 11) + (1 - intro) * 7 + (wideCam ? (isPhone ? 4.5 : 7) : 0);
+    const up = (isPhone ? 5.2 : 4.4) + (1 - intro) * 3.4 + (wideCam ? (isPhone ? 1.3 : 2.4) : 0);
     const fc = frameAt(u - back / LEN);
-    camPos.copy(fc.p).addScaledVector(fc.n, -0.6 + (1 - intro) * 1.8).add(tmpA.set(0, up, 0));
-    camLook.copy(lanePos).addScaledVector(f.t, 6).add(tmpB.set(0, 1.4 + (1 - intro) * 1.6, 0));
+    const sideOffset = -0.6 + (1 - intro) * 1.8 + (wideCam ? (isPhone ? 1.0 : 2.8) : 0);
+    camPos.copy(fc.p).addScaledVector(fc.n, sideOffset).add(tmpA.set(0, up, 0));
+    camLook.copy(lanePos).addScaledVector(f.t, wideCam ? 8 : 6).add(tmpB.set(0, 1.4 + (1 - intro) * 1.6 + (wideCam ? 0.65 : 0), 0));
     first = false;
     // drift back behind the car once you're driving again and haven't touched the view for a moment
     if (!dragging && now - lastLook > 2500 && Math.abs(speed) > 1) {
@@ -3724,7 +3730,7 @@
     if (Math.abs(orbitYaw) > 0.002 || Math.abs(orbitPitch) > 0.002) {
       const pivot = tmpB.copy(lanePos).setY(1.3);
       const off = camPos.clone().sub(pivot);
-      const flat = Math.hypot(off.x, off.z), R = Math.min(Math.hypot(flat, off.y), 9.5);
+      const flat = Math.hypot(off.x, off.z), R = Math.max(8, Math.min(Math.hypot(flat, off.y), wideCam ? 24 : 18));
       const ang = Math.atan2(off.x, off.z) + orbitYaw, el = clamp(Math.atan2(off.y, flat) + orbitPitch, -0.15, 1.35);
       camPos.set(pivot.x + Math.sin(ang) * Math.cos(el) * R, Math.max(0.7, pivot.y + Math.sin(el) * R), pivot.z + Math.cos(ang) * Math.cos(el) * R);
       camLook.lerp(pivot, clamp((Math.abs(orbitYaw) + Math.abs(orbitPitch)) * 2.5, 0, 1));
@@ -3758,11 +3764,16 @@
     updatePanels(lapProg);
 
     renderer.render(scene, camera);
+    if (!window.__shieldDriveReady) {
+      window.__shieldDriveReady = true;
+      document.dispatchEvent(new Event('shield-drive-ready'));
+    }
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 })();
 </script>
 
+<script src="cinematic-transitions.js" defer></script>
 </body>
 </html>
