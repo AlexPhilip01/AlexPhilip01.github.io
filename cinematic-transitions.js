@@ -10,7 +10,7 @@
     '#cinematic-wipe{position:fixed;inset:0;z-index:2147483000;pointer-events:none;visibility:hidden;opacity:0;clip-path:inset(0 0 0 100%);background:radial-gradient(ellipse at 78% 18%,rgba(212,168,58,.18),transparent 42%),linear-gradient(135deg,#0b0b0d 0%,#11100e 62%,#050506 100%);transition:clip-path .48s cubic-bezier(.77,0,.18,1),opacity .18s ease,visibility 0s linear .5s;isolation:isolate;overflow:hidden}',
     '#cinematic-wipe::before{content:"";position:absolute;top:0;bottom:0;right:0;width:2px;background:linear-gradient(180deg,transparent,#e9cf7a 14%,#d4a83a 50%,#e9cf7a 86%,transparent);box-shadow:0 0 26px rgba(212,168,58,.48),0 0 68px rgba(212,168,58,.18)}',
     '#cinematic-wipe::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 20%,rgba(233,207,122,.045) 46%,transparent 72%);opacity:.85}',
-    '#cinematic-wipe.is-active{visibility:visible;opacity:1;clip-path:inset(0);transition:clip-path .48s cubic-bezier(.77,0,.18,1),opacity .18s ease,visibility 0s}',
+    '#cinematic-wipe.is-active{visibility:visible;opacity:1;pointer-events:auto;clip-path:inset(0);transition:clip-path .48s cubic-bezier(.77,0,.18,1),opacity .18s ease,visibility 0s}',
     '#cinematic-wipe.is-revealing{clip-path:inset(0 0 0 100%);transition:clip-path .68s cubic-bezier(.77,0,.18,1),opacity .2s ease}',
     '.cinematic-wipe-label{position:absolute;left:clamp(24px,6vw,84px);bottom:clamp(28px,7vh,72px);display:flex;align-items:center;gap:12px;color:#e9cf7a;font:600 10px/1.5 "DM Mono","JetBrains Mono",monospace;letter-spacing:.18em;text-transform:uppercase}',
     '.cinematic-wipe-label::before{content:"";width:22px;height:1px;background:#d4a83a;box-shadow:0 0 14px rgba(212,168,58,.7)}',
