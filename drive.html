@@ -17,6 +17,9 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://alexphilip01.github.io/shield-og.jpg?v=2">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+
+<link rel="stylesheet" href="button-polish.css">
+<script src="button-polish.js" defer></script>
 </head>
 <body>
 <title>Alex Philip Portfolio</title>
@@ -3671,7 +3674,24 @@
   const camPos = new THREE.Vector3(), camLook = new THREE.Vector3();
   const tmpA = new THREE.Vector3(), tmpB = new THREE.Vector3();
 
+  let scheduledFrame = 0;
+  function scheduleFrame() {
+    if (document.hidden || scheduledFrame) return;
+    scheduledFrame = requestAnimationFrame(frame);
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (scheduledFrame) cancelAnimationFrame(scheduledFrame);
+      scheduledFrame = 0;
+      return;
+    }
+    last = performance.now();
+    scheduleFrame();
+  });
+
   function frame(now) {
+    scheduledFrame = 0;
+    if (document.hidden) return;
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
     adaptResolution(now);
     drivePedals(dt);
@@ -3768,9 +3788,9 @@
       window.__shieldDriveReady = true;
       document.dispatchEvent(new Event('shield-drive-ready'));
     }
-    requestAnimationFrame(frame);
+    scheduleFrame();
   }
-  requestAnimationFrame(frame);
+  scheduleFrame();
 })();
 </script>
 
