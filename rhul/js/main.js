@@ -21,7 +21,14 @@ const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const BASE = new URL('../', import.meta.url).href; // rhul/
 
 function progress(label, f) { const el = $('loadingBar'); if (el) el.style.width = Math.round(f * 100) + '%'; const t = $('loadingText'); if (t) t.textContent = label; }
-function loadImage(src) { return new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('Could not load ' + src)); i.src = src; }); }
+// The land-cover image is read back pixel by pixel, so it must not taint the canvas. Some hosts (for example preview
+// services) redirect images to another origin; fetching the bytes and decoding them from a local blob URL keeps the
+// image same-origin wherever it is served from.
+async function loadImage(src) {
+  const r = await fetch(src); if (!r.ok) throw new Error('Could not load ' + src + ' (' + r.status + ')');
+  const url = URL.createObjectURL(await r.blob());
+  return new Promise((res, rej) => { const i = new Image(); i.onload = () => { URL.revokeObjectURL(url); res(i); }; i.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Could not decode ' + src)); }; i.src = url; });
+}
 function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
 
 async function main() {
