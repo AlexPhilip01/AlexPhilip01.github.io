@@ -243,7 +243,9 @@ Not accessible from the build environment (stated plainly so nothing is over-cla
 
 Testing used headless Chromium (Playwright) with SwiftShader software WebGL, at 1366×768 desktop and at 390×844
 with touch emulation. The test scripts live outside the repository. They drive the app through `window.__rhul`.
-**No testing was done on a real phone or a real GPU**, so frame rates on real devices are not known.
+It was also opened in desktop Chrome on a real GPU (Apple M4 Pro), through the raw.githack.com branch preview. It
+loaded with no console errors, ran at 120 frames per second, and the guided tour drove off from the gates.
+**No testing was done on a real phone**, so phone frame rates are not known.
 
 Latest run on the committed code. There were no console errors, page errors or failed requests.
 
@@ -263,8 +265,13 @@ Latest run on the committed code. There were no console errors, page errors or f
 | Tap-to-select in the 3D view | Selects the Davison Building and opens its panel |
 | UI screenshots | Map, search, info panel, tour bar and help on desktop; start, map and info panel on mobile; reviewed by eye |
 
-A bug found during this testing has been fixed. Tap selection was discarded if the frame after the tap took longer
-than 400 ms. Taps are now read immediately.
+Two bugs found during testing have been fixed:
+
+* Tap selection was discarded if the frame after the tap took longer than 400 ms. Taps are now read immediately.
+* On hosts that redirect images to another origin (raw.githack.com sends them to raw.githubusercontent.com), the
+  land-cover image tainted the canvas and loading stopped with a `getImageData` security error. The image is now
+  fetched and decoded from a blob URL. This was reproduced and checked with a simulated cross-origin redirect, and
+  confirmed in Chrome.
 
 ## 11. Stage 1 audit of the original page (before this rebuild)
 
