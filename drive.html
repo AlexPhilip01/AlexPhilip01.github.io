@@ -3588,7 +3588,7 @@
       if (sb) { const b = document.createElement('button'); b.className = 'btn'; b.id = 'wxBtn'; b.type = 'button';
         b.innerHTML = '<span id="wxIcon" aria-hidden="true">☂</span> <span id="wxLabel">Rain</span>';
         sb.parentNode.insertBefore(b, sb); b.addEventListener('click', () => { wet = !wet; setWeather(wet); });
-        const st = document.createElement('style'); st.textContent = '#wxBtn{margin-right:8px}#wxIcon{font-size:14px;line-height:1}@media (max-width:760px){#wxLabel{display:none}#wxBtn{padding-left:9px;padding-right:9px;margin-right:6px}#soundBtn{white-space:nowrap;padding-left:9px;padding-right:9px}#soundBtn .bars{display:none}}'; document.head.appendChild(st); } }
+        const st = document.createElement('style'); st.textContent = '#wxBtn{margin-right:0}#wxIcon{font-size:14px;line-height:1}@media (max-width:760px){#wxLabel{display:none}#wxBtn{padding-left:9px;padding-right:9px;margin-right:0}#soundBtn{white-space:nowrap;padding-left:9px;padding-right:9px}#soundBtn .bars{display:none}}'; document.head.appendChild(st); } }
     setWeather(wet);
   })();
 
