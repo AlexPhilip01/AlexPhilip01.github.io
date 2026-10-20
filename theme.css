@@ -166,7 +166,7 @@ img { max-width: 100%; }
     rgba(212, 168, 58, .07) 50%,
     transparent 57%
   );
-  transform: translateX(calc((var(--pointer-x) - 50%) * .35));
+  transform: none;
 }
 .card-3d-target:is(:hover, :focus-within) {
   --card-lift: -6px;
