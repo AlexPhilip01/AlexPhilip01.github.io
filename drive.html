@@ -3435,6 +3435,78 @@
     if (next !== curPR) { curPR = next; renderer.setPixelRatio(curPR); renderer.setSize(innerWidth, innerHeight, false); }
   }
 
+  // ================= ATMOSPHERE: rainy London dusk, haze, glowing lights and a wet road =================
+  (function () {
+    const lowEnd = isPhone || matchMedia('(pointer: coarse)').matches;
+    // dusk palette and a thicker haze
+    const HAZE = new THREE.Color('#5f6178');
+    FOG.copy(HAZE); scene.background = HAZE; scene.fog.color.copy(HAZE); scene.fog.near = 40; scene.fog.far = 340;
+    sky.material.uniforms.top.value.set('#141a2e'); sky.material.uniforms.mid.value.set('#4a4566'); sky.material.uniforms.low.value.copy(HAZE);
+    sunDisc.visible = false; sunGlow.material.color.set('#a08cb4'); sunGlow.material.opacity = 0.14;
+    scene.traverse(o => { if (o.isHemisphereLight) { o.color.set('#aeb6d2'); o.groundColor.set('#34323f'); o.intensity = 0.66; } });
+    sunLight.color.set('#c7cde6'); sunLight.intensity = 0.32;
+    document.documentElement.style.setProperty('--sky', '#22253a');
+    // lit windows glow brighter at dusk
+    const seen = new Set();
+    scene.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!m || seen.has(m)) return; seen.add(m); if (m.emissiveMap && m.emissiveIntensity !== undefined) m.emissiveIntensity = Math.min(0.62, m.emissiveIntensity * 2.8); }); });
+    // wet tarmac and pavements: darker and glossy
+    scene.traverse(o => {
+      if (!o.isMesh || !o.material || !o.material.isMeshLambertMaterial || o.geometry.type !== 'BufferGeometry') return;
+      const hex = o.material.color.getHexString();
+      if (hex === '3a3741') o.material = new THREE.MeshPhongMaterial({ color: '#25242c', shininess: 95, specular: '#7d86a6', side: THREE.DoubleSide });
+      else if (hex === 'cdc6bb') o.material = new THREE.MeshPhongMaterial({ color: '#7f7a76', shininess: 55, specular: '#505668', side: THREE.DoubleSide });
+      else if (hex === 'e6e0d6') o.material = new THREE.MeshPhongMaterial({ color: '#a59f97', shininess: 60, specular: '#606678', side: THREE.DoubleSide });
+    });
+    const fx = new THREE.Group(); fx.userData.keepSmooth = true; scene.add(fx);
+    // soft round glow texture for halos and reflections
+    const glowTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const x = c.getContext('2d'); const g = x.createRadialGradient(32, 32, 0, 32, 32, 32); g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.25, 'rgba(255,255,255,.55)'); g.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = g; x.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
+    const addMat = (color, opacity) => new THREE.MeshBasicMaterial({ map: glowTex, color, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false, fog: false });
+    const billboards = [];
+    // their reflections smeared across the wet road
+    { const refl = bulbs.map(b => { let best = null, bd = 1e9; for (let i = 0; i <= SEG; i += 4) { const f = frames[i], d = (f.p.x - b.x) ** 2 + (f.p.z - b.z) ** 2; if (d < bd) { bd = d; best = f; } }
+        const p = best.p.clone().lerp(new THREE.Vector3(b.x, 0, b.z), 0.55); return { x: p.x, y: 0.09, z: p.z, rx: -Math.PI / 2, rz: Math.atan2(best.n.x, best.n.z), sx: 1.8, sy: 8, sz: 1 }; });
+      const im = instanced(new THREE.PlaneGeometry(1, 1), addMat('#ffb05a', 0.6), refl); im.castShadow = im.receiveShadow = false; im.renderOrder = 4; scene.remove(im); fx.add(im); }
+    // puddles on the road and pavements
+    { const list = []; for (let k = 0; k < (lowEnd ? 40 : 90); k++) { const f = frameAt(rand()), off = (rand() - 0.5) * 2 * (ROAD_W + 2.5); list.push({ x: f.p.x + f.n.x * off, y: 0.085, z: f.p.z + f.n.z * off, rx: -Math.PI / 2, rz: rand() * 3, sx: 1.2 + rand() * 2.4, sy: 0.8 + rand() * 1.2, sz: 1 }); }
+      const pm = new THREE.MeshPhongMaterial({ color: '#1c1d26', shininess: 160, specular: '#d7def2', transparent: true, opacity: 0.7, depthWrite: false });
+      const im = instanced(new THREE.CircleGeometry(1, 18), pm, list); im.castShadow = false; im.renderOrder = 3; scene.remove(im); fx.add(im); }
+    // headlights and tail lights on the traffic and on your car, with a pool of light ahead of you
+    const lamp = (parent, x, y, z, color, s, op) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(s, s), addMat(color, op)); m.position.set(x, y, z); m.renderOrder = 6; m.userData.bill = true; parent.add(m); return m; };
+    function lightUp(v, front = true) {
+      const pos = v.position.clone(), rot = v.rotation.clone(), sc = v.scale.clone(); v.position.set(0, 0, 0); v.rotation.set(0, 0, 0); v.scale.set(1, 1, 1); v.updateMatrixWorld(true);
+      const bb = new THREE.Box3().setFromObject(v); v.position.copy(pos); v.rotation.copy(rot); v.scale.copy(sc); v.updateMatrixWorld(true);
+      const hw = (bb.max.x - bb.min.x) * 0.36;
+      [-1, 1].forEach(s => { billboards.push(lamp(v, s * hw, 0.85, bb.max.z + 0.15, '#fff4d6', 1.6, 0.9)); billboards.push(lamp(v, s * hw, 0.95, bb.min.z - 0.12, '#ff3040', 1.1, 0.8)); });
+    }
+    bulbs.forEach(b => billboards.push(lamp(fx, b.x, b.y, b.z, '#ffc06a', 7, 0.95))); // halos round every street lamp
+    (trafficRef.list || []).forEach(o => lightUp(o.v));
+    lightUp(rider);
+    { const pool = new THREE.Mesh(new THREE.CircleGeometry(1, 24), addMat('#fff0cc', 0.22)); pool.rotation.x = -Math.PI / 2; pool.scale.set(2.6, 6, 1); pool.position.set(0, 0.12, 9); pool.renderOrder = 4; rider.add(pool); }
+    spinners.push(() => billboards.forEach(b => { b.quaternion.copy(b.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(camera.quaternion)); }));
+    // rain: thin streaks falling round the camera, blown slightly by the wind (quads, so every GPU draws them)
+    { const N = lowEnd ? 700 : 1600, AR = 34, H = 24, pos = new Float32Array(N * 12), seed = [], idx = [];
+      for (let i = 0; i < N; i++) { seed.push([(rand() - 0.5) * 2 * AR, rand() * H, (rand() - 0.5) * 2 * AR, 0.8 + rand() * 0.5]); const k = i * 4; idx.push(k, k + 1, k + 2, k + 1, k + 3, k + 2); }
+      const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(pos, 3)); g.setIndex(idx);
+      const rain = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: '#dfe6f4', transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide }));
+      rain.frustumCulled = false; rain.renderOrder = 7; fx.add(rain);
+      let fall = 0; const right = new THREE.Vector3();
+      const step = dt => {
+        fall += dt * 22; const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z;
+        right.setFromMatrixColumn(camera.matrixWorld, 0).setY(0).normalize().multiplyScalar(0.05);
+        for (let i = 0; i < N; i++) { const s = seed[i]; let y = (s[1] - fall * s[3]) % H; if (y < 0) y += H; const x = cx + s[0] + y * 0.12, z = cz + s[2], yy = cy - 8 + y, L = 0.9 * s[3], k = i * 12;
+          pos[k] = x - right.x; pos[k + 1] = yy; pos[k + 2] = z - right.z; pos[k + 3] = x + right.x; pos[k + 4] = yy; pos[k + 5] = z + right.z;
+          pos[k + 6] = x - 0.12 - right.x; pos[k + 7] = yy - L; pos[k + 8] = z - right.z; pos[k + 9] = x - 0.12 + right.x; pos[k + 10] = yy - L; pos[k + 11] = z + right.z; }
+        g.attributes.position.needsUpdate = true;
+      };
+      step(0); spinners.push(step);
+    }
+    // filmic finish: a touch more contrast and colour, and a soft vignette
+    renderer.domElement.style.filter = 'contrast(1.07) saturate(1.12) brightness(1.03)';
+    const vig = document.createElement('div'); vig.setAttribute('aria-hidden', 'true');
+    vig.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 55%, rgba(8,8,20,.42) 100%)';
+    document.body.appendChild(vig);
+  })();
+
 
   // ================= VOXEL EDITION: everything rebuilt from blocks =================
   (function voxelise() {
