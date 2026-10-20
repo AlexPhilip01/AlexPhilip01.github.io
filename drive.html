@@ -3438,24 +3438,21 @@
   // ================= ATMOSPHERE: rainy London dusk, haze, glowing lights and a wet road =================
   (function () {
     const lowEnd = isPhone || matchMedia('(pointer: coarse)').matches;
-    // dusk palette and a thicker haze
-    const HAZE = new THREE.Color('#5f6178');
-    FOG.copy(HAZE); scene.background = HAZE; scene.fog.color.copy(HAZE); scene.fog.near = 40; scene.fog.far = 340;
-    sky.material.uniforms.top.value.set('#141a2e'); sky.material.uniforms.mid.value.set('#4a4566'); sky.material.uniforms.low.value.copy(HAZE);
-    sunDisc.visible = false; sunGlow.material.color.set('#a08cb4'); sunGlow.material.opacity = 0.14;
-    scene.traverse(o => { if (o.isHemisphereLight) { o.color.set('#aeb6d2'); o.groundColor.set('#34323f'); o.intensity = 0.66; } });
-    sunLight.color.set('#c7cde6'); sunLight.intensity = 0.32;
-    document.documentElement.style.setProperty('--sky', '#22253a');
-    // lit windows glow brighter at dusk
-    const seen = new Set();
-    scene.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!m || seen.has(m)) return; seen.add(m); if (m.emissiveMap && m.emissiveIntensity !== undefined) m.emissiveIntensity = Math.min(0.62, m.emissiveIntensity * 2.8); }); });
-    // wet tarmac and pavements: darker and glossy
+    // two looks: clear (the original sunny evening) and rain (dusk, haze, wet road); a button switches between them
+    let hemi = null; scene.traverse(o => { if (o.isHemisphereLight) hemi = o; });
+    const U = sky.material.uniforms;
+    const looks = {
+      clear: { fog: FOG.clone(), near: scene.fog.near, far: scene.fog.far, top: U.top.value.clone(), mid: U.mid.value.clone(), glowC: sunGlow.material.color.clone(), glowO: sunGlow.material.opacity,
+        hc: hemi.color.clone(), hg: hemi.groundColor.clone(), hi: hemi.intensity, sc: sunLight.color.clone(), si: sunLight.intensity, css: '#f3b08e' },
+      rain: { fog: new THREE.Color('#5f6178'), near: 40, far: 340, top: new THREE.Color('#141a2e'), mid: new THREE.Color('#4a4566'), glowC: new THREE.Color('#a08cb4'), glowO: 0.14,
+        hc: new THREE.Color('#aeb6d2'), hg: new THREE.Color('#34323f'), hi: 0.66, sc: new THREE.Color('#c7cde6'), si: 0.32, css: '#22253a' }
+    };
+    const windows = []; { const seen = new Set(); scene.traverse(o => { if (!o.isMesh) return; [].concat(o.material).forEach(m => { if (!m || seen.has(m)) return; seen.add(m); if (m.emissiveMap && m.emissiveIntensity !== undefined) windows.push([m, m.emissiveIntensity]); }); }); }
+    const wetSwap = []; // [mesh, dry material, wet material]
     scene.traverse(o => {
       if (!o.isMesh || !o.material || !o.material.isMeshLambertMaterial || o.geometry.type !== 'BufferGeometry') return;
-      const hex = o.material.color.getHexString();
-      if (hex === '3a3741') o.material = new THREE.MeshPhongMaterial({ color: '#25242c', shininess: 95, specular: '#7d86a6', side: THREE.DoubleSide });
-      else if (hex === 'cdc6bb') o.material = new THREE.MeshPhongMaterial({ color: '#7f7a76', shininess: 55, specular: '#505668', side: THREE.DoubleSide });
-      else if (hex === 'e6e0d6') o.material = new THREE.MeshPhongMaterial({ color: '#a59f97', shininess: 60, specular: '#606678', side: THREE.DoubleSide });
+      const hex = o.material.color.getHexString(), wet = { '3a3741': ['#25242c', 95, '#7d86a6'], 'cdc6bb': ['#7f7a76', 55, '#505668'], 'e6e0d6': ['#a59f97', 60, '#606678'] }[hex];
+      if (wet) wetSwap.push([o, o.material, new THREE.MeshPhongMaterial({ color: wet[0], shininess: wet[1], specular: wet[2], side: THREE.DoubleSide })]);
     });
     const fx = new THREE.Group(); fx.userData.keepSmooth = true; scene.add(fx);
     // soft round glow texture for halos and reflections
@@ -3505,6 +3502,28 @@
     const vig = document.createElement('div'); vig.setAttribute('aria-hidden', 'true');
     vig.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 55%, rgba(8,8,20,.42) 100%)';
     document.body.appendChild(vig);
+    const glows = billboards.concat([rider.children[rider.children.length - 1]]);
+    function setWeather(wet) {
+      const L = wet ? looks.rain : looks.clear;
+      FOG.copy(L.fog); scene.background = FOG; scene.fog.color.copy(L.fog); scene.fog.near = L.near; scene.fog.far = L.far;
+      U.top.value.copy(L.top); U.mid.value.copy(L.mid); U.low.value.copy(L.fog);
+      sunDisc.visible = !wet; sunGlow.material.color.copy(L.glowC); sunGlow.material.opacity = L.glowO;
+      hemi.color.copy(L.hc); hemi.groundColor.copy(L.hg); hemi.intensity = L.hi; sunLight.color.copy(L.sc); sunLight.intensity = L.si;
+      document.documentElement.style.setProperty('--sky', L.css);
+      windows.forEach(([m, base]) => { m.emissiveIntensity = wet ? Math.min(0.62, base * 2.8) : base; });
+      wetSwap.forEach(([o, dry, w]) => { o.material = wet ? w : dry; });
+      fx.visible = wet; glows.forEach(b => { b.visible = wet; });
+      vig.style.opacity = wet ? '1' : '0.55';
+      const btn = document.getElementById('wxBtn'); if (btn) { btn.setAttribute('aria-pressed', String(wet)); document.getElementById('wxLabel').textContent = wet ? 'Rain' : 'Clear'; document.getElementById('wxIcon').textContent = wet ? '☂' : '☀'; btn.title = wet ? 'Switch to clear weather' : 'Switch to the rainy evening'; }
+      try { localStorage.setItem('drive-weather', wet ? 'rain' : 'clear'); } catch (e) {}
+    }
+    let wet = true; try { wet = localStorage.getItem('drive-weather') !== 'clear'; } catch (e) {}
+    { const sb = document.getElementById('soundBtn');
+      if (sb) { const b = document.createElement('button'); b.className = 'btn'; b.id = 'wxBtn'; b.type = 'button';
+        b.innerHTML = '<span id="wxIcon" aria-hidden="true">☂</span> <span id="wxLabel">Rain</span>';
+        sb.parentNode.insertBefore(b, sb); b.addEventListener('click', () => { wet = !wet; setWeather(wet); });
+        const st = document.createElement('style'); st.textContent = '#wxBtn{margin-right:8px}#wxIcon{font-size:14px;line-height:1}@media (max-width:760px){#wxLabel{display:none}#wxBtn{padding-left:9px;padding-right:9px;margin-right:6px}#soundBtn{white-space:nowrap;padding-left:9px;padding-right:9px}#soundBtn .bars{display:none}}'; document.head.appendChild(st); } }
+    setWeather(wet);
   })();
 
 
