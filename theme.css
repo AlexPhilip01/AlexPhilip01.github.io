@@ -127,7 +127,6 @@ img { max-width: 100%; }
   transform: perspective(1100px) rotateX(var(--tilt-y)) rotateY(var(--tilt-x)) translate3d(0, var(--card-lift), 0);
 }
 .card-3d-target > .card-3d-layer {
-  position: relative;
   transform: translateZ(var(--layer-depth, 16px));
   transition: transform .35s cubic-bezier(.2,.78,.2,1);
 }
