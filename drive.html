@@ -2848,7 +2848,14 @@
       const c = new THREE.Group();
       const frameCol = pick(['#c8102e', '#1b2b4a', '#2e7d4f', '#e9e4d8', '#111114']);
       const wheelGeo = new THREE.TorusGeometry(0.33, 0.035, 6, 20);
-      [0.52, -0.52].forEach(z => { const w = new THREE.Mesh(wheelGeo, M('#1a1a1e')); w.position.set(0, 0.34, z); w.rotation.y = Math.PI / 2; c.add(w); });
+      const wheels = [];
+      [0.52, -0.52].forEach(z => {
+        const w = new THREE.Mesh(wheelGeo, M('#1a1a1e'));
+        w.position.set(0, 0.34, z);
+        w.rotation.y = Math.PI / 2;
+        c.add(w);
+        wheels.push(w);
+      });
       const P = (x, y, z) => new THREE.Vector3(x, y, z);
       [[P(0, 0.34, -0.52), P(0, 0.36, 0)], [P(0, 0.36, 0), P(0, 0.34, 0.52)], [P(0, 0.36, 0), P(0, 0.86, -0.18)], [P(0, 0.86, -0.18), P(0, 0.88, 0.38)], [P(0, 0.88, 0.38), P(0, 0.34, 0.52)], [P(0, 0.88, 0.38), P(0, 1.02, 0.42)]]
         .forEach(([a, b]) => beam(a, b, 0.045, frameCol, c));
@@ -2860,7 +2867,7 @@
       mk(new THREE.SphereGeometry(0.15, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), pick(['#ffffff', '#111114', '#c8102e', '#2e7d4f']), 0, 1.58, 0.28, c);
       [-1, 1].forEach(sx => beam(P(sx * 0.2, 1.42, 0.22), P(sx * 0.22, 1.03, 0.42), 0.09, jacket, c));
       const legs = [-1, 1].map(sx => { const pv = new THREE.Group(); pv.position.set(sx * 0.12, 0.92, -0.14); c.add(pv); mk(new THREE.BoxGeometry(0.13, 0.62, 0.14), '#1d1f26', 0, -0.3, 0.06, pv); return pv; });
-      c.userData = { legs };
+      c.userData = { legs, wheels };
       noShadow(c);
       return c;
     }
@@ -2936,6 +2943,7 @@
         b.u = wrap(b.u + b.dir * b.speed * dt / LEN); b.ph += dt * b.speed * 1.75;
         placeOnRoad(b.c, b.u, b.lane, b.dir);
         b.c.userData.legs[0].rotation.x = Math.sin(b.ph) * 0.6; b.c.userData.legs[1].rotation.x = -Math.sin(b.ph) * 0.6;
+        b.c.userData.wheels.forEach(w => w.rotateZ(b.dir * b.speed * dt / 0.33));
       });
       // the column marches 40 m up the pavement and back, in step
       const span = 40 / LEN, cyc = (now / 1000 * 1.1 * (1 / 40)) % 2, fwd = cyc < 1, t = fwd ? cyc : 2 - cyc;
