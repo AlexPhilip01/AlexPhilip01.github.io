@@ -996,6 +996,11 @@
 </head>
 <body>
 <canvas id="node-canvas"></canvas>
+<div id="depth-atmosphere" aria-hidden="true">
+  <div class="depth-light depth-light--gold"></div>
+  <div class="depth-light depth-light--amber"></div>
+  <div class="depth-light depth-light--shadow"></div>
+</div>
 <div id="scroll-progress"></div>
 <div id="page-wrap">
 
@@ -1034,6 +1039,7 @@
 <!-- HERO -->
 <section id="hero" style="padding-top:0">
   <div class="hero-glow"></div>
+  <div class="depth-grid-floor" aria-hidden="true"></div>
   <div id="shield-3d-stage" aria-label="Interactive three-dimensional gold SHIELD emblem. Drag to rotate." role="img"><canvas id="shield-3d-canvas"></canvas><div class="shield-3d-caption"><span class="shield-status-dot"></span> SHIELD / ACTIVE DEFENCE <span class="shield-drag-hint">DRAG TO ROTATE</span></div></div>
   <div class="hero-inner">
     <div class="hero-tag hero-anim d1">Available for opportunities</div>
@@ -1639,6 +1645,7 @@
 </div><!-- end #page-wrap -->
 
 <script type="module" src="shield-3d.js"></script>
+<script src="depth-effects.js" defer></script>
 <script>
 //  HAMBURGER 
 const hamburger = document.getElementById('hamburger');
