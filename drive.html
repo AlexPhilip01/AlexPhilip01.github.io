@@ -3562,10 +3562,10 @@
   }
   function drivePedals(dt) {
     const v0 = pedal.v;
-    if (pedal.gas && !pedal.brake) pedal.v += (pedal.v < 0 ? 14 : 7 * (1 - Math.max(0, pedal.v) / 34)) * dt;          // accelerate (or brake out of reverse)
+    if (pedal.gas && !pedal.brake) pedal.v += (pedal.v < 0 ? 18 : 13 * (1 - Math.max(0, pedal.v) / 62)) * dt; // quick pick-up, tops out near 135 mph          // accelerate (or brake out of reverse)
     else if (pedal.brake) {
-      if (pedal.v > 0.3) { pedal.v = Math.max(0, pedal.v - 16 * dt); pedal.revWait = 0.35; }                            // brake to a stop
-      else if ((pedal.revWait -= dt) <= 0) pedal.v = Math.max(-7, pedal.v - 3.5 * dt);                                   // then creep into reverse
+      if (pedal.v > 0.3) { pedal.v = Math.max(0, pedal.v - 24 * dt); pedal.revWait = 0.35; }                            // brake to a stop
+      else if ((pedal.revWait -= dt) <= 0) pedal.v = Math.max(-11, pedal.v - 5 * dt);                                   // then creep into reverse
       else pedal.v = 0;
     } else { const c = 1.6 * dt; pedal.v = Math.abs(pedal.v) <= c ? 0 : pedal.v - Math.sign(pedal.v) * c; }             // coast
     if (pedal.v === 0 && v0 === 0) { pedal.acc = null; return; }
