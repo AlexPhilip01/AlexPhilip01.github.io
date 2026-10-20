@@ -1013,6 +1013,8 @@
     <li><a href="#education">Education</a></li>
     <li><a href="#skills">Skills</a></li>
     <li><a href="#featured">Featured</a></li>
+    <li><a href="#soc-lab">SOC Lab</a></li>
+    <li><a href="#case-studies">Case Studies</a></li>
     <li><a href="#projects">Projects</a></li>
     <li><a href="#certs">Certifications</a></li>
     <li><a href="#progress">Progress</a></li>
@@ -1030,6 +1032,8 @@
   <a href="#education">Education</a>
   <a href="#skills">Skills</a>
   <a href="#featured">Featured</a>
+  <a href="#soc-lab">SOC Lab</a>
+  <a href="#case-studies">Case Studies</a>
   <a href="#projects">Projects</a>
   <a href="#certs">Certifications</a>
   <a href="#progress">Progress</a>
@@ -1315,6 +1319,193 @@
 
 <div class="divider"></div>
 
+<section id="soc-lab" class="soc-section">
+  <div class="section-label">// interactive SOC lab</div>
+  <div class="section-title">Security Operations <em>Command Centre</em></div>
+  <p class="soc-intro">Explore an analyst-style alert triage workflow: filter signals, inspect evidence, and update a sample incident state.</p>
+
+  <div class="soc-console">
+    <div class="soc-console-top">
+      <div class="soc-console-brand">
+        <span class="soc-brand-mark" aria-hidden="true">⬡</span>
+        <div>
+          <div class="soc-console-name">SHIELD / SOC CONSOLE</div>
+          <div class="soc-console-sub">DETECTION &amp; RESPONSE WORKSPACE</div>
+        </div>
+      </div>
+      <div class="soc-demo-status">
+        <span class="soc-demo-led" aria-hidden="true"></span>
+        <span>SIMULATION MODE</span>
+      </div>
+    </div>
+
+    <div class="soc-disclaimer"><strong>DEMO DATA</strong><span>All alerts, addresses and metrics below are synthetic examples for portfolio demonstration. This dashboard is not connected to a live SIEM or any real systems.</span></div>
+
+    <div class="soc-metrics" aria-label="Simulated security metrics">
+      <div class="soc-metric">
+        <span class="soc-metric-label">SAMPLE ALERTS</span>
+        <strong id="soc-metric-total">12</strong>
+        <span class="soc-metric-foot">in this demo dataset</span>
+      </div>
+      <div class="soc-metric soc-metric--critical">
+        <span class="soc-metric-label">CRITICAL</span>
+        <strong id="soc-metric-critical">2</strong>
+        <span class="soc-metric-foot">requires immediate triage</span>
+      </div>
+      <div class="soc-metric soc-metric--high">
+        <span class="soc-metric-label">HIGH</span>
+        <strong id="soc-metric-high">3</strong>
+        <span class="soc-metric-foot">priority review</span>
+      </div>
+      <div class="soc-metric">
+        <span class="soc-metric-label">CONNECTED SOURCES</span>
+        <strong>00</strong>
+        <span class="soc-metric-foot">live integrations</span>
+      </div>
+    </div>
+
+    <div class="soc-workspace">
+      <div class="soc-panel soc-alerts-panel">
+        <div class="soc-panel-head">
+          <div>
+            <div class="soc-panel-kicker">01 / DETECTION QUEUE</div>
+            <h3>Alert stream</h3>
+          </div>
+          <button class="soc-secondary-btn" id="soc-inject-demo" type="button" title="Insert a synthetic example alert">+ Inject demo alert</button>
+        </div>
+        <div class="soc-tools">
+          <label class="soc-search">
+            <span aria-hidden="true">⌕</span>
+            <input id="soc-search" type="search" placeholder="Search alert, asset, IP…" autocomplete="off" aria-label="Search simulated alerts">
+          </label>
+          <div class="soc-filter-row" role="group" aria-label="Filter alerts by severity">
+            <button class="soc-filter is-active" type="button" data-soc-filter="ALL" aria-pressed="true">All <span id="soc-count-all">12</span></button>
+            <button class="soc-filter" type="button" data-soc-filter="CRITICAL" aria-pressed="false">Critical <span id="soc-count-critical">2</span></button>
+            <button class="soc-filter" type="button" data-soc-filter="HIGH" aria-pressed="false">High <span id="soc-count-high">3</span></button>
+            <button class="soc-filter" type="button" data-soc-filter="MEDIUM" aria-pressed="false">Medium <span id="soc-count-medium">5</span></button>
+            <button class="soc-filter" type="button" data-soc-filter="LOW" aria-pressed="false">Low <span id="soc-count-low">2</span></button>
+          </div>
+        </div>
+        <div class="soc-list-header"><span>SEVERITY / EVENT</span><span>ASSET / SAMPLE TIME</span></div>
+        <div id="soc-event-list" class="soc-event-list" aria-label="Simulated security alerts"></div>
+        <div class="soc-list-footer">
+          <span id="soc-result-count">12 alerts shown</span>
+          <span>LOCAL DEMO · NO DATA SENT</span>
+        </div>
+      </div>
+
+      <aside class="soc-panel soc-detail-panel" aria-labelledby="soc-detail-heading">
+        <div class="soc-panel-head soc-detail-head">
+          <div>
+            <div class="soc-panel-kicker">02 / INCIDENT WORKBENCH</div>
+            <h3 id="soc-detail-heading">Selected incident</h3>
+          </div>
+          <span class="soc-detail-id" id="soc-detail-id">SIM-012</span>
+        </div>
+        <div id="soc-detail-content" class="soc-detail-content" aria-live="polite">
+          <div class="soc-empty">Select an alert to inspect its evidence and recommended next steps.</div>
+        </div>
+        <div class="soc-triage">
+          <div>
+            <div class="soc-panel-kicker">ANALYST ACTION</div>
+            <p id="soc-triage-note">Triage status is stored only in this browser session.</p>
+          </div>
+          <button id="soc-triage-btn" type="button" class="soc-primary-btn">Mark investigating <span aria-hidden="true">↗</span></button>
+        </div>
+      </aside>
+    </div>
+
+    <div class="soc-console-foot"><span><i class="soc-foot-dot"></i> DETECTION CONTENT: SYNTHETIC / EDUCATIONAL</span><span>SHIELD LAB · CLIENT-SIDE INTERACTION</span></div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<section id="case-studies" class="case-studies-section">
+  <div class="section-label">// project case studies</div>
+  <div class="section-title">From Signal to <em>Finding</em></div>
+  <p class="case-studies-intro">Three projects, presented as short technical walkthroughs. Expand each case to see the problem, workflow, defensive value and links to the original project artifacts.</p>
+
+  <div class="case-studies-grid">
+    <details class="case-study-card">
+      <summary class="case-study-summary">
+        <span class="case-index">CASE / 01</span>
+        <span class="case-glyph" aria-hidden="true">✉</span>
+        <span class="case-study-title">PhishGuard</span>
+        <span class="case-study-subtitle">Email &amp; SMS threat analysis</span>
+        <span class="case-tag-row"><span>PYTHON / WEB</span><span>PHISHING</span><span>DMARC</span></span>
+        <span class="case-expand" aria-hidden="true">＋</span>
+      </summary>
+      <div class="case-study-body">
+        <div class="case-problem"><span>THE PROBLEM</span><p>Suspicious email and SMS messages can combine misleading sender details, risky links and social-engineering language. Analysts need a repeatable way to review indicators before deciding how to respond.</p></div>
+        <div class="case-flow">
+          <div><b>01</b><strong>Parse</strong><p>Inspect .eml headers and message content, extracting sender, URL and IP-related indicators.</p></div>
+          <div><b>02</b><strong>Assess</strong><p>Review phishing and smishing patterns, inspect URL/IP signals, and include available DMARC-policy checks.</p></div>
+          <div><b>03</b><strong>Report</strong><p>Summarise risk indicators into an investigation-oriented result that can be saved for follow-up.</p></div>
+        </div>
+        <div class="case-outcome"><span>DEFENSIVE VALUE</span><p>Structures the initial review, documents suspicious indicators and helps a user decide what needs manual verification. An automated score should support—not replace—analyst judgement.</p></div>
+        <div class="case-actions">
+          <a href="phishing-writeup.html" class="case-link">Read technical write-up <span>↗</span></a>
+          <a href="https://alexphilip01.github.io/PhishGuard/" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Open live app <span>↗</span></a>
+          <a href="https://github.com/AlexPhilip01/phishing-email-analyzer" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Source code <span>↗</span></a>
+        </div>
+      </div>
+    </details>
+
+    <details class="case-study-card">
+      <summary class="case-study-summary">
+        <span class="case-index">CASE / 02</span>
+        <span class="case-glyph" aria-hidden="true">⌁</span>
+        <span class="case-study-title">SOC Log Analyzer</span>
+        <span class="case-study-subtitle">Rule-based detection engine</span>
+        <span class="case-tag-row"><span>PYTHON</span><span>29 RULES</span><span>89 TESTS</span></span>
+        <span class="case-expand" aria-hidden="true">＋</span>
+      </summary>
+      <div class="case-study-body">
+        <div class="case-problem"><span>THE PROBLEM</span><p>Security logs are noisy and inconsistent across systems. Important patterns can be hard to spot when events remain unstructured or are reviewed manually one file at a time.</p></div>
+        <div class="case-flow">
+          <div><b>01</b><strong>Ingest</strong><p>Auto-detect and parse SSH authentication logs, Apache/Nginx combined logs, and Windows Event Log CSV exports.</p></div>
+          <div><b>02</b><strong>Detect</strong><p>Apply rule-based checks for authentication abuse, brute-force patterns, web injection attempts, privilege escalation and post-exploitation indicators.</p></div>
+          <div><b>03</b><strong>Escalate</strong><p>Normalise findings into security events and format output for review, reporting or optional alert integrations.</p></div>
+        </div>
+        <div class="case-outcome"><span>IMPLEMENTATION NOTES</span><p>The project write-up documents 29 detection rules, 89 tests and a standard-library-first design. These are project-reported implementation details, not independent performance benchmarks.</p></div>
+        <div class="case-actions">
+          <a href="soc-log-analyzer-writeup.html" class="case-link">Read technical write-up <span>↗</span></a>
+          <a href="https://soc-log-analyzer-ejpx.onrender.com" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Open live app <span>↗</span></a>
+          <a href="https://github.com/AlexPhilip01/soc-log-analyzer" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Source code <span>↗</span></a>
+        </div>
+      </div>
+    </details>
+
+    <details class="case-study-card">
+      <summary class="case-study-summary">
+        <span class="case-index">CASE / 03</span>
+        <span class="case-glyph" aria-hidden="true">⌖</span>
+        <span class="case-study-title">WiFi Analyser</span>
+        <span class="case-study-subtitle">Network inventory &amp; assessment</span>
+        <span class="case-tag-row"><span>FLASK</span><span>SCAPY / ARP</span><span>TCP PORTS</span></span>
+        <span class="case-expand" aria-hidden="true">＋</span>
+      </summary>
+      <div class="case-study-body">
+        <div class="case-problem"><span>THE PROBLEM</span><p>Network visibility is fragmented when device discovery, wireless observations, latency checks and port review live in separate tools or commands.</p></div>
+        <div class="case-flow">
+          <div><b>01</b><strong>Discover</strong><p>Inventory devices on a local subnet using ARP-based discovery and review nearby wireless network information.</p></div>
+          <div><b>02</b><strong>Assess</strong><p>Run latency checks and TCP port checks to surface signals that may merit closer review.</p></div>
+          <div><b>03</b><strong>Review</strong><p>Bring the results into a browser dashboard backed by a Flask API for easier inspection.</p></div>
+        </div>
+        <div class="case-outcome"><span>SAFE USE</span><p>Run active discovery and port checks only on networks and devices you own or are explicitly authorised to assess. Findings are indicators for verification, not automatic proof of compromise.</p></div>
+        <div class="case-actions">
+          <a href="wifi-analyser-writeup.html" class="case-link">Read technical write-up <span>↗</span></a>
+          <a href="https://wifi-analyser-zd2t.onrender.com/" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Open live app <span>↗</span></a>
+          <a href="https://github.com/AlexPhilip01/wifi-analyser" target="_blank" rel="noopener noreferrer" class="case-link case-link--secondary">Source code <span>↗</span></a>
+        </div>
+      </div>
+    </details>
+  </div>
+  <p class="case-studies-footnote">Links open the individual project, live application or source repository. Availability of externally hosted demos may vary.</p>
+</section>
+
+<div class="divider"></div>
 <!-- PROJECTS -->
 <section id="projects">
   <div class="section-label">// projects</div>
@@ -1813,6 +2004,7 @@ document.addEventListener('click', () => {
 
 <!-- ── 3D CARD TILT (hover only, no cost on mobile) ── -->
 <script src="cards-3d.js" defer></script>
+<script src="soc-command-center.js" defer></script>
 
 <script>
 /* ── SCROLL DEPTH REVEAL ── */

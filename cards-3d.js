@@ -1,6 +1,6 @@
 /* SHIELD 3D card interactions — pointer-powered tilt and moving gold specular lighting. */
 (() => {
-  const selector = '.project-card, .cert-card, .stat-card, .progress-card, .featured-item';
+  const selector = '.project-card, .cert-card, .stat-card, .progress-card, .featured-item, .case-study-card';
   const cards = Array.from(document.querySelectorAll(selector));
   if (!cards.length) return;
 
