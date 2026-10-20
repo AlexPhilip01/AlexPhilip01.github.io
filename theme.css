@@ -25,3 +25,76 @@ img { max-width: 100%; }
 /* small fixes: a SOC badge that inherited a transparent text fill, and a too-dark subtitle on the PhishGuard write-up */
 .pill { -webkit-text-fill-color: currentColor; }
 .hero-subtitle { color: #a29c8e !important; }
+
+/* ── INTERACTIVE 3D SHIELD HERO ── */
+#hero { isolation: isolate; overflow: clip; }
+#hero .hero-glow { z-index: 0; }
+#hero .hero-inner { position: relative; z-index: 3; }
+#shield-3d-stage {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  right: -1.5%;
+  width: min(51%, 590px);
+  height: min(84%, 650px);
+  min-height: 410px;
+  transform: translateY(-48%);
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  background: radial-gradient(ellipse at 50% 46%, rgba(212,168,58,.075), transparent 62%);
+}
+#shield-3d-stage.is-dragging { cursor: grabbing; }
+#shield-3d-canvas { display:block; width:100%; height:100%; outline:none; }
+.shield-3d-caption {
+  position:absolute;
+  right: clamp(10px, 2vw, 28px);
+  bottom: 8%;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:rgba(233,207,122,.72);
+  font: 10px/1.4 var(--mono, monospace);
+  letter-spacing:.13em;
+  text-shadow:0 2px 14px rgba(0,0,0,.8);
+  pointer-events:none;
+  white-space:nowrap;
+}
+.shield-status-dot {
+  width:6px;height:6px;border-radius:50%;
+  background:#e9cf7a;box-shadow:0 0 12px rgba(212,168,58,.9);
+  animation: shieldPulse 2.2s ease-in-out infinite;
+}
+.shield-drag-hint { margin-left:12px; opacity:.48; font-size:9px; }
+@keyframes shieldPulse { 50% { opacity:.35; } }
+#shield-3d-stage.shield-3d-fallback::before {
+  content:"⬡";
+  position:absolute;inset:0;display:grid;place-items:center;
+  font-size:clamp(170px,24vw,320px);line-height:1;
+  color:rgba(212,168,58,.16);
+  text-shadow:0 0 50px rgba(212,168,58,.2);
+}
+#shield-3d-stage.shield-3d-fallback #shield-3d-canvas { display:none; }
+@media (max-width:900px) {
+  #shield-3d-stage { right:-7%;width:54%;opacity:.72; }
+  #hero .hero-inner { max-width:72%; }
+  .shield-3d-caption { right:12%;font-size:8px; }
+}
+@media (max-width:600px) {
+  #hero { overflow:hidden; }
+  #shield-3d-stage {
+    top:auto;bottom:-3%;right:-24%;
+    width:88%;height:66%;min-height:300px;
+    transform:none;opacity:.36;
+  }
+  #hero .hero-inner { max-width:100%; }
+  .shield-3d-caption { bottom:8%;right:28%;font-size:8px; }
+  .shield-drag-hint { display:none; }
+}
+@media (max-width:380px) {
+  #shield-3d-stage { right:-34%;width:100%;opacity:.26; }
+}
+@media (prefers-reduced-motion:reduce) {
+  .shield-status-dot { animation:none; }
+}
