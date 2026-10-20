@@ -99,3 +99,114 @@ img { max-width: 100%; }
 @media (prefers-reduced-motion:reduce) {
   .shield-status-dot { animation:none; }
 }
+
+
+/* ── SHIELD premium 3D cards ── */
+.card-3d-target {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+  --card-lift: 0px;
+  --spotlight-opacity: 0;
+  position: relative;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  transform: perspective(1100px) rotateX(var(--tilt-y)) rotateY(var(--tilt-x)) translate3d(0, var(--card-lift), 0);
+  transition:
+    transform .42s cubic-bezier(.2,.78,.2,1),
+    border-color .28s ease,
+    box-shadow .3s ease;
+  will-change: transform;
+  isolation: isolate;
+}
+.card-3d-target.reveal-3d:not(.in) {
+  transform: translate3d(0, 26px, -50px);
+}
+.card-3d-target.reveal-3d.in {
+  transform: perspective(1100px) rotateX(var(--tilt-y)) rotateY(var(--tilt-x)) translate3d(0, var(--card-lift), 0);
+}
+.card-3d-target > .card-3d-layer {
+  transform: translateZ(var(--layer-depth, 16px));
+  transition: transform .35s cubic-bezier(.2,.78,.2,1);
+}
+.card-3d-target:is(:hover, :focus-within) > .card-3d-layer {
+  transform: translateZ(calc(var(--layer-depth, 16px) + 7px)) translateY(-1px);
+}
+.card-3d-overlay {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--spotlight-opacity);
+  transition: opacity .25s ease;
+}
+.card-3d-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    390px circle at var(--pointer-x) var(--pointer-y),
+    rgba(233, 207, 122, .19),
+    rgba(212, 168, 58, .07) 32%,
+    transparent 68%
+  );
+}
+.card-3d-overlay::after {
+  content: "";
+  position: absolute;
+  inset: -60% -80%;
+  background: linear-gradient(
+    112deg,
+    transparent 40%,
+    rgba(255, 244, 209, .11) 47%,
+    rgba(212, 168, 58, .07) 50%,
+    transparent 57%
+  );
+  transform: none;
+}
+.card-3d-target:is(:hover, :focus-within) {
+  --card-lift: -6px;
+  border-color: rgba(212, 168, 58, .56);
+  box-shadow:
+    0 25px 50px -25px rgba(0, 0, 0, .9),
+    0 12px 34px rgba(212, 168, 58, .12),
+    inset 0 1px 0 rgba(255, 231, 174, .08);
+}
+.card-3d-target:is(:hover, :focus-within) .card-3d-overlay {
+  --spotlight-opacity: 1;
+}
+.project-card.card-3d-target:is(:hover, :focus-within) {
+  transform: perspective(1100px) rotateX(var(--tilt-y)) rotateY(var(--tilt-x)) translate3d(0, var(--card-lift), 0);
+}
+.cert-card.card-3d-target:is(:hover, :focus-within),
+.stat-card.card-3d-target:is(:hover, :focus-within),
+.progress-card.card-3d-target:is(:hover, :focus-within),
+.featured-item.card-3d-target:is(:hover, :focus-within) {
+  transform: perspective(1100px) rotateX(var(--tilt-y)) rotateY(var(--tilt-x)) translate3d(0, var(--card-lift), 0);
+}
+@media (hover: none) {
+  .card-3d-target:active {
+    --card-lift: -2px;
+    transition-duration: .12s;
+  }
+  .card-3d-target > .card-3d-layer {
+    transform: translateZ(7px);
+  }
+}
+@media (max-width: 600px) {
+  .card-3d-target { will-change: auto; }
+  .card-3d-overlay::before { background-size: 80% 80%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .card-3d-target,
+  .card-3d-target > .card-3d-layer,
+  .card-3d-overlay {
+    transition: none !important;
+    will-change: auto;
+  }
+  .card-3d-target { transform: none !important; }
+  .card-3d-target > .card-3d-layer { transform: none !important; }
+}

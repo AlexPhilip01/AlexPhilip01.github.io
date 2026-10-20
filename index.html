@@ -1805,42 +1805,7 @@ document.addEventListener('click', () => {
 
 
 <!-- ── 3D CARD TILT (hover only, no cost on mobile) ── -->
-<script>
-/* ── 3D CARD TILT ── */
-(function(){
-  if(!window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-  if(window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-
-  var cards = document.querySelectorAll('.project-card, .cert-card');
-  Array.prototype.forEach.call(cards, function(card){
-    var raf = null, px = 0, py = 0;
-
-    function apply(){
-      raf = null;
-      card.style.transform =
-        'perspective(1000px) rotateY('+(px*8).toFixed(2)+'deg) rotateX('+(-py*8).toFixed(2)+'deg) translate3d(0,-6px,24px)';
-      card.style.boxShadow =
-        (-px*22).toFixed(0)+'px '+(14-py*10).toFixed(0)+'px 44px rgba(212,168,58,0.2)';
-    }
-
-    card.addEventListener('mouseenter', function(){
-      card.style.transition = 'transform .10s linear, box-shadow .10s linear, border-color .25s';
-    });
-    card.addEventListener('mousemove', function(e){
-      var r = card.getBoundingClientRect();
-      px = (e.clientX - r.left)/r.width  - 0.5;
-      py = (e.clientY - r.top )/r.height - 0.5;
-      if(!raf) raf = requestAnimationFrame(apply);
-    });
-    card.addEventListener('mouseleave', function(){
-      if(raf){ cancelAnimationFrame(raf); raf = null; }
-      card.style.transition = 'transform .55s cubic-bezier(.2,.8,.2,1), box-shadow .55s ease, border-color .25s';
-      card.style.transform = '';
-      card.style.boxShadow = '';
-    });
-  });
-})();
-</script>
+<script src="cards-3d.js" defer></script>
 
 <script>
 /* ── SCROLL DEPTH REVEAL ── */
