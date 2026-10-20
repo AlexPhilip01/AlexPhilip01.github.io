@@ -29,7 +29,8 @@ img { max-width: 100%; }
 /* ── INTERACTIVE 3D SHIELD HERO ── */
 #hero { isolation: isolate; overflow: clip; }
 #hero .hero-glow { z-index: 0; }
-#hero .hero-inner { position: relative; z-index: 3; }
+#hero .hero-inner { position: relative; z-index: 3; max-width: 56%; }
+#bat-canvas { display:none !important; }
 #shield-3d-stage {
   position: absolute;
   z-index: 1;
