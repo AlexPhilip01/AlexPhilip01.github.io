@@ -2800,8 +2800,21 @@
 
   // ---------- Street life: pedestrians, cyclists, the guard column, bunting and rooftop flags ----------
   (function () {
-    const fastFrame = u => frames[Math.max(0, Math.min(SEG, Math.round(u * SEG)))];
-    const wrap = u => (u < 0.003 ? 0.997 : u > 0.997 ? 0.003 : u);
+    // Interpolate between cached road samples instead of snapping people and bikes
+    // to the nearest metre-sized sample; scratch vectors avoid per-frame allocations.
+    const fastFrameScratch = { p: new THREE.Vector3(), t: new THREE.Vector3(), n: new THREE.Vector3() };
+    const fastFrame = u => {
+      const normalized = ((u % 1) + 1) % 1;
+      const sample = normalized * SEG;
+      const index = Math.min(SEG - 1, Math.floor(sample));
+      const alpha = sample - index;
+      const a = frames[index], b = frames[index + 1], out = fastFrameScratch;
+      out.p.lerpVectors(a.p, b.p, alpha);
+      out.t.lerpVectors(a.t, b.t, alpha).normalize();
+      out.n.lerpVectors(a.n, b.n, alpha).normalize();
+      return out;
+    };
+    const wrap = u => ((u % 1) + 1) % 1;
     const noShadow = o => o.traverse(m => { if (m.isMesh) m.castShadow = false; });
     const coats = ['#2b2f3a', '#6b2737', '#36495e', '#7a6a55', '#1f3b2e', '#8c8c8c', '#b0753c', '#c8102e', '#3e3a5a', '#d9d2c3', '#5b6b4a'];
     const skins = ['#f1c9a5', '#d9a77f', '#a8714c', '#7a4b2e', '#e8b893'];
