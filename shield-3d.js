@@ -111,7 +111,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
 
   const logoTextureLoader = new THREE.TextureLoader();
   logoTextureLoader.load(
-    './shield-logo.svg',
+    './shield-logo.svg?v=3',
     texture => {
       texture.colorSpace = THREE.SRGBColorSpace;
       texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
@@ -120,8 +120,8 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
     },
     undefined,
     error => {
-      console.warn('SHIELD logo texture could not be loaded:', error);
-      logoGroup.visible = false;
+      console.error('SHIELD fingerprint texture failed to load:', error);
+      // Keep the shield usable and the failure visible during development.
     }
   );
 
