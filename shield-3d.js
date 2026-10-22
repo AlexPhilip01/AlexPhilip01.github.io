@@ -42,14 +42,21 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
   const shield = new THREE.Group();
   root.add(shield);
 
-  function shieldShape(scale = 1) {
-    const s = new THREE.Shape();
-    s.moveTo(0, 2.45 * scale);
-    s.lineTo(1.72 * scale, 1.88 * scale);
-    s.lineTo(1.52 * scale, 0.12 * scale);
-    s.bezierCurveTo(1.36 * scale, -0.95 * scale, 0.62 * scale, -1.95 * scale, 0, -2.42 * scale);
-    s.bezierCurveTo(-0.62 * scale, -1.95 * scale, -1.36 * scale, -0.95 * scale, -1.52 * scale, 0.12 * scale);
-    s.lineTo(-1.72 * scale, 1.88 * scale);
+  function shieldOutline(scale, Ctor) {
+    const s = new Ctor();
+    const S = scale;
+    s.moveTo(-1.44 * S, 1.26 * S);
+    s.quadraticCurveTo(-1.44 * S, 1.42 * S, -1.28 * S, 1.50 * S);
+    s.lineTo(-0.16 * S, 1.98 * S);
+    s.quadraticCurveTo(0, 2.05 * S, 0.16 * S, 1.98 * S);
+    s.lineTo(1.28 * S, 1.50 * S);
+    s.quadraticCurveTo(1.44 * S, 1.42 * S, 1.44 * S, 1.26 * S);
+    s.lineTo(1.44 * S, -0.52 * S);
+    s.quadraticCurveTo(1.44 * S, -0.70 * S, 1.32 * S, -0.86 * S);
+    s.lineTo(0.14 * S, -2.26 * S);
+    s.quadraticCurveTo(0, -2.40 * S, -0.14 * S, -2.26 * S);
+    s.lineTo(-1.32 * S, -0.86 * S);
+    s.quadraticCurveTo(-1.44 * S, -0.70 * S, -1.44 * S, -0.52 * S);
     s.closePath();
     return s;
   }
@@ -67,52 +74,59 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
     emissive: 0x281b07, emissiveIntensity: 0.18
   });
 
-  const outerGeometry = new THREE.ExtrudeGeometry(shieldShape(1), {
-    depth: 0.38, bevelEnabled: true, bevelSegments: 4,
-    steps: 1, bevelSize: 0.11, bevelThickness: 0.1, curveSegments: 12
+  // Hollow shield: outer silhouette with a slightly smaller hole punched
+  // through it, so the frame reads as a drawn stroke rather than a slab.
+  const frameShape = shieldOutline(1, THREE.Shape);
+  frameShape.holes.push(shieldOutline(0.855, THREE.Path));
+  const frameGeometry = new THREE.ExtrudeGeometry(frameShape, {
+    depth: 0.22, bevelEnabled: true, bevelSegments: 3,
+    steps: 1, bevelSize: 0.035, bevelThickness: 0.045, curveSegments: 14
   });
-  outerGeometry.center();
-  const outer = new THREE.Mesh(outerGeometry, gold);
-  shield.add(outer);
-
-  const innerGeometry = new THREE.ExtrudeGeometry(shieldShape(0.84), {
-    depth: 0.12, bevelEnabled: true, bevelSegments: 3,
-    steps: 1, bevelSize: 0.045, bevelThickness: 0.05, curveSegments: 12
-  });
-  innerGeometry.center();
-  const inner = new THREE.Mesh(innerGeometry, darkGold);
-  inner.position.z = 0.255;
-  shield.add(inner);
-
-  const borderGeometry = new THREE.EdgesGeometry(new THREE.ShapeGeometry(shieldShape(0.91), 12));
-  const border = new THREE.LineSegments(borderGeometry, new THREE.LineBasicMaterial({
-    color: 0xffdf8b, transparent: true, opacity: 0.95
-  }));
-  border.position.z = 0.39;
-  shield.add(border);
+  frameGeometry.center();
+  const frame = new THREE.Mesh(frameGeometry, gold);
+  shield.add(frame);
 
   // Fingerprint emblem: concentric gold ridges with a core curl.
   const fingerprint = new THREE.Group();
-  fingerprint.position.set(0, 0.12, 0.50);
+  fingerprint.position.set(-0.06, 0.30, 0.07);
   shield.add(fingerprint);
 
-  function ridge(rx, ry, a0, a1, tube = 0.042, mat = brightGold) {
-    const curve = new THREE.EllipseCurve(0, 0, rx, ry, a0, a1, false, 0);
-    const pts = curve.getPoints(60).map(p => new THREE.Vector3(p.x, p.y, 0));
-    const mesh = new THREE.Mesh(
-      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 80, tube, 8, false),
+  // Each ridge is one continuous stroke: it arcs over the top, then both
+  // ends run straight down to staggered depths, the way a print's ridges
+  // leave the whorl. Legs get extra sample points so they stay straight
+  // through the Catmull-Rom smoothing, and a sphere caps each tip.
+  function archedRidge(rx, ry, yRight, yLeft, tube = 0.058, mat = brightGold) {
+    const pts = [];
+    const legSteps = 8;
+    for (let i = legSteps; i >= 1; i--) {
+      pts.push(new THREE.Vector3(rx, yRight * (i / legSteps), 0));
+    }
+    new THREE.EllipseCurve(0, 0, rx, ry, 0, Math.PI, false, 0)
+      .getPoints(56)
+      .forEach(pt => pts.push(new THREE.Vector3(pt.x, pt.y, 0)));
+    for (let i = 1; i <= legSteps; i++) {
+      pts.push(new THREE.Vector3(-rx, yLeft * (i / legSteps), 0));
+    }
+
+    fingerprint.add(new THREE.Mesh(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 190, tube, 9, false),
       mat
-    );
-    fingerprint.add(mesh);
-    return mesh;
+    ));
+
+    const cap = new THREE.SphereGeometry(tube, 12, 10);
+    const capR = new THREE.Mesh(cap, mat);
+    capR.position.set(rx, yRight, 0);
+    fingerprint.add(capR);
+    const capL = new THREE.Mesh(cap, mat);
+    capL.position.set(-rx, yLeft, 0);
+    fingerprint.add(capL);
   }
 
-  ridge(0.560, 0.830, -0.50, 3.60, 0.050);
-  ridge(0.442, 0.668, -0.24, 3.44, 0.048);
-  ridge(0.340, 0.522, -0.46, 3.58, 0.046);
-  ridge(0.240, 0.384, -0.18, 3.38, 0.044);
-  ridge(0.150, 0.250, -0.40, 3.54, 0.042);
-  ridge(0.078, 0.134, -0.08, 3.22, 0.034);
+  archedRidge(0.98, 0.82, -1.08, -0.74, 0.060);
+  archedRidge(0.74, 0.64, -0.46, -1.16, 0.056);
+  archedRidge(0.53, 0.47, -1.02, -0.52, 0.052);
+  archedRidge(0.33, 0.31, -0.58, -0.94, 0.048);
+  archedRidge(0.15, 0.16, -0.80, -0.38, 0.044);
 
   // Fine orbit rings and a sparse perimeter of glowing telemetry points.
   const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xd4a83a, transparent: true, opacity: 0.34 });
