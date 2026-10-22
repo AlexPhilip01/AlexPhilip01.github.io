@@ -91,37 +91,28 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
   border.position.z = 0.39;
   shield.add(border);
 
-  // Geometric lock insignia: a gold body, a raised shackle and a keyhole.
-  const lock = new THREE.Group();
-  lock.position.set(0, 0.03, 0.53);
-  shield.add(lock);
-  const lockBody = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.78, 0.16),
-    new THREE.MeshStandardMaterial({ color: 0xd5a23a, metalness: 0.8, roughness: 0.26 })
-  );
-  lockBody.position.y = -0.18;
-  lock.add(lockBody);
+  // Fingerprint emblem: concentric gold ridges with a core curl.
+  const fingerprint = new THREE.Group();
+  fingerprint.position.set(0, 0.12, 0.50);
+  shield.add(fingerprint);
 
-  const shackle = new THREE.Mesh(
-    new THREE.TorusGeometry(0.29, 0.085, 10, 32, Math.PI),
-    brightGold
-  );
-  shackle.position.set(0, 0.26, 0.02);
-  shackle.rotation.z = Math.PI;
-  lock.add(shackle);
+  function ridge(rx, ry, a0, a1, tube = 0.042, mat = brightGold) {
+    const curve = new THREE.EllipseCurve(0, 0, rx, ry, a0, a1, false, 0);
+    const pts = curve.getPoints(60).map(p => new THREE.Vector3(p.x, p.y, 0));
+    const mesh = new THREE.Mesh(
+      new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 80, tube, 8, false),
+      mat
+    );
+    fingerprint.add(mesh);
+    return mesh;
+  }
 
-  const keyholeTop = new THREE.Mesh(
-    new THREE.CircleGeometry(0.085, 20),
-    new THREE.MeshStandardMaterial({ color: 0x171109, metalness: 0.15, roughness: 0.8 })
-  );
-  keyholeTop.position.set(0, -0.12, 0.092);
-  lock.add(keyholeTop);
-  const keyholeStem = new THREE.Mesh(
-    new THREE.BoxGeometry(0.075, 0.19, 0.025),
-    new THREE.MeshStandardMaterial({ color: 0x171109, metalness: 0.15, roughness: 0.8 })
-  );
-  keyholeStem.position.set(0, -0.27, 0.095);
-  lock.add(keyholeStem);
+  ridge(0.560, 0.830, -0.50, 3.60, 0.050);
+  ridge(0.442, 0.668, -0.24, 3.44, 0.048);
+  ridge(0.340, 0.522, -0.46, 3.58, 0.046);
+  ridge(0.240, 0.384, -0.18, 3.38, 0.044);
+  ridge(0.150, 0.250, -0.40, 3.54, 0.042);
+  ridge(0.078, 0.134, -0.08, 3.22, 0.034);
 
   // Fine orbit rings and a sparse perimeter of glowing telemetry points.
   const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xd4a83a, transparent: true, opacity: 0.34 });
