@@ -91,37 +91,39 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.164.1/build/three.m
   border.position.z = 0.39;
   shield.add(border);
 
-  // Geometric lock insignia: a gold body, a raised shackle and a keyhole.
-  const lock = new THREE.Group();
-  lock.position.set(0, 0.03, 0.53);
-  shield.add(lock);
-  const lockBody = new THREE.Mesh(
-    new THREE.BoxGeometry(0.95, 0.78, 0.16),
-    new THREE.MeshStandardMaterial({ color: 0xd5a23a, metalness: 0.8, roughness: 0.26 })
-  );
-  lockBody.position.y = -0.18;
-  lock.add(lockBody);
+  // SHIELD fingerprint emblem: a transparent SVG decal attached to the shield surface.
+  // Because this group is a child of "shield", the logo rotates with the 3D shield.
+  const logoGroup = new THREE.Group();
+  logoGroup.position.set(0, 0.02, 0.49);
+  shield.add(logoGroup);
 
-  const shackle = new THREE.Mesh(
-    new THREE.TorusGeometry(0.29, 0.085, 10, 32, Math.PI),
-    brightGold
-  );
-  shackle.position.set(0, 0.26, 0.02);
-  shackle.rotation.z = Math.PI;
-  lock.add(shackle);
+  const logoGeometry = new THREE.PlaneGeometry(1.62, 2.19);
+  const logoMaterial = new THREE.MeshBasicMaterial({
+    transparent: true,
+    opacity: 1,
+    alphaTest: 0.025,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    toneMapped: false
+  });
+  const logoDecal = new THREE.Mesh(logoGeometry, logoMaterial);
+  logoGroup.add(logoDecal);
 
-  const keyholeTop = new THREE.Mesh(
-    new THREE.CircleGeometry(0.085, 20),
-    new THREE.MeshStandardMaterial({ color: 0x171109, metalness: 0.15, roughness: 0.8 })
+  const logoTextureLoader = new THREE.TextureLoader();
+  logoTextureLoader.load(
+    './shield-logo.svg',
+    texture => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = Math.min(4, renderer.capabilities.getMaxAnisotropy());
+      logoMaterial.map = texture;
+      logoMaterial.needsUpdate = true;
+    },
+    undefined,
+    error => {
+      console.warn('SHIELD logo texture could not be loaded:', error);
+      logoGroup.visible = false;
+    }
   );
-  keyholeTop.position.set(0, -0.12, 0.092);
-  lock.add(keyholeTop);
-  const keyholeStem = new THREE.Mesh(
-    new THREE.BoxGeometry(0.075, 0.19, 0.025),
-    new THREE.MeshStandardMaterial({ color: 0x171109, metalness: 0.15, roughness: 0.8 })
-  );
-  keyholeStem.position.set(0, -0.27, 0.095);
-  lock.add(keyholeStem);
 
   // Fine orbit rings and a sparse perimeter of glowing telemetry points.
   const orbitMaterial = new THREE.MeshBasicMaterial({ color: 0xd4a83a, transparent: true, opacity: 0.34 });
