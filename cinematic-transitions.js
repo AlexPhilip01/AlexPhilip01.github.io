@@ -16,9 +16,25 @@
     '.cinematic-wipe-label::before{content:"";width:22px;height:1px;background:#d4a83a;box-shadow:0 0 14px rgba(212,168,58,.7)}',
     '.cinematic-reveal{opacity:0;transform:translate3d(0,22px,0) scale(.994);filter:blur(4px);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .75s cubic-bezier(.2,.8,.2,1),filter .6s ease;will-change:opacity,transform,filter}',
     '.cinematic-reveal.is-visible{opacity:1;transform:none;filter:none;will-change:auto}',
-    '@media(prefers-reduced-motion:reduce){#cinematic-wipe{display:none!important}.cinematic-reveal,.cinematic-reveal.is-visible{opacity:1!important;transform:none!important;filter:none!important;transition:none!important;will-change:auto!important}}'
+    '@media(prefers-reduced-motion:reduce){#cinematic-wipe{display:none!important}.cinematic-reveal,.cinematic-reveal.is-visible{opacity:1!important;transform:none!important;filter:none!important;transition:none!important;will-change:auto!important}}',
+    '.shield-floating-mark{position:fixed;top:22vh;right:clamp(18px,4.5vw,72px);width:clamp(116px,17vw,220px);aspect-ratio:485/654;z-index:1;pointer-events:none;opacity:.47;filter:drop-shadow(0 0 20px rgba(212,168,58,.28));animation:shield-float-drift 7s ease-in-out infinite;transform:translateZ(0);will-change:transform}',
+    '.shield-floating-mark img{display:block;width:100%;height:100%;object-fit:contain;opacity:.9}',
+    '@keyframes shield-float-drift{0%,100%{transform:translate3d(0,0,0) rotate(-1.5deg)}50%{transform:translate3d(0,-18px,0) rotate(1.5deg)}}',
+    '@media(max-width:900px){.shield-floating-mark{width:clamp(88px,19vw,132px);top:auto;bottom:calc(env(safe-area-inset-bottom,0px) + 120px);right:12px;opacity:.28}}',
+    '@media(max-width:600px){.shield-floating-mark{width:78px;bottom:calc(env(safe-area-inset-bottom,0px) + 102px);right:8px;opacity:.2}}',
+    '@media(prefers-reduced-motion:reduce){.shield-floating-mark{animation:none!important;transform:none!important;will-change:auto!important}}'
   ].join('\n');
   document.head.appendChild(style);
+
+  // Keep the emblem on the main portfolio page only.
+  const isPortfolioHome = window.location.pathname === '/' || window.location.pathname.endsWith('/index.html');
+  if (isPortfolioHome) {
+    const floatingMark = document.createElement('div');
+    floatingMark.className = 'shield-floating-mark';
+    floatingMark.setAttribute('aria-hidden', 'true');
+    floatingMark.innerHTML = '<img src="/shield-logo.svg" alt="" width="485" height="654" loading="eager" decoding="async">';
+    document.body.appendChild(floatingMark);
+  }
 
   const wipe = document.createElement('div');
   wipe.id = 'cinematic-wipe';
