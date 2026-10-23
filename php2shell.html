@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PHP2Shell: The Bug That Runs Before Your Code &ndash; Alex Philip</title>
+<link rel="icon" type="image/jpeg" href="shield-icon.jpg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="description" content="Analysis of PHP2Shell (CVE-2026-109618 / CVE-2026-109619): two pre-authentication RCE flaws in PHP request handling, why application hardening does not mitigate them, and how to detect exploitation.">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Alex Philip &middot; SHIELD">
+<meta property="og:title" content="PHP2Shell: The Bug That Runs Before Your Code &ndash; Alex Philip">
+<meta property="og:description" content="Two critical pre-auth RCE flaws in PHP, both scoring 9.2, both executing before a single line of application code runs.">
+<meta property="og:url" content="https://alexphilip01.github.io/php2shell.html">
+<meta property="og:image" content="https://alexphilip01.github.io/shield-og.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="SHIELD logo, Alex Philip, Cybersecurity Professional">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PHP2Shell: The Bug That Runs Before Your Code &ndash; Alex Philip">
+<meta name="twitter:description" content="Two critical pre-auth RCE flaws in PHP, both scoring 9.2, both executing before a single line of application code runs.">
+<meta name="twitter:image" content="https://alexphilip01.github.io/shield-og.jpg?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="theme.css">
+<style>
+  :root{--bg:#080807;--surface:#151412;--surface2:#1d1b18;--border:rgba(255,255,255,0.07);--border2:rgba(212,168,58,0.25);--accent:#d4a83a;--accent2:#e9cf7a;--accent-dim:rgba(212,168,58,0.1);--text:#f7f6f2;--text2:#968e7e;--text3:#635d51;--mono:"DM Mono",monospace;--serif:"Cinzel",Georgia,serif;--sans:"Outfit",sans-serif}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);background:var(--bg);color:var(--text);line-height:1.7}
+  p{text-align:justify}
+  body::before{content:"";position:fixed;inset:0;background-image:linear-gradient(rgba(212,168,58,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(212,168,58,0.03) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+
+  .topbar{position:sticky;top:0;z-index:100;background:rgba(8,8,7,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0.7rem 2rem}
+  .back-link{display:inline-flex;align-items:center;gap:0.5rem;font-family:var(--mono);font-size:0.72rem;color:var(--text2);text-decoration:none;letter-spacing:0.04em;transition:color 0.2s}
+  .back-link:hover{color:var(--accent)}
+  .topbar-tag{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);border:1px solid rgba(212,168,58,0.2);padding:0.25rem 0.75rem;border-radius:100px;letter-spacing:0.06em}
+
+  .hero{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3.5rem 2rem 0}
+  .hero-label{font-family:var(--mono);font-size:0.72rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:0.7rem}
+  .hero-title{font-family:var(--serif);font-size:clamp(2rem,4.6vw,3.1rem);line-height:1.12;color:var(--text);margin-bottom:0.9rem}
+  .hero-title em{font-style:italic;color:var(--accent)}
+  .hero-sub{font-size:0.95rem;color:var(--text2);line-height:1.8;max-width:640px;margin-bottom:1.5rem}
+  .byline{display:flex;gap:0.6rem;flex-wrap:wrap;align-items:center;font-family:var(--mono);font-size:0.7rem;color:var(--text3);letter-spacing:0.04em;margin-bottom:1.6rem}
+  .byline .dot{width:4px;height:4px;border-radius:50%;background:var(--text3)}
+  .hero-meta{display:flex;gap:0.6rem;flex-wrap:wrap}
+  .meta-pill{display:flex;align-items:center;gap:0.45rem;font-family:var(--mono);font-size:0.7rem;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:0.35rem 0.85rem;color:var(--text2);letter-spacing:0.04em}
+  .meta-dot{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+
+  .stat-band{position:relative;z-index:1;max-width:900px;margin:2.5rem auto 0;padding:0 2rem;display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border)}
+  .stat-box{background:var(--bg);padding:1.3rem;text-align:center}
+  .stat-n{font-family:var(--serif);font-size:1.75rem;color:var(--accent);line-height:1;margin-bottom:0.35rem}
+  .stat-l{font-family:var(--mono);font-size:0.6rem;color:var(--text3);letter-spacing:0.08em;text-transform:uppercase}
+
+  .content-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:3rem 2rem 6rem;display:grid;grid-template-columns:200px 1fr;gap:0 3.5rem;align-items:start}
+  .toc{position:sticky;top:70px;grid-column:1}
+  .toc-label{font-family:var(--mono);font-size:0.62rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:0.75rem}
+  .toc-list{list-style:none;display:flex;flex-direction:column}
+  .toc-list li a{display:block;font-family:var(--mono);font-size:0.68rem;color:var(--text3);text-decoration:none;padding:0.38rem 0.65rem;border-left:2px solid var(--border);letter-spacing:0.03em;line-height:1.4;transition:color .2s,border-color .2s}
+  .toc-list li a:hover,.toc-list li a.active{color:var(--accent);border-left-color:var(--accent)}
+
+  .article{grid-column:2}
+  .section-block{margin-bottom:3.2rem}
+  .section-heading{font-family:var(--serif);font-size:1.5rem;color:var(--text);line-height:1.25;margin-bottom:1.1rem;padding-bottom:0.6rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.75rem}
+  .h-num{font-family:var(--mono);font-size:0.7rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.55rem;border-radius:3px;letter-spacing:0.06em;flex-shrink:0}
+  .sub-heading{font-size:0.98rem;font-weight:600;color:var(--accent2);margin:1.4rem 0 0.6rem}
+
+  .article p{font-size:0.92rem;color:var(--text2);line-height:1.85;margin-bottom:1rem}
+  .article p strong{color:var(--text);font-weight:600}
+  .article ul{margin:0.5rem 0 1.1rem;display:flex;flex-direction:column;gap:0.45rem}
+  .article ul li{font-size:0.9rem;color:var(--text2);padding-left:1.2rem;position:relative;line-height:1.75}
+  .article ul li::before{content:"\203A";position:absolute;left:0;color:var(--accent);font-weight:700}
+  .article a.inline{color:var(--accent2);text-decoration:none;border-bottom:1px solid var(--border2)}
+  .article a.inline:hover{color:var(--accent)}
+
+  .callout{background:var(--accent-dim);border:1px solid rgba(212,168,58,0.25);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
+  .callout strong{color:var(--accent)}
+  .warn{background:rgba(248,113,113,0.07);border:1px solid rgba(248,113,113,0.25);border-left:3px solid #f87171;border-radius:0 8px 8px 0;padding:1rem 1.2rem;margin:1.2rem 0;font-size:0.88rem;color:var(--text2);line-height:1.8}
+  .warn strong{color:#f87171}
+
+  /* timeline */
+  .timeline{display:flex;flex-direction:column}
+  .tl-item{display:grid;grid-template-columns:26px 1fr;gap:0 1rem;padding-bottom:1.3rem}
+  .tl-item:last-child{padding-bottom:0}
+  .tl-col{display:flex;flex-direction:column;align-items:center}
+  .tl-dot{width:9px;height:9px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px;box-shadow:0 0 0 3px var(--accent-dim)}
+  .tl-line{flex:1;width:1px;background:linear-gradient(180deg,var(--border2),var(--border));margin-top:6px}
+  .tl-item:last-child .tl-line{display:none}
+  .tl-date{font-family:var(--mono);font-size:0.68rem;color:var(--accent2);letter-spacing:0.05em;margin-bottom:0.25rem}
+  .tl-body{font-size:0.86rem;color:var(--text2);line-height:1.75}
+
+  /* comparison */
+  .cmp-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.8rem;margin:1rem 0}
+  .cmp-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem}
+  .cmp-card.trad{border-left:3px solid #837b6c}
+  .cmp-card.new{border-left:3px solid var(--accent)}
+  .cmp-label{font-family:var(--mono);font-size:0.63rem;letter-spacing:0.09em;text-transform:uppercase;margin-bottom:0.55rem}
+  .cmp-card.trad .cmp-label{color:#afa99d}
+  .cmp-card.new .cmp-label{color:var(--accent)}
+  .cmp-item{font-size:0.82rem;color:var(--text2);padding-left:1rem;position:relative;line-height:1.7;margin-bottom:0.35rem}
+  .cmp-item::before{content:"\203A";position:absolute;left:0;font-weight:700;color:var(--text3)}
+
+  /* lesson cards */
+  .lessons{display:flex;flex-direction:column;gap:0.85rem}
+  .lesson{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:1.1rem 1.3rem;display:flex;gap:1rem;align-items:flex-start;transition:border-color .2s}
+  .lesson:hover{border-color:var(--border2)}
+  .lesson-n{font-family:var(--mono);font-size:0.68rem;color:var(--accent);background:var(--accent-dim);padding:0.2rem 0.55rem;border-radius:4px;flex-shrink:0;margin-top:2px}
+  .lesson-t{font-size:0.9rem;font-weight:600;color:var(--text);margin-bottom:0.3rem}
+  .lesson-d{font-size:0.84rem;color:var(--text2);line-height:1.75}
+
+  /* table */
+  .data-table{width:100%;border-collapse:collapse;margin:1rem 0;font-size:0.84rem}
+  .data-table th{font-family:var(--mono);font-size:0.64rem;letter-spacing:0.09em;text-transform:uppercase;color:var(--accent);background:var(--accent-dim);padding:0.6rem 0.9rem;text-align:left;border:1px solid var(--border2)}
+  .data-table td{padding:0.6rem 0.9rem;border:1px solid var(--border);color:var(--text2);vertical-align:top;line-height:1.65}
+  .data-table tr:hover td{background:rgba(212,168,58,0.03)}
+
+  /* sources */
+  .src-list{display:flex;flex-direction:column;gap:0.5rem}
+  .src{display:flex;gap:0.7rem;font-size:0.8rem;color:var(--text2);line-height:1.7}
+  .src-n{font-family:var(--mono);font-size:0.7rem;color:var(--accent);flex-shrink:0;margin-top:2px}
+  .src a{color:var(--accent2);text-decoration:none;border-bottom:1px solid var(--border2);word-break:break-word}
+  .src a:hover{color:var(--accent)}
+
+  @media(max-width:760px){
+    .content-wrap{grid-template-columns:1fr;padding:2rem 1rem 4rem}
+    .toc{display:none}
+    .article{grid-column:1}
+    .cmp-grid{grid-template-columns:1fr}
+    .stat-band{grid-template-columns:1fr 1fr;margin-top:1.5rem;padding:0 1rem}
+    .hero{padding:2.5rem 1rem 0}
+    .topbar{padding:0.7rem 1rem}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="back-link">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    Back to Portfolio
+  </a>
+  <span class="topbar-tag">Blog &middot; Vulnerability Analysis</span>
+</div>
+
+<div class="hero">
+  <div class="hero-label">// blog &middot; vulnerability analysis</div>
+  <h1 class="hero-title">PHP2Shell<br><em>The Bug That Runs Before Your Code</em></h1>
+  <p class="hero-sub">Two critical flaws in PHP&rsquo;s request handling, both rated 9.2, both reachable without authentication. The detail that matters is not the score &mdash; it is that they execute during request setup, before a single line of your application runs.</p>
+  <div class="byline">
+    <span>Alex Philip</span><span class="dot"></span>
+    <span>23 October 2026</span><span class="dot"></span>
+    <span>8 min read</span>
+  </div>
+  <div class="hero-meta">
+    <div class="meta-pill"><div class="meta-dot"></div>CVE-2026-109618</div>
+    <div class="meta-pill"><div class="meta-dot"></div>CVE-2026-109619</div>
+    <div class="meta-pill"><div class="meta-dot"></div>Pre-Auth RCE</div>
+    <div class="meta-pill"><div class="meta-dot"></div>Patch Management</div>
+  </div>
+</div>
+
+<div class="stat-band">
+  <div class="stat-box"><div class="stat-n">9.2</div><div class="stat-l">CVSS v4.0</div></div>
+  <div class="stat-box"><div class="stat-n">2</div><div class="stat-l">CVEs</div></div>
+  <div class="stat-box"><div class="stat-n">0</div><div class="stat-l">App-layer fixes</div></div>
+  <div class="stat-box"><div class="stat-n">21 Oct</div><div class="stat-l">Patch released</div></div>
+</div>
+
+<div class="content-wrap">
+  <nav class="toc">
+    <div class="toc-label">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#what">What Happened</a></li>
+      <li><a href="#timeline">Timeline</a></li>
+      <li><a href="#bugs">The Two Bugs</a></li>
+      <li><a href="#position">Why Hardening Fails</a></li>
+      <li><a href="#disclosure">Disclosure Broke Down</a></li>
+      <li><a href="#detection">Detection</a></li>
+      <li><a href="#fix">Remediation</a></li>
+      <li><a href="#ai">The AI Angle</a></li>
+      <li><a href="#sources">Sources</a></li>
+    </ul>
+  </nav>
+
+  <article class="article">
+
+    <div class="section-block" id="what">
+      <h2 class="section-heading"><span class="h-num">01</span> What Happened</h2>
+      <p>On 21 October 2026 the PHP project shipped emergency releases for two vulnerabilities collectively named <strong>PHP2Shell</strong>: CVE-2026-109618 and CVE-2026-109619. Both are rated <strong>9.2 on CVSS v4.0</strong>. Both sit in the PHP engine itself rather than in any library, framework or application.</p>
+      <p>The practical consequence is that an unauthenticated HTTP request can reach the flawed code. PHP confirmed remote code execution on Apache with <code>mod_php</code>, where the request is handled in-process. The second flaw can also leak process memory even where an attacker fails to achieve execution.</p>
+      <div class="callout"><strong>Scope:</strong> this is not a plugin, a CMS or a framework issue. If a host runs an affected PHP build and serves requests, it is in scope &mdash; NGINX with PHP-FPM, Apache with <code>mod_php</code>, containers, CI runners, and the forgotten internal tool nobody has redeployed since 2023.</div>
+    </div>
+
+    <div class="section-block" id="timeline">
+      <h2 class="section-heading"><span class="h-num">02</span> Timeline</h2>
+      <div class="timeline">
+        <div class="tl-item">
+          <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div>
+            <div class="tl-date">1 August 2026</div>
+            <div class="tl-body">A researcher operating as Calif finds the first flaw during an AI-assisted audit of the PHP source. Reported to the PHP project on 11 August.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div>
+            <div class="tl-date">24 August 2026</div>
+            <div class="tl-body">Wiz Research independently reports the flaws, having found them separately. Two independent discoveries inside a month is itself a signal about how reachable this code path was.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div>
+            <div class="tl-date">17 October 2026</div>
+            <div class="tl-body">Amazon honeypots record what is reported as the first exploitation attempt &mdash; four days before the patch, while the issue was still under embargo.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div>
+            <div class="tl-date">20 October 2026</div>
+            <div class="tl-body">PHP announces an upcoming security release. Details of the vulnerabilities leak publicly ahead of coordinated disclosure.</div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
+          <div>
+            <div class="tl-date">21 October 2026, 14:00 UTC</div>
+            <div class="tl-body">Fixed builds and advisories published. The US NSA advises affected organisations to update immediately or take systems offline until they can. Reuters reports government sites going dark.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-block" id="bugs">
+      <h2 class="section-heading"><span class="h-num">03</span> The Two Bugs</h2>
+
+      <div class="sub-heading">CVE-2026-109618 &mdash; corruption on the out-of-memory path</div>
+      <p>This one is a cleanup failure. While PHP is still assembling the incoming request data, it exhausts its configured memory limit. The error-handling routine that runs next treats the half-constructed structure as if it were complete and valid, and operates on it.</p>
+      <p>The trigger demonstrated in testing is mundane: a single unauthenticated POST carrying one enormous form <em>field name</em> &mdash; around 3.5&nbsp;MB. No credentials, no session, no application interaction. The failure occurs during request initialisation.</p>
+
+      <div class="sub-heading">CVE-2026-109619 &mdash; stale state reused across requests</div>
+      <p>The second is a use-after-free. State belonging to one request survives past the point its memory is released. A subsequent request handled by the <strong>same worker process</strong> then reuses that freed memory, and an attacker who can influence what lands there can control the contents.</p>
+      <p>This path depends on <code>session.upload_progress.enabled</code>, which is <strong>on by default</strong>. One sub-path involving fatal error backtraces applies only to PHP 8.5. Where execution is not achieved, the flaw can still disclose process memory &mdash; which on a busy application server may include credentials and session material.</p>
+
+      <div class="callout"><strong>The shared property:</strong> neither bug requires authentication, a specific framework, or any particular application feature. They live in the machinery that turns bytes on a socket into a request PHP can act on &mdash; machinery every PHP application uses.</div>
+    </div>
+
+    <div class="section-block" id="position">
+      <h2 class="section-heading"><span class="h-num">04</span> Why Hardening Fails Here</h2>
+      <p>The 9.2 rating is the least interesting number in this advisory. What makes PHP2Shell worth studying is <strong>position in the stack</strong>.</p>
+      <p>Most of what we build to defend an application runs inside the application: authentication middleware, session validation, CSRF tokens, input sanitisation, role checks, rate limiting on sensitive routes. All of it is reached only after PHP has parsed the request and handed control to your code.</p>
+      <p>These flaws fire <em>before</em> that handoff. The controls are not bypassed or weakened in any clever way &mdash; they are simply never reached. A perfectly audited application with exemplary input validation is in exactly the same position as an abandoned one.</p>
+
+      <div class="cmp-grid">
+        <div class="cmp-card">
+          <div class="cmp-label">Ordinary application CVE</div>
+          <div class="cmp-item">Triage asks: do we use that component?</div>
+          <div class="cmp-item">Often needs auth or a specific role</div>
+          <div class="cmp-item">WAF rules can buy real time</div>
+          <div class="cmp-item">Config change may mitigate</div>
+          <div class="cmp-item">Blast radius: one application</div>
+        </div>
+        <div class="cmp-card">
+          <div class="cmp-label">PHP2Shell</div>
+          <div class="cmp-item">Triage asks: does this host run PHP?</div>
+          <div class="cmp-item">No authentication required</div>
+          <div class="cmp-item">WAF is partial &mdash; the trigger looks like a large POST</div>
+          <div class="cmp-item">Only the runtime upgrade truly fixes it</div>
+          <div class="cmp-item">Blast radius: every PHP host you own</div>
+        </div>
+      </div>
+
+      <p>This inverts normal triage. The usual first question &mdash; <em>are we actually using the vulnerable feature?</em> &mdash; has no useful answer. If the host parses HTTP requests with an affected PHP build, it is exposed. That makes asset inventory, not patch analysis, the critical capability.</p>
+    </div>
+
+    <div class="section-block" id="disclosure">
+      <h2 class="section-heading"><span class="h-num">05</span> The Disclosure Broke Down</h2>
+      <p>Coordinated disclosure exists to give defenders a patch before attackers get a target. Here that sequencing failed twice.</p>
+      <p>An exploitation attempt was logged on <strong>17 October</strong>, four days before any fix existed publicly. Then on <strong>20 October</strong>, vulnerability details leaked ahead of the scheduled release. By the time fixed builds appeared the following afternoon, the usual grace period between public knowledge and available patch had collapsed to roughly nothing.</p>
+      <div class="warn"><strong>Worth internalising:</strong> embargo is a courtesy between researchers and vendors, not a security control. Any plan that assumes a quiet window between disclosure and exploitation is planning around a convention that has now visibly failed. Patch velocity is the control; the embargo was never load-bearing.</div>
+    </div>
+
+    <div class="section-block" id="detection">
+      <h2 class="section-heading"><span class="h-num">06</span> Detection</h2>
+      <p>Useful indicators exist, but they come with an important caveat covered below.</p>
+      <table class="data-table">
+        <thead><tr><th style="width:36%">Signal</th><th>What it means</th></tr></thead>
+        <tbody>
+          <tr><td>Very large request bodies</td><td>Relevant to CVE-2026-109618. Bodies are frequently not logged, so filter on request <em>size</em> at the proxy or WAF rather than content.</td></tr>
+          <tr><td><code>Unknown on line 0</code></td><td>Memory-exhaustion errors in PHP logs consistent with the out-of-memory path being hit.</td></tr>
+          <tr><td><code>AH00052</code> in Apache logs</td><td>A child process crashed. Indicates the engine fell over while handling a request.</td></tr>
+          <tr><td>Shell parented to a web worker</td><td>Strong post-exploitation signal. A shell whose parent is <code>apache2</code>, <code>httpd</code>, <code>php-fpm</code> or <code>php-cgi</code> has no legitimate explanation.</td></tr>
+          <tr><td>New files in upload / cache / tmp</td><td>Webshell placement. Worth baselining these directories regardless of this CVE.</td></tr>
+          <tr><td>CVE-2026-109619</td><td>No published log signature. Absence of evidence carries very little weight here.</td></tr>
+        </tbody>
+      </table>
+      <div class="callout"><strong>The analyst&rsquo;s caveat:</strong> crash logs measure <em>attempts</em>, not compromises. A spike in <code>AH00052</code> tells you someone tried something clumsy. It does not tell you they succeeded. Equally, a clean exploit may leave neither a crash nor a memory error &mdash; so a quiet log is not a clean bill of health. Treat these as triage leads, not verdicts.</div>
+    </div>
+
+    <div class="section-block" id="fix">
+      <h2 class="section-heading"><span class="h-num">07</span> Remediation</h2>
+      <p>Upgrade the runtime. Application-level changes do not help, because PHP handles the request first.</p>
+      <table class="data-table">
+        <thead><tr><th style="width:30%">Branch</th><th>Fixed release</th></tr></thead>
+        <tbody>
+          <tr><td>PHP 8.5.x</td><td>8.5.12</td></tr>
+          <tr><td>PHP 8.4.x</td><td>8.4.27</td></tr>
+          <tr><td>PHP 8.3.x</td><td>8.3.36</td></tr>
+          <tr><td>PHP 8.2.x</td><td>8.2.35 &mdash; note this branch reaches end of life on 31 December 2026</td></tr>
+          <tr><td>PHP 8.6 RC</td><td>8.6.0RC4. RC3 does not carry the fix.</td></tr>
+          <tr><td>PHP 8.1 and older</td><td>No official release. Minimal source backports were published for 7.4, 8.0 and 8.1, and some distributions ship patched packages.</td></tr>
+        </tbody>
+      </table>
+      <ul>
+        <li><strong>Check the package, not the banner.</strong> Distributions such as Ubuntu and Red Hat backport fixes without changing the upstream version string, so <code>php -v</code> can look unpatched when it is fine &mdash; and occasionally the reverse. Compare package versions.</li>
+        <li><strong>Rebuild images with <code>docker build --pull</code>.</strong> Anything pinned to a specific patch tag needs the tag updated first, or you will faithfully rebuild the vulnerable version.</li>
+        <li><strong>Restart every PHP worker</strong> after upgrading or changing configuration. Long-lived workers keep running old code.</li>
+        <li><strong>Partial mitigations</strong> where patching must wait: <code>session.upload_progress.enabled=0</code>; on PHP 8.5 also <code>fatal_error_backtraces=0</code>; and <code>pm.max_requests=1</code> under PHP-FPM, which breaks the same-worker requirement at a performance cost. These narrow the window. They do not close it.</li>
+        <li><strong>If you find signs of compromise, do not patch first.</strong> Isolate the host, capture memory, disk and logs, then rotate every credential the PHP process could read. Patching destroys the volatile evidence that tells you what happened.</li>
+      </ul>
+    </div>
+
+    <div class="section-block" id="ai">
+      <h2 class="section-heading"><span class="h-num">08</span> The AI Angle</h2>
+      <p>The first of these flaws was found during an <strong>AI-assisted audit</strong> of the PHP source. That detail has been widely reported, and it deserves more thought than the headline it usually gets.</p>
+      <p>PHP is roughly thirty years old. Its request-handling path is among the most heavily trafficked code on the public internet, read by an enormous number of competent engineers over decades. A memory-safety bug reachable by an unauthenticated POST survived all of that, and then two independent parties found it within a month of each other once this class of tooling was pointed at it.</p>
+      <p>The honest reading is not that AI is magic, nor that human review failed. It is that a cheap new way of searching old code has appeared, and <strong>the cost of finding this class of bug has dropped sharply</strong>. That cuts both ways: the same economics apply to anyone auditing your dependencies, and to anyone auditing them for less friendly reasons.</p>
+      <div class="callout"><strong>What I take from it:</strong> expect more of these &mdash; long-dormant memory-safety issues in mature, widely-deployed C codebases, surfacing faster than the old disclosure rhythms were built to handle. The defensive answer is unglamorous and entirely within reach: know every host you own, know what runtime it runs, and be able to patch it quickly. PHP2Shell rewards inventory and patch velocity. Nothing else helped.</div>
+    </div>
+
+    <div class="section-block" id="sources">
+      <h2 class="section-heading"><span class="h-num">09</span> Sources</h2>
+      <p style="font-size:0.85rem">Written 23 October 2026, two days after the patch. This is a fast-moving incident and the exploitation picture in particular is still contested &mdash; Datadog reported attempts from 17 October, while Bitdefender&rsquo;s telemetry showed none as of 22 October, and PHP stated no functional exploit existed at release. Public proof-of-concept code circulating includes both pranks and outright malware. Verify current status before acting on anything here.</p>
+      <div class="src-list">
+        <div class="src"><span class="src-n">[1]</span><span>&ldquo;GitLab helps remediate critical PHP flaws,&rdquo; GitLab. <a href="https://about.gitlab.com/blog/gitlab-helps-remediate-critical-php-flaws/" target="_blank" rel="noopener">about.gitlab.com</a></span></div>
+        <div class="src"><span class="src-n">[2]</span><span>&ldquo;Technical Advisory: PHP2Shell Pre-Auth RCE,&rdquo; Bitdefender. <a href="https://www.bitdefender.com/en-us/blog/businessinsights/technical-advisory-php2shell-pre-auth-rce" target="_blank" rel="noopener">bitdefender.com</a></span></div>
+        <div class="src"><span class="src-n">[3]</span><span>&ldquo;php2shell: Frequently Asked Questions,&rdquo; Tenable. <a href="https://www.tenable.com/blog/php2shell-cve-2026-109618-cve-2026-109619-frequently-asked-questions-about-critical-php-remote" target="_blank" rel="noopener">tenable.com</a></span></div>
+        <div class="src"><span class="src-n">[4]</span><span>&ldquo;PHP2Shell RCE Exploited,&rdquo; watchTowr Labs. <a href="https://watchtowr.com/intelligence/php-remote-code-execution-php2shell/" target="_blank" rel="noopener">watchtowr.com</a></span></div>
+        <div class="src"><span class="src-n">[5]</span><span>&ldquo;The internet is having a very bad cybersecurity day,&rdquo; TechCrunch, 21 October 2026. <a href="https://techcrunch.com/2026/10/21/the-internet-is-having-a-very-bad-cybersecurity-day/" target="_blank" rel="noopener">techcrunch.com</a></span></div>
+      </div>
+    </div>
+
+  </article>
+</div>
+
+<script>
+var sections = document.querySelectorAll('.section-block[id]');
+var tocLinks = document.querySelectorAll('.toc-list a');
+if ('IntersectionObserver' in window) {
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) {
+        tocLinks.forEach(function(a){
+          a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id);
+        });
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(function(s){ obs.observe(s); });
+}
+</script>
+
+</body>
+</html>
