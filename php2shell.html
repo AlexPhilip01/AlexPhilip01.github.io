@@ -132,6 +132,62 @@
     .hero{padding:2.5rem 1rem 0}
     .topbar{padding:0.7rem 1rem}
   }
+
+
+  /* ── figures & motion ── */
+  .fig{margin:1.7rem 0;background:var(--surface);border:1px solid var(--border2);
+       border-radius:12px;padding:1.15rem 1.15rem .9rem;overflow:hidden;
+       max-width:100%;min-width:0}
+  .fig svg{display:block;width:100%;height:auto}
+  .fig figcaption{font-family:var(--mono);font-size:.64rem;line-height:1.75;color:var(--text3);
+       letter-spacing:.04em;margin-top:.85rem;padding-top:.75rem;
+       border-top:1px solid var(--border);text-align:center}
+  .fig figcaption code{font-size:.95em;color:var(--accent2);background:var(--accent-dim);
+       padding:.08em .35em;border-radius:3px}
+
+  /* boxes */
+  .fig-box{fill:var(--surface2);stroke:var(--border2);stroke-width:1}
+  .fig-box-hot{fill:rgba(226,75,74,.07);stroke:#e24b4a;stroke-width:1.5}
+  .fig-box-dim{fill:rgba(255,255,255,.015);stroke:var(--text3);stroke-width:1;stroke-dasharray:4 4}
+
+  /* text */
+  .fig-t{fill:var(--text);font-family:var(--sans);font-size:13px;font-weight:500}
+  .fig-dim{fill:var(--text2);font-family:var(--sans);font-size:13px;font-weight:500}
+  .fig-s{fill:var(--text2);font-family:var(--mono);font-size:9.5px;letter-spacing:.02em}
+  .fig-accent{fill:var(--accent);font-family:var(--mono);font-size:9.5px;letter-spacing:.09em}
+
+  /* connectors */
+  .fig-flow{stroke:var(--accent);stroke-width:1.5;fill:none;stroke-dasharray:6 7;
+       animation:figFlow 1.1s linear infinite}
+  .fig-line{stroke:var(--text3);stroke-width:1.2;fill:none}
+  @keyframes figFlow{to{stroke-dashoffset:-26}}
+
+  .fig-pulse{animation:figPulse 2.4s ease-in-out infinite}
+  @keyframes figPulse{0%,100%{opacity:1}50%{opacity:.42}}
+
+  /* scroll reveal */
+  .reveal{opacity:0;transform:translateY(22px);
+       transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,.8,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+
+  .fig-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;min-width:0}
+  @media (max-width:640px){
+    .fig{padding:.85rem .7rem .7rem}
+    .fig figcaption{font-size:.58rem;text-align:left}
+    /* keep diagram text legible: scroll rather than shrink to ~4px.
+       grid items default to min-width:auto, which would let the wide svg
+       stretch the whole article column instead of overflowing — so clamp them. */
+    .article,.section-block{min-width:0}
+    .fig-scroll svg{width:600px;max-width:none}
+    .fig figcaption::before{content:"↔ scroll the diagram · ";color:var(--accent);letter-spacing:.04em}
+    .fig-scroll{scrollbar-width:thin;scrollbar-color:var(--border2) transparent}
+    .fig-scroll::-webkit-scrollbar{height:4px}
+    .fig-scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .reveal{opacity:1!important;transform:none!important;transition:none!important}
+    .fig-flow,.fig-pulse{animation:none!important}
+  }
 </style>
 </head>
 <body>
@@ -151,7 +207,7 @@
   <div class="byline">
     <span>Alex Philip</span><span class="dot"></span>
     <span>23 October 2026</span><span class="dot"></span>
-    <span>8 min read</span>
+    <span>12 min read</span>
   </div>
   <div class="hero-meta">
     <div class="meta-pill"><div class="meta-dot"></div>CVE-2026-109618</div>
@@ -162,10 +218,10 @@
 </div>
 
 <div class="stat-band">
-  <div class="stat-box"><div class="stat-n">9.2</div><div class="stat-l">CVSS v4.0</div></div>
-  <div class="stat-box"><div class="stat-n">2</div><div class="stat-l">CVEs</div></div>
-  <div class="stat-box"><div class="stat-n">0</div><div class="stat-l">App-layer fixes</div></div>
-  <div class="stat-box"><div class="stat-n">21 Oct</div><div class="stat-l">Patch released</div></div>
+  <div class="stat-box"><div class="stat-n">9.2</div><div class="stat-l">CVSS v4.0, both</div></div>
+  <div class="stat-box"><div class="stat-n">69.3%</div><div class="stat-l">Of the web runs PHP</div></div>
+  <div class="stat-box"><div class="stat-n">1.3M+</div><div class="stat-l">Exposed hosts at risk</div></div>
+  <div class="stat-box"><div class="stat-n">5.4</div><div class="stat-l">Earliest PHP affected</div></div>
 </div>
 
 <div class="content-wrap">
@@ -175,8 +231,10 @@
       <li><a href="#what">What Happened</a></li>
       <li><a href="#timeline">Timeline</a></li>
       <li><a href="#bugs">The Two Bugs</a></li>
+      <li><a href="#sapi">Not All Setups Equal</a></li>
       <li><a href="#position">Why Hardening Fails</a></li>
       <li><a href="#disclosure">Disclosure Broke Down</a></li>
+      <li><a href="#exploit">Exploitation Status</a></li>
       <li><a href="#detection">Detection</a></li>
       <li><a href="#fix">Remediation</a></li>
       <li><a href="#ai">The AI Angle</a></li>
@@ -189,8 +247,9 @@
     <div class="section-block" id="what">
       <h2 class="section-heading"><span class="h-num">01</span> What Happened</h2>
       <p>On 21 October 2026 the PHP project shipped emergency releases for two vulnerabilities collectively named <strong>PHP2Shell</strong>: CVE-2026-109618 and CVE-2026-109619. Both are rated <strong>9.2 on CVSS v4.0</strong>. Both sit in the PHP engine itself rather than in any library, framework or application.</p>
-      <p>The practical consequence is that an unauthenticated HTTP request can reach the flawed code. PHP confirmed remote code execution on Apache with <code>mod_php</code>, where the request is handled in-process. The second flaw can also leak process memory even where an attacker fails to achieve execution.</p>
-      <div class="callout"><strong>Scope:</strong> this is not a plugin, a CMS or a framework issue. If a host runs an affected PHP build and serves requests, it is in scope &mdash; NGINX with PHP-FPM, Apache with <code>mod_php</code>, containers, CI runners, and the forgotten internal tool nobody has redeployed since 2023.</div>
+      <p>The practical consequence is that an unauthenticated HTTP request can reach the flawed code. PHP validated unauthenticated remote code execution against Apache with <code>mod_php</code>, where the request is handled in-process and the flaw fires before application code runs. The second flaw lists memory disclosure as a confirmed impact even where execution is not achieved.</p>
+      <p>The exposure is unusually wide. PHP accounts for roughly <strong>69.3%</strong> of websites whose server-side language is known, per W3Techs. Independent estimates put <strong>over 1.3 million internet-exposed hosts</strong> in the potentially-vulnerable range, against a Shodan count of more than 1.9 million exposed hosts running PHP at all.</p>
+      <div class="callout"><strong>Scope:</strong> this is not a plugin, a CMS or a framework issue. If a host runs an affected PHP build and serves requests, it is in scope &mdash; NGINX with PHP-FPM, Apache with <code>mod_php</code>, <code>php-cgi</code>, FrankenPHP, LiteSpeed, containers, CI runners, and the forgotten internal tool nobody has redeployed since 2023.</div>
     </div>
 
     <div class="section-block" id="timeline">
@@ -214,7 +273,7 @@
           <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
           <div>
             <div class="tl-date">17 October 2026</div>
-            <div class="tl-body">Amazon honeypots record what is reported as the first exploitation attempt &mdash; four days before the patch, while the issue was still under embargo.</div>
+            <div class="tl-body">Amazon Threat Intelligence observes an exploitation attempt in its MadPot honeypot telemetry &mdash; four days before any patch existed. Amazon notes it is unclear whether these pre-disclosure attempts would have succeeded against real systems.</div>
           </div>
         </div>
         <div class="tl-item">
@@ -228,7 +287,7 @@
           <div class="tl-col"><div class="tl-dot"></div><div class="tl-line"></div></div>
           <div>
             <div class="tl-date">21 October 2026, 14:00 UTC</div>
-            <div class="tl-body">Fixed builds and advisories published. The US NSA advises affected organisations to update immediately or take systems offline until they can. Reuters reports government sites going dark.</div>
+            <div class="tl-body">Fixed builds and advisories published. CISA issues an alert urging immediate patching with internet-facing systems prioritised, advising organisations that cannot patch to take PHP systems offline. The NSA issues comparable guidance. Reuters reports government sites going dark. watchTowr observes exploitation of both CVEs in its honeypot network the same day.</div>
           </div>
         </div>
       </div>
@@ -238,21 +297,96 @@
       <h2 class="section-heading"><span class="h-num">03</span> The Two Bugs</h2>
 
       <div class="sub-heading">CVE-2026-109618 &mdash; corruption on the out-of-memory path</div>
-      <p>This one is a cleanup failure. While PHP is still assembling the incoming request data, it exhausts its configured memory limit. The error-handling routine that runs next treats the half-constructed structure as if it were complete and valid, and operates on it.</p>
-      <p>The trigger demonstrated in testing is mundane: a single unauthenticated POST carrying one enormous form <em>field name</em> &mdash; around 3.5&nbsp;MB. No credentials, no session, no application interaction. The failure occurs during request initialisation.</p>
+      <p>This one is a cleanup failure. While PHP is still assembling the incoming request data, it exhausts its allowed memory. Out-of-memory handling interrupts the process mid-initialisation, and the cleanup routine that runs next treats that half-constructed state as valid and operates on it.</p>
+      <p>The trigger demonstrated in testing is mundane: a single unauthenticated POST carrying one enormous form <em>field name</em> &mdash; around 3.5&nbsp;MB. No credentials, no session, no application interaction.</p>
 
-      <div class="sub-heading">CVE-2026-109619 &mdash; stale state reused across requests</div>
-      <p>The second is a use-after-free. State belonging to one request survives past the point its memory is released. A subsequent request handled by the <strong>same worker process</strong> then reuses that freed memory, and an attacker who can influence what lands there can control the contents.</p>
-      <p>This path depends on <code>session.upload_progress.enabled</code>, which is <strong>on by default</strong>. One sub-path involving fatal error backtraces applies only to PHP 8.5. Where execution is not achieved, the flaw can still disclose process memory &mdash; which on a busy application server may include credentials and session material.</p>
 
-      <div class="callout"><strong>The shared property:</strong> neither bug requires authentication, a specific framework, or any particular application feature. They live in the machinery that turns bytes on a socket into a request PHP can act on &mdash; machinery every PHP application uses.</div>
+      <figure class="fig">
+        <div class="fig-scroll"><svg viewBox="0 0 760 170" role="img" aria-label="Diagram: PHP begins building request data, exhausts memory partway through, and the cleanup routine then treats the half-built structure as valid.">
+          <rect x="10" y="44" width="206" height="74" rx="9" class="fig-box"/>
+          <text x="113" y="70" text-anchor="middle" class="fig-t">1 &middot; Building request</text>
+          <rect x="40" y="84" width="146" height="11" rx="5.5" fill="rgba(255,255,255,0.08)"/>
+          <rect x="40" y="84" width="84" height="11" rx="5.5" fill="#d4a83a" opacity="0.8"/>
+          <text x="113" y="110" text-anchor="middle" class="fig-s">partially initialised</text>
+
+          <path d="M222 81 H272" class="fig-flow"/>
+
+          <rect x="278" y="44" width="196" height="74" rx="9" class="fig-box-hot"/>
+          <text x="376" y="70" text-anchor="middle" class="fig-t">2 &middot; Memory exhausted</text>
+          <g class="fig-pulse"><text x="376" y="94" text-anchor="middle" class="fig-accent">OOM INTERRUPT</text></g>
+          <text x="376" y="110" text-anchor="middle" class="fig-s">~3.5 MB field name</text>
+
+          <path d="M480 81 H530" class="fig-flow"/>
+
+          <rect x="536" y="44" width="214" height="74" rx="9" class="fig-box"/>
+          <text x="643" y="70" text-anchor="middle" class="fig-t">3 &middot; Cleanup runs</text>
+          <text x="643" y="90" text-anchor="middle" class="fig-s">treats half-built state</text>
+          <text x="643" y="106" text-anchor="middle" class="fig-s">as if it were valid</text>
+
+          <text x="380" y="146" text-anchor="middle" class="fig-accent">&rarr; memory corruption, reachable without authentication</text>
+        </svg></div>
+        <figcaption>Fig 2 &mdash; CVE-2026-109618. The bug is in the error path, not the happy path.</figcaption>
+      </figure>
+
+      <div class="sub-heading">CVE-2026-109619 &mdash; stale global state</div>
+      <p>The second is a use-after-free. A worker retains references to request memory after that memory has been released. A subsequent request handled by the <strong>same worker process</strong> can then reach the stale state, and an attacker able to influence what occupies that memory can control its contents.</p>
+      <p>Session Upload Progress &mdash; governed by <code>session.upload_progress.enabled</code>, which is <strong>on by default</strong> &mdash; is one confirmed route to this flaw. It is explicitly <em>not</em> the only one, which matters a great deal when we get to mitigations.</p>
+
+
+      <figure class="fig">
+        <div class="fig-scroll"><svg viewBox="0 0 760 196" role="img" aria-label="Diagram: one PHP worker handles two requests. The first leaves a reference to freed memory; the second request reuses that memory with attacker-controlled contents.">
+          <rect x="10" y="16" width="740" height="128" rx="10" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="1.2"/>
+          <text x="28" y="38" class="fig-accent">ONE WORKER PROCESS</text>
+
+          <rect x="34" y="52" width="210" height="74" rx="9" class="fig-box"/>
+          <text x="139" y="78" text-anchor="middle" class="fig-t">Request A</text>
+          <text x="139" y="97" text-anchor="middle" class="fig-s">allocates request state</text>
+          <text x="139" y="113" text-anchor="middle" class="fig-s">memory freed on finish</text>
+
+          <path d="M250 89 H300" class="fig-flow"/>
+          <text x="275" y="78" text-anchor="middle" class="fig-s">reference survives</text>
+
+          <rect x="306" y="52" width="150" height="74" rx="9" class="fig-box-hot"/>
+          <g class="fig-pulse">
+            <text x="381" y="82" text-anchor="middle" class="fig-accent">STALE</text>
+            <text x="381" y="100" text-anchor="middle" class="fig-accent">POINTER</text>
+          </g>
+
+          <path d="M462 89 H512" class="fig-flow"/>
+
+          <rect x="518" y="52" width="208" height="74" rx="9" class="fig-box"/>
+          <text x="622" y="78" text-anchor="middle" class="fig-t">Request B</text>
+          <text x="622" y="97" text-anchor="middle" class="fig-s">refills that memory</text>
+          <text x="622" y="113" text-anchor="middle" class="fig-s">with controlled data</text>
+
+          <text x="380" y="172" text-anchor="middle" class="fig-accent">&rarr; use-after-free: code execution, or disclosure of process memory</text>
+        </svg></div>
+        <figcaption>Fig 3 &mdash; CVE-2026-109619. Exploitation needs two requests landing on the same worker, which is why <code>pm.max_requests=1</code> disrupts it.</figcaption>
+      </figure>
+
+
+      <div class="callout"><strong>The part worth sitting with:</strong> the earliest affected code path identified by the original researcher dates back to <strong>PHP 5.4.0</strong>. This is not a regression introduced by a recent refactor. It is a memory-safety flaw that has been reachable by an unauthenticated request for well over a decade, in the most widely deployed server-side language on the internet.</div>
+    </div>
+
+    <div class="section-block" id="sapi">
+      <h2 class="section-heading"><span class="h-num">04</span> Not All Setups Are Equally Exposed</h2>
+      <p>Every PHP installation serving web requests is affected, but the demonstrated impact differs by SAPI. This distinction is useful for prioritising a patch queue &mdash; it is <em>not</em> a reason to leave anything unpatched.</p>
+      <table class="data-table">
+        <thead><tr><th style="width:28%">Configuration</th><th>Demonstrated position</th></tr></thead>
+        <tbody>
+          <tr><td>Apache + <code>mod_php</code></td><td>Highest risk. PHP validated unauthenticated RCE for CVE-2026-109618 before application code runs, and session-lifecycle RCE for CVE-2026-109619. Patch these first.</td></tr>
+          <tr><td>PHP-FPM</td><td>For CVE-2026-109618, FPM blocks the specific startup-failure sequence, but is still considered susceptible under other conditions &mdash; no complete FPM exploit has been publicly demonstrated. For CVE-2026-109619, PHP validated RCE against FPM; that path needs a suitable application operation, a fatal error, and a later request reaching the same worker.</td></tr>
+          <tr><td><code>php-cgi</code>, FrankenPHP, LiteSpeed</td><td>Named by PHP as at risk. Less publicly characterised than the two above, which is a reason for caution rather than comfort.</td></tr>
+        </tbody>
+      </table>
+      <p>In every case code executes with the privileges of the web worker. Whatever that account can read &mdash; database credentials, API keys, session stores, mounted secrets &mdash; is in scope from the first successful request.</p>
     </div>
 
     <div class="section-block" id="position">
-      <h2 class="section-heading"><span class="h-num">04</span> Why Hardening Fails Here</h2>
+      <h2 class="section-heading"><span class="h-num">05</span> Why Hardening Fails Here</h2>
       <p>The 9.2 rating is the least interesting number in this advisory. What makes PHP2Shell worth studying is <strong>position in the stack</strong>.</p>
       <p>Most of what we build to defend an application runs inside the application: authentication middleware, session validation, CSRF tokens, input sanitisation, role checks, rate limiting on sensitive routes. All of it is reached only after PHP has parsed the request and handed control to your code.</p>
-      <p>These flaws fire <em>before</em> that handoff. The controls are not bypassed or weakened in any clever way &mdash; they are simply never reached. A perfectly audited application with exemplary input validation is in exactly the same position as an abandoned one.</p>
+      <p>These flaws fire <em>before</em> that handoff. The controls are not bypassed or defeated by anything clever &mdash; they are simply never reached. A meticulously audited application with exemplary input validation sits in exactly the same position as an abandoned one.</p>
 
       <div class="cmp-grid">
         <div class="cmp-card">
@@ -260,48 +394,96 @@
           <div class="cmp-item">Triage asks: do we use that component?</div>
           <div class="cmp-item">Often needs auth or a specific role</div>
           <div class="cmp-item">WAF rules can buy real time</div>
-          <div class="cmp-item">Config change may mitigate</div>
+          <div class="cmp-item">Config change may genuinely mitigate</div>
           <div class="cmp-item">Blast radius: one application</div>
         </div>
         <div class="cmp-card">
           <div class="cmp-label">PHP2Shell</div>
           <div class="cmp-item">Triage asks: does this host run PHP?</div>
           <div class="cmp-item">No authentication required</div>
-          <div class="cmp-item">WAF is partial &mdash; the trigger looks like a large POST</div>
-          <div class="cmp-item">Only the runtime upgrade truly fixes it</div>
+          <div class="cmp-item">WAF is partial &mdash; the trigger resembles a large POST</div>
+          <div class="cmp-item">Only the runtime upgrade actually fixes it</div>
           <div class="cmp-item">Blast radius: every PHP host you own</div>
         </div>
       </div>
 
-      <p>This inverts normal triage. The usual first question &mdash; <em>are we actually using the vulnerable feature?</em> &mdash; has no useful answer. If the host parses HTTP requests with an affected PHP build, it is exposed. That makes asset inventory, not patch analysis, the critical capability.</p>
+
+    <figure class="fig">
+      <div class="fig-scroll"><svg viewBox="0 0 760 212" role="img" aria-label="Diagram: an HTTP request passes through PHP request initialisation, where PHP2Shell executes, before ever reaching application security controls.">
+        <rect x="8" y="64" width="150" height="62" rx="9" class="fig-box"/>
+        <text x="83" y="90" text-anchor="middle" class="fig-t">HTTP request</text>
+        <text x="83" y="108" text-anchor="middle" class="fig-s">unauthenticated</text>
+
+        <path d="M164 95 H224" class="fig-flow"/>
+
+        <rect x="230" y="50" width="196" height="90" rx="9" class="fig-box-hot"/>
+        <text x="328" y="80" text-anchor="middle" class="fig-t">PHP request init</text>
+        <text x="328" y="98" text-anchor="middle" class="fig-s">parse &middot; allocate &middot; session</text>
+        <g class="fig-pulse">
+          <circle cx="328" cy="120" r="4.5" fill="#d4a83a"/>
+          <text x="328" y="36" text-anchor="middle" class="fig-accent">PHP2Shell EXECUTES HERE</text>
+        </g>
+
+        <path d="M432 95 H492" class="fig-line" stroke-dasharray="5 5"/>
+
+        <rect x="498" y="50" width="254" height="90" rx="9" class="fig-box-dim"/>
+        <text x="625" y="78" text-anchor="middle" class="fig-dim">Your application</text>
+        <text x="625" y="96" text-anchor="middle" class="fig-s">auth &middot; CSRF &middot; validation &middot; RBAC</text>
+        <text x="625" y="118" text-anchor="middle" class="fig-accent" opacity="0.85">NEVER REACHED</text>
+
+        <path d="M83 150 V176 H625 V150" class="fig-line" opacity="0.35"/>
+        <text x="354" y="194" text-anchor="middle" class="fig-s">the controls you wrote live entirely downstream of the flaw</text>
+      </svg></div>
+      <figcaption>Fig 1 &mdash; Both flaws fire during request initialisation. Application-layer defences are not bypassed; execution never reaches them.</figcaption>
+    </figure>
+
+
+      <p>This inverts normal triage. The usual first question &mdash; <em>are we actually using the vulnerable feature?</em> &mdash; has no useful answer. If the host parses HTTP requests with an affected PHP build, it is exposed. That makes asset inventory, not patch analysis, the capability under test.</p>
     </div>
 
     <div class="section-block" id="disclosure">
-      <h2 class="section-heading"><span class="h-num">05</span> The Disclosure Broke Down</h2>
-      <p>Coordinated disclosure exists to give defenders a patch before attackers get a target. Here that sequencing failed twice.</p>
-      <p>An exploitation attempt was logged on <strong>17 October</strong>, four days before any fix existed publicly. Then on <strong>20 October</strong>, vulnerability details leaked ahead of the scheduled release. By the time fixed builds appeared the following afternoon, the usual grace period between public knowledge and available patch had collapsed to roughly nothing.</p>
-      <div class="warn"><strong>Worth internalising:</strong> embargo is a courtesy between researchers and vendors, not a security control. Any plan that assumes a quiet window between disclosure and exploitation is planning around a convention that has now visibly failed. Patch velocity is the control; the embargo was never load-bearing.</div>
+      <h2 class="section-heading"><span class="h-num">06</span> The Disclosure Broke Down</h2>
+      <p>Coordinated disclosure exists to give defenders a patch before attackers get a target. Here the sequencing failed twice.</p>
+      <p>An exploitation attempt was logged on <strong>17 October</strong>, four days before any fix existed publicly. Then on <strong>20 October</strong>, vulnerability details leaked ahead of the scheduled release. By the time fixed builds appeared the following afternoon, the usual grace period between public knowledge and available patch had collapsed to approximately nothing.</p>
+      <div class="warn"><strong>Worth internalising:</strong> an embargo is a courtesy between researchers and vendors, not a security control. Any plan that assumes a quiet window between disclosure and exploitation is relying on a convention that has now visibly failed. Patch velocity is the control; the embargo was never load-bearing.</div>
+    </div>
+
+    <div class="section-block" id="exploit">
+      <h2 class="section-heading"><span class="h-num">07</span> Exploitation Status &mdash; Read Carefully</h2>
+      <p>This is the section most likely to be misreported, so it is worth separating precisely what has been observed from what has been proven.</p>
+      <ul>
+        <li><strong>Amazon Threat Intelligence</strong> recorded an attempt on 17 October and further attempts before and after disclosure, characterising the flaws as being broadly exploited. It also stated it was unclear whether the pre-disclosure attempts would have succeeded against real systems.</li>
+        <li><strong>watchTowr</strong> observed exploitation of both CVEs against its honeypot network on 21 October.</li>
+        <li><strong>Cloudflare</strong> reported early attacks emerging.</li>
+        <li><strong>CISA</strong> stated on 21 October that it had not itself observed exploitation &mdash; while cautioning that this should not be read as evidence that attempts had not occurred.</li>
+        <li><strong>The PHP security team</strong> inspected proof-of-concept code circulating after the leak and did not identify any functional exploits at release time.</li>
+      </ul>
+      <div class="callout"><strong>The honest synthesis:</strong> exploitation <em>attempts</em> are widespread and involve multiple actors. Confirmed <em>successful</em> compromise at scale is a separate claim, and it is not yet established in public reporting. Both things are true at once, and conflating them produces either complacency or panic. Treat the host as exposed and patch on that basis &mdash; but do not assume breach without evidence from your own estate.</div>
+      <p>A related caution: publicly circulating proof-of-concept code for this pair includes both pranks and outright malware. Running an unvetted PHP2Shell &ldquo;PoC&rdquo; against your own infrastructure is an excellent way to become the incident you were testing for.</p>
     </div>
 
     <div class="section-block" id="detection">
-      <h2 class="section-heading"><span class="h-num">06</span> Detection</h2>
-      <p>Useful indicators exist, but they come with an important caveat covered below.</p>
+      <h2 class="section-heading"><span class="h-num">08</span> Detection</h2>
+      <p>Useful indicators exist, with an important caveat below.</p>
       <table class="data-table">
         <thead><tr><th style="width:36%">Signal</th><th>What it means</th></tr></thead>
         <tbody>
           <tr><td>Very large request bodies</td><td>Relevant to CVE-2026-109618. Bodies are frequently not logged, so filter on request <em>size</em> at the proxy or WAF rather than content.</td></tr>
-          <tr><td><code>Unknown on line 0</code></td><td>Memory-exhaustion errors in PHP logs consistent with the out-of-memory path being hit.</td></tr>
-          <tr><td><code>AH00052</code> in Apache logs</td><td>A child process crashed. Indicates the engine fell over while handling a request.</td></tr>
+          <tr><td>Deeply nested multipart requests</td><td>Unusual multipart structure is worth surfacing even without a confirmed signature.</td></tr>
+          <tr><td><code>Unknown on line 0</code></td><td>Memory-exhaustion errors in PHP logs, consistent with the out-of-memory path being reached.</td></tr>
+          <tr><td><code>AH00052</code> in Apache logs</td><td>A child process crashed &mdash; the engine fell over mid-request.</td></tr>
           <tr><td>Shell parented to a web worker</td><td>Strong post-exploitation signal. A shell whose parent is <code>apache2</code>, <code>httpd</code>, <code>php-fpm</code> or <code>php-cgi</code> has no legitimate explanation.</td></tr>
-          <tr><td>New files in upload / cache / tmp</td><td>Webshell placement. Worth baselining these directories regardless of this CVE.</td></tr>
+          <tr><td>Unexplained outbound connections</td><td>Egress from a PHP worker that does not match known application behaviour.</td></tr>
+          <tr><td>New files in web roots, upload, cache or tmp</td><td>Webshell placement. Worth baselining these directories regardless of this CVE.</td></tr>
+          <tr><td>New cron jobs or accounts</td><td>Persistence established after initial access, tied to the web worker&rsquo;s context.</td></tr>
           <tr><td>CVE-2026-109619</td><td>No published log signature. Absence of evidence carries very little weight here.</td></tr>
         </tbody>
       </table>
-      <div class="callout"><strong>The analyst&rsquo;s caveat:</strong> crash logs measure <em>attempts</em>, not compromises. A spike in <code>AH00052</code> tells you someone tried something clumsy. It does not tell you they succeeded. Equally, a clean exploit may leave neither a crash nor a memory error &mdash; so a quiet log is not a clean bill of health. Treat these as triage leads, not verdicts.</div>
+      <div class="callout"><strong>The analyst&rsquo;s caveat:</strong> crash logs measure <em>attempts</em>, not compromises. A spike in <code>AH00052</code> tells you someone tried something clumsy; it does not tell you they succeeded. Equally, a clean exploit may leave neither a crash nor a memory error &mdash; so a quiet log is not a clean bill of health. Treat these as triage leads, not verdicts.</div>
     </div>
 
     <div class="section-block" id="fix">
-      <h2 class="section-heading"><span class="h-num">07</span> Remediation</h2>
+      <h2 class="section-heading"><span class="h-num">09</span> Remediation</h2>
       <p>Upgrade the runtime. Application-level changes do not help, because PHP handles the request first.</p>
       <table class="data-table">
         <thead><tr><th style="width:30%">Branch</th><th>Fixed release</th></tr></thead>
@@ -311,35 +493,48 @@
           <tr><td>PHP 8.3.x</td><td>8.3.36</td></tr>
           <tr><td>PHP 8.2.x</td><td>8.2.35 &mdash; note this branch reaches end of life on 31 December 2026</td></tr>
           <tr><td>PHP 8.6 RC</td><td>8.6.0RC4. RC3 does not carry the fix.</td></tr>
-          <tr><td>PHP 8.1 and older</td><td>No official release. Minimal source backports were published for 7.4, 8.0 and 8.1, and some distributions ship patched packages.</td></tr>
+          <tr><td>PHP 8.1 and older</td><td>Unsupported upstream. Minimal source backports exist for 7.4, 8.0 and 8.1, and some distributions ship patched packages &mdash; confirm with your provider rather than assuming.</td></tr>
         </tbody>
       </table>
       <ul>
         <li><strong>Check the package, not the banner.</strong> Distributions such as Ubuntu and Red Hat backport fixes without changing the upstream version string, so <code>php -v</code> can look unpatched when it is fine &mdash; and occasionally the reverse. Compare package versions.</li>
         <li><strong>Rebuild images with <code>docker build --pull</code>.</strong> Anything pinned to a specific patch tag needs the tag updated first, or you will faithfully rebuild the vulnerable version.</li>
         <li><strong>Restart every PHP worker</strong> after upgrading or changing configuration. Long-lived workers keep running old code.</li>
-        <li><strong>Partial mitigations</strong> where patching must wait: <code>session.upload_progress.enabled=0</code>; on PHP 8.5 also <code>fatal_error_backtraces=0</code>; and <code>pm.max_requests=1</code> under PHP-FPM, which breaks the same-worker requirement at a performance cost. These narrow the window. They do not close it.</li>
         <li><strong>If you find signs of compromise, do not patch first.</strong> Isolate the host, capture memory, disk and logs, then rotate every credential the PHP process could read. Patching destroys the volatile evidence that tells you what happened.</li>
       </ul>
+
+      <div class="sub-heading">On the configuration &ldquo;mitigations&rdquo;</div>
+      <p>Several advisories list <code>.ini</code> changes as stopgaps. They deserve a precise reading, because the gap between <em>closes a known path</em> and <em>fixes the bug</em> is where people get hurt.</p>
+      <div class="warn"><strong>These close specific paths, not the vulnerability.</strong> Session Upload Progress is one confirmed route to CVE-2026-109619 and explicitly not the only one, so disabling it narrows exposure without removing it. Three operational details matter:
+      <br><br>
+      &bull; <code>session.upload_progress.enabled=0</code> only helps if applied in configuration read <em>before</em> request parsing. Setting it via application-level <code>ini_set()</code> or an FPM <code>.user.ini</code> is too late to help.
+      <br>
+      &bull; On PHP 8.5, <code>fatal_error_backtraces=0</code> addresses an additional sub-path.
+      <br>
+      &bull; <code>memory_limit=-1</code> removes a predictable trigger for CVE-2026-109618, but underlying allocation failures can still reach the vulnerable code.
+      </div>
+      <p>One item is worth flagging as actively counterproductive: using OS-level <code>RLIMIT_AS</code> or <code>RLIMIT_DATA</code> to constrain memory is <strong>not</strong> a mitigation here. Those limits can themselves induce the allocation-failure condition the first bug depends on. The instinct to clamp memory is reasonable and, in this specific case, wrong.</p>
     </div>
 
     <div class="section-block" id="ai">
-      <h2 class="section-heading"><span class="h-num">08</span> The AI Angle</h2>
-      <p>The first of these flaws was found during an <strong>AI-assisted audit</strong> of the PHP source. That detail has been widely reported, and it deserves more thought than the headline it usually gets.</p>
-      <p>PHP is roughly thirty years old. Its request-handling path is among the most heavily trafficked code on the public internet, read by an enormous number of competent engineers over decades. A memory-safety bug reachable by an unauthenticated POST survived all of that, and then two independent parties found it within a month of each other once this class of tooling was pointed at it.</p>
-      <p>The honest reading is not that AI is magic, nor that human review failed. It is that a cheap new way of searching old code has appeared, and <strong>the cost of finding this class of bug has dropped sharply</strong>. That cuts both ways: the same economics apply to anyone auditing your dependencies, and to anyone auditing them for less friendly reasons.</p>
-      <div class="callout"><strong>What I take from it:</strong> expect more of these &mdash; long-dormant memory-safety issues in mature, widely-deployed C codebases, surfacing faster than the old disclosure rhythms were built to handle. The defensive answer is unglamorous and entirely within reach: know every host you own, know what runtime it runs, and be able to patch it quickly. PHP2Shell rewards inventory and patch velocity. Nothing else helped.</div>
+      <h2 class="section-heading"><span class="h-num">10</span> The AI Angle</h2>
+      <p>The first of these flaws was found during an <strong>AI-assisted audit</strong> of the PHP source. That detail has been widely reported, and deserves more thought than the headline it usually gets.</p>
+      <p>Set the two facts beside each other. The earliest affected code path dates to <strong>PHP 5.4.0</strong>. PHP&rsquo;s request-handling path is among the most heavily trafficked code on the public internet, read by an enormous number of competent engineers across more than a decade. A memory-safety bug reachable by an unauthenticated POST survived all of that &mdash; and then two independent parties found it within a month of each other, once this class of tooling was pointed at it.</p>
+      <p>The honest reading is neither that AI is magic nor that human review failed. It is that a cheap new way of searching old code has arrived, and <strong>the cost of finding this class of bug has dropped sharply</strong>. That cuts both ways: the same economics apply to whoever audits your dependencies next, and to whoever audits them for less friendly reasons.</p>
+      <div class="callout"><strong>What I take from it:</strong> expect more of these &mdash; long-dormant memory-safety issues in mature, widely-deployed C codebases, surfacing faster than the old disclosure rhythms were built to absorb. The defensive answer is unglamorous and entirely within reach: know every host you own, know what runtime it runs, and be able to patch it quickly. PHP2Shell rewarded inventory and patch velocity. Nothing else helped.</div>
     </div>
 
     <div class="section-block" id="sources">
-      <h2 class="section-heading"><span class="h-num">09</span> Sources</h2>
-      <p style="font-size:0.85rem">Written 23 October 2026, two days after the patch. This is a fast-moving incident and the exploitation picture in particular is still contested &mdash; Datadog reported attempts from 17 October, while Bitdefender&rsquo;s telemetry showed none as of 22 October, and PHP stated no functional exploit existed at release. Public proof-of-concept code circulating includes both pranks and outright malware. Verify current status before acting on anything here.</p>
+      <h2 class="section-heading"><span class="h-num">11</span> Sources &amp; Caveats</h2>
+      <p style="font-size:0.85rem">Written 23 October 2026, two days after the patch, and revised the same day as further reporting landed. This remains a fast-moving incident. The exploitation picture in particular shifted materially between first and second draft &mdash; it moved from &ldquo;contested&rdquo; to &ldquo;attempts widely observed&rdquo; within forty-eight hours. Verify current status before acting on anything here. I have deliberately made no claim about CISA KEV listing, having been unable to confirm it at the time of writing.</p>
+      <p style="font-size:0.85rem">Upstream advisories: <strong>GHSA-w8hw-w9fx-j79w</strong> (CVE-2026-109618) and <strong>GHSA-6wmf-4rv5-p3rp</strong> (CVE-2026-109619). The original research is published at calif.io.</p>
       <div class="src-list">
         <div class="src"><span class="src-n">[1]</span><span>&ldquo;GitLab helps remediate critical PHP flaws,&rdquo; GitLab. <a href="https://about.gitlab.com/blog/gitlab-helps-remediate-critical-php-flaws/" target="_blank" rel="noopener">about.gitlab.com</a></span></div>
         <div class="src"><span class="src-n">[2]</span><span>&ldquo;Technical Advisory: PHP2Shell Pre-Auth RCE,&rdquo; Bitdefender. <a href="https://www.bitdefender.com/en-us/blog/businessinsights/technical-advisory-php2shell-pre-auth-rce" target="_blank" rel="noopener">bitdefender.com</a></span></div>
         <div class="src"><span class="src-n">[3]</span><span>&ldquo;php2shell: Frequently Asked Questions,&rdquo; Tenable. <a href="https://www.tenable.com/blog/php2shell-cve-2026-109618-cve-2026-109619-frequently-asked-questions-about-critical-php-remote" target="_blank" rel="noopener">tenable.com</a></span></div>
         <div class="src"><span class="src-n">[4]</span><span>&ldquo;PHP2Shell RCE Exploited,&rdquo; watchTowr Labs. <a href="https://watchtowr.com/intelligence/php-remote-code-execution-php2shell/" target="_blank" rel="noopener">watchtowr.com</a></span></div>
-        <div class="src"><span class="src-n">[5]</span><span>&ldquo;The internet is having a very bad cybersecurity day,&rdquo; TechCrunch, 21 October 2026. <a href="https://techcrunch.com/2026/10/21/the-internet-is-having-a-very-bad-cybersecurity-day/" target="_blank" rel="noopener">techcrunch.com</a></span></div>
+        <div class="src"><span class="src-n">[5]</span><span>&ldquo;CVE-2026-109618 &amp; CVE-2026-109619,&rdquo; Horizon3.ai. <a href="https://horizon3.ai/attack-research/vulnerabilities/cve-2026-109618-cve-2026-109619/" target="_blank" rel="noopener">horizon3.ai</a></span></div>
+        <div class="src"><span class="src-n">[6]</span><span>&ldquo;The internet is having a very bad cybersecurity day,&rdquo; TechCrunch, 21 October 2026. <a href="https://techcrunch.com/2026/10/21/the-internet-is-having-a-very-bad-cybersecurity-day/" target="_blank" rel="noopener">techcrunch.com</a></span></div>
       </div>
     </div>
 
@@ -361,6 +556,35 @@ if ('IntersectionObserver' in window) {
   }, { rootMargin: '-20% 0px -70% 0px' });
   sections.forEach(function(s){ obs.observe(s); });
 }
+</script>
+
+
+<script>
+(function(){
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (!('IntersectionObserver' in window)) return;
+  var els = document.querySelectorAll('.section-block, .fig');
+  Array.prototype.forEach.call(els, function(el){ el.classList.add('reveal'); });
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
+  Array.prototype.forEach.call(els, function(el){ io.observe(el); });
+
+  // safety net: never leave content stuck at opacity 0. Anything already in
+  // view once the page settles (e.g. arriving via a #anchor deep link) is
+  // revealed outright rather than waiting on an intersection that won't come.
+  window.addEventListener('load', function(){
+    setTimeout(function(){
+      Array.prototype.forEach.call(els, function(el){
+        if (el.getBoundingClientRect().top < window.innerHeight){
+          el.classList.add('in'); io.unobserve(el);
+        }
+      });
+    }, 350);
+  });
+})();
 </script>
 
 </body>
