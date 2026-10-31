@@ -2182,13 +2182,32 @@
         g.name = 'CP_FLORIST';
         baskets(g);                                        // hanging baskets over the frontage
         aBoard(g, -3.4, ['CP', 'FRESH', 'FLOWERS'], '#2f4a32', '#f6efdc');
-        // buckets of flowers out on the pavement
-        [-5.4, -4.3, 3.2, 4.3].forEach((z, i) => {
-          mk(new THREE.CylinderGeometry(0.3, 0.24, 0.6, 10), '#6d7c68', 1.0, 0.3, z, g);
-          for (let s = 0; s < 6; s++) {
-            const dz = ((s % 3) - 1) * 0.12, dx = (s < 3 ? -0.08 : 0.08);
-            mk(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5), '#4a6b45', 1.0 + dx, 0.82, z + dz, g);
-            mk(new THREE.SphereGeometry(0.11, 7, 6), BLOOMS[(i * 2 + s) % BLOOMS.length], 1.0 + dx, 1.08, z + dz, g);
+        // ---- pavement display: buckets of cut flowers along the whole frontage ----
+        const bucket = (x, z, seed, sc) => {
+          const h = 0.62 * sc;
+          mk(new THREE.CylinderGeometry(0.30 * sc, 0.23 * sc, h, 12), '#67786a', x, h / 2, z, g);
+          mk(new THREE.CylinderGeometry(0.32 * sc, 0.32 * sc, 0.06, 12), '#55655a', x, h, z, g);
+          for (let s = 0; s < 10; s++) {
+            const a = s * 2.399;                                   // spiral so blooms sit evenly
+            const rr = 0.17 * sc * Math.sqrt((s + 1) / 10);
+            const dx = Math.cos(a) * rr, dz = Math.sin(a) * rr;
+            const st = (0.42 + (s % 3) * 0.08) * sc;
+            mk(new THREE.CylinderGeometry(0.018, 0.018, st, 5), '#4a6b45', x + dx, h + st / 2, z + dz, g);
+            mk(new THREE.SphereGeometry(0.115 * sc, 7, 6), BLOOMS[(seed + s) % BLOOMS.length], x + dx, h + st + 0.07 * sc, z + dz, g);
+          }
+        };
+        [[-5.7, 0, 1.0], [-4.8, 2, 0.85], [-2.3, 4, 1.0], [-1.1, 1, 0.9],
+         [0.5, 3, 1.0], [1.7, 5, 0.85], [2.9, 2, 0.95]].forEach(([z, seed, sc], i) =>
+          bucket(i % 2 ? 1.25 : 1.05, z, seed, sc));
+
+        // slanted wooden crate of potted colour, by the window
+        [-0.3, 2.2].forEach((z, i) => {
+          mk(new THREE.BoxGeometry(0.9, 0.5, 1.2), '#8a6a45', 1.5, 0.25, z, g);
+          mk(new THREE.BoxGeometry(0.94, 0.08, 1.24), '#9c7a52', 1.5, 0.52, z, g);
+          for (let s = 0; s < 8; s++) {
+            const dx = ((s % 2) - 0.5) * 0.42, dz = (Math.floor(s / 2) - 1.5) * 0.3;
+            mk(new THREE.CylinderGeometry(0.1, 0.08, 0.18, 8), '#b06a4a', 1.5 + dx, 0.65, z + dz, g);
+            mk(new THREE.SphereGeometry(0.13, 7, 6), BLOOMS[(i * 3 + s) % BLOOMS.length], 1.5 + dx, 0.84, z + dz, g);
           }
         });
       }
