@@ -2007,6 +2007,10 @@
       const { pos, heading } = placeAt(uOf(prog), side, ROAD_W + 3.3);
       const rot = side < 0 ? heading + Math.PI : heading; // local +x faces the road
       const g = new THREE.Group(); g.position.copy(pos); g.rotation.y = rot; scene.add(g);
+      // optional uniform scale. Everything below is in local coords, so the shop
+      // grows from its ground line at the pavement edge and stays where it is.
+      const S = o.scale || 1;
+      if (S !== 1) g.scale.setScalar(S);
       mk(new THREE.BoxGeometry(8, 8.2, 13), o.wall || '#d9cfbd', -4, 4.1, 0, g);
       mk(new THREE.BoxGeometry(8.4, 0.5, 13.4), '#bfb4a1', -4, 8.4, 0, g);
       const upT = canvasTex(256, 64, x => { x.fillStyle = o.wall || '#d9cfbd'; x.fillRect(0, 0, 256, 64); x.fillStyle = '#343a4a'; for (let k = 0; k < 4; k++) x.fillRect(18 + k * 62, 10, 34, 44); x.fillStyle = '#efe9dc'; for (let k = 0; k < 4; k++) x.fillRect(14 + k * 62, 6, 42, 5); });
@@ -2035,9 +2039,9 @@
         valance.position.set(0.2 + 1.7 * Math.cos(0.38), 3.35 - 1.7 * Math.sin(0.38) - 0.14, -1.4); valance.rotation.y = Math.PI / 2; g.add(valance);
       }
       if (o.extras) o.extras(g);
-      occupied.push({ x: pos.x, z: pos.z, r: 4 });
-      const back = new THREE.Vector3(-4, 0, 0).applyAxisAngle(UP, rot).add(pos);
-      occupied.push({ x: back.x, z: back.z, r: 8 });
+      occupied.push({ x: pos.x, z: pos.z, r: 4 * S });
+      const back = new THREE.Vector3(-4 * S, 0, 0).applyAxisAngle(UP, rot).add(pos);
+      occupied.push({ x: back.x, z: back.z, r: 8 * S });
     }
     const shelves = (x, w, h) => {
       x.fillStyle = '#f7e3b8'; x.fillRect(0, 0, w, h);
@@ -2154,10 +2158,10 @@
 
     // ---- CP, the florist ----
     const BLOOMS = ['#e8536f', '#f2c14e', '#f0f0ea', '#c97bb0', '#e2743a', '#b8d4e8'];
-    shopfront(0.41, 1, {
+    shopfront(0.185, -1, {
       name: 'CP', tagline: 'FLORIST · BOUQUETS', fascia: '#2f4a32', ink: '#f6efdc', front: '#2f4a32',
       wall: '#e8e0cf', door: '#24391f', font: '700 76px Georgia, "Times New Roman", serif',
-      awning: ['#2f4a32', '#f6efdc'],
+      awning: ['#2f4a32', '#f6efdc'], scale: 1.4,
       // defined inline: `goods` is declared further down, so it is not yet initialised here
       window: (x, w, h) => {
         const gr = x.createLinearGradient(0, 0, 0, h);
@@ -2225,7 +2229,7 @@
     const leftPub = (prog, name, tagline, fascia, sign) => shopfront(prog, -1, { name, tagline, fascia, ink: '#d4a83a', front: fascia, door: '#3a1416', font: '700 56px Georgia, "Times New Roman", serif', window: pubWindow, extras: g => { hangingSign(g, sign); baskets(g); } });
     const leftShop = (prog, o) => shopfront(prog, -1, Object.assign({ wall: '#e8e0cf', font: '800 50px Arial, Helvetica, sans-serif' }, o));
     leftPub(0.12, 'The Crown & Anchor', 'REAL ALES · SUNDAY ROAST', '#1d2f4f', signTex('#1d2f4f', '#d4a83a', 'CROWN &', 'ANCHOR', x => { x.fillRect(74, 50, 12, 70); x.fillRect(52, 62, 56, 10); x.beginPath(); x.arc(80, 112, 28, 0, Math.PI); x.lineWidth = 9; x.strokeStyle = '#d4a83a'; x.stroke(); }));
-    leftShop(0.185, { name: "Hartley's Deli", tagline: 'CHEESE · CHARCUTERIE · WINE', fascia: '#2f3b2a', ink: '#efe4c4', awning: ['#2f3b2a', '#efe4c4'], door: '#2f3b2a', window: goods('#f1e7cf', '#7a5a38', ['#e3b04b', '#c9402f', '#f4e3a1', '#7d2b3a', '#d98b3a'], 'round') });
+    // 0.185 is CP the florist — see the CP block above
     leftShop(0.205, { name: 'Little Brew', tagline: 'COFFEE · CAKES · BRUNCH', fascia: '#6b3e26', ink: '#f6ead6', awning: ['#6b3e26', '#f6ead6'], door: '#6b3e26', window: goods('#f4e6cf', '#8a5a3a', ['#6b3e26', '#f6ead6', '#d9a066', '#3a2418'], 'round') });
     leftShop(0.375, { name: 'Pennywise Hardware', tagline: 'TOOLS · KEYS · PAINT', fascia: '#b5651d', ink: '#ffffff', awning: ['#b5651d', '#ffffff'], door: '#3b3b3b', window: goods('#e7e2d8', '#555', ['#c8102e', '#1b4f9c', '#f2c200', '#2e7d4f', '#888'], 'box') });
     leftShop(0.42, { name: 'Thorne & Sons', tagline: 'FAMILY BUTCHERS · SINCE 1902', fascia: '#7a1622', ink: '#f3ead2', awning: ['#7a1622', '#ffffff'], door: '#7a1622', window: goods('#f7f2ea', '#b8b0a2', ['#c9524b', '#e08a7d', '#a8322c', '#f1c1b6'], 'round') });
