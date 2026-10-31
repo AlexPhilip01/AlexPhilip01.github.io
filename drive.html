@@ -2152,6 +2152,48 @@
       extras: g => { mk(new THREE.BoxGeometry(0.1, 0.9, 0.9), '#13a55a', 0.6, 5.3, -6.0, g); beam(new THREE.Vector3(0.2, 5.3, -6.0), new THREE.Vector3(0.6, 5.3, -6.0), 0.06, '#222', g); }
     });
 
+    // ---- CP, the florist ----
+    const BLOOMS = ['#e8536f', '#f2c14e', '#f0f0ea', '#c97bb0', '#e2743a', '#b8d4e8'];
+    shopfront(0.41, 1, {
+      name: 'CP', tagline: 'FLORIST · BOUQUETS', fascia: '#2f4a32', ink: '#f6efdc', front: '#2f4a32',
+      wall: '#e8e0cf', door: '#24391f', font: '700 76px Georgia, "Times New Roman", serif',
+      awning: ['#2f4a32', '#f6efdc'],
+      // defined inline: `goods` is declared further down, so it is not yet initialised here
+      window: (x, w, h) => {
+        const gr = x.createLinearGradient(0, 0, 0, h);
+        gr.addColorStop(0, '#fbf6e9'); gr.addColorStop(1, '#eadfc6');
+        x.fillStyle = gr; x.fillRect(0, 0, w, h);
+        // buckets of cut stems along the window
+        for (let i = 0; i < 11; i++) {
+          const bx = 16 + i * 44;
+          x.fillStyle = '#7d8c74'; x.fillRect(bx, h - 34, 30, 30);            // bucket
+          x.fillStyle = '#4a6b45';                                             // stems
+          for (let s = 0; s < 4; s++) x.fillRect(bx + 5 + s * 7, h - 62, 2.5, 30);
+          for (let s = 0; s < 4; s++) {                                        // blooms
+            x.fillStyle = BLOOMS[(i + s) % BLOOMS.length];
+            x.beginPath(); x.arc(bx + 6 + s * 7, h - 64 - (s % 2) * 6, 5.5, 0, Math.PI * 2); x.fill();
+          }
+        }
+        // hanging foliage across the top
+        x.fillStyle = '#4a6b45';
+        for (let i = 0; i < 24; i++) { x.beginPath(); x.ellipse(10 + i * 21, 10 + (i % 3) * 7, 9, 5, 0.5, 0, Math.PI * 2); x.fill(); }
+      },
+      extras: g => {
+        g.name = 'CP_FLORIST';
+        baskets(g);                                        // hanging baskets over the frontage
+        aBoard(g, -3.4, ['CP', 'FRESH', 'FLOWERS'], '#2f4a32', '#f6efdc');
+        // buckets of flowers out on the pavement
+        [-5.4, -4.3, 3.2, 4.3].forEach((z, i) => {
+          mk(new THREE.CylinderGeometry(0.3, 0.24, 0.6, 10), '#6d7c68', 1.0, 0.3, z, g);
+          for (let s = 0; s < 6; s++) {
+            const dz = ((s % 3) - 1) * 0.12, dx = (s < 3 ? -0.08 : 0.08);
+            mk(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5), '#4a6b45', 1.0 + dx, 0.82, z + dz, g);
+            mk(new THREE.SphereGeometry(0.11, 7, 6), BLOOMS[(i * 2 + s) % BLOOMS.length], 1.0 + dx, 1.08, z + dz, g);
+          }
+        });
+      }
+    });
+
     // ---- more shops and pubs along the left-hand pavement ----
     const signTex = (bg, ink, l1, l2, motif) => canvasTex(160, 200, (x, w, h) => {
       x.fillStyle = bg; x.fillRect(0, 0, w, h); x.strokeStyle = '#d4a83a'; x.lineWidth = 8; x.strokeRect(8, 8, w - 16, h - 16);
